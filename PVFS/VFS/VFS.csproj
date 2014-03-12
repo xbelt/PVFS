@@ -43,12 +43,21 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VFS\DiskFactory.cs" />
+    <Compile Include="VFS\EntryFactory.cs" />
+    <Compile Include="VFS\Factory.cs" />
+    <Compile Include="VFS\Models\Block.cs" />
+    <Compile Include="VFS\Models\DiskProperties.cs" />
+    <Compile Include="VFS\Models\VfsDirectory.cs" />
+    <Compile Include="VFS\Models\VfsDisk.cs" />
+    <Compile Include="VFS\Models\VfsFile.cs" />
+    <Compile Include="VFS\VFSManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="VFS\" />
+    <Folder Include="VFS\Parser\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
