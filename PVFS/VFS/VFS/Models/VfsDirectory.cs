@@ -70,12 +70,12 @@ namespace VFS.VFS.Models
         }
 
         //TODO: might throw exception
-        public void AddElement(VfsEntry element) {
+        public void AddElement(VfsFile element) {
             Elements.Add(element);
         }
 
         //TODO: might throw excpetion
-        public void RemoveElement(VfsEntry element) {
+        public void RemoveElement(VfsFile element) {
             Elements.Remove(element);
         }
     }
