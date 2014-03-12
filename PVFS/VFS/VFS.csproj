@@ -50,6 +50,7 @@
     <Compile Include="VFS\Models\DiskProperties.cs" />
     <Compile Include="VFS\Models\VfsDirectory.cs" />
     <Compile Include="VFS\Models\VfsDisk.cs" />
+    <Compile Include="VFS\Models\VfsEntry.cs" />
     <Compile Include="VFS\Models\VfsFile.cs" />
     <Compile Include="VFS\VFSManager.cs" />
   </ItemGroup>
