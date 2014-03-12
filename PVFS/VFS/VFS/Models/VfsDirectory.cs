@@ -17,15 +17,15 @@ namespace VFS.VFS.Models
     class VfsDirectory : VfsFile
     {
         //Changed from List<Blocks>
-        public List<VfsEntry> Elements { get; set; }
+        public List<VfsFile> Elements { get; set; }
 
         public List<VfsFile> GetFiles() {
             List<VfsFile> result = new List<VfsFile>();
             if (Elements.Count > 0) {
-                foreach (VfsEntry element in Elements)
+                foreach (VfsFile element in Elements)
                 {
                     if (!element.isDirectory) {
-                        result.Add((VfsFile) element);
+                        result.Add(element);
                     }
                 }
             }
@@ -35,11 +35,10 @@ namespace VFS.VFS.Models
         
         public VfsFile GetFileIgnoringSubDirectories(string name) {
             if (Elements.Count > 0) {
-                foreach (VfsEntry element in Elements) {
+                foreach (VfsFile element in Elements) {
                     if (!element.isDirectory) {
-                        VfsFile tmp = (VfsFile) element;
-                        if (tmp.Name.Equals(name)) {
-                            return (VfsFile) element;
+                        if (element.Name.Equals(name)) {
+                            return element;
                         }
                     }
                 }
@@ -52,17 +51,15 @@ namespace VFS.VFS.Models
         public VfsFile GetFileCheckingSubDirectories ( string name ) {
             VfsFile result;
             if (Elements.Count > 0) {
-                foreach (VfsEntry element in Elements) {
+                foreach (VfsFile element in Elements) {
                     if (element.isDirectory) {
                         VfsDirectory dir = (VfsDirectory) element;
                         result = dir.GetFileCheckingSubDirectories(name);
                         if (result != null)
                             return result;
                     } else {
-                        VfsFile tmp = (VfsFile) element;
-                        if (tmp.Name.Equals(name)) {
-                            result = (VfsFile) element;
-                            return result;
+                        if (element.Name.Equals(name)) {
+                            return element;
                         }
                     }
                 }

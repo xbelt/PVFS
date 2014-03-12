@@ -17,9 +17,10 @@ namespace VFS.VFS.Models
     {
         public int FileSize { get; set; }
         public List<Block> Inodes { get; set; }
+
+        public bool isDirectory { get; set; }
         public VfsDirectory Parent { get; set; }
         public string Name { get; set; }
-        public bool isDirectory { get; set; }
         public string Type {
             get { return isDirectory ? null : Name.Substring(Name.LastIndexOf(".") + 1); }
         }
