@@ -26,9 +26,10 @@ namespace VFS.VFS.Parser
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
         {
-            var path = Directory.GetCurrentDirectory().ToString();
+            var path = Directory.GetCurrentDirectory();
             var name = "disk" + DateTime.Now + ".vdi";
             name = name.Replace(':', '.');
+            name = name.Replace(' ', '_');
             var blockSize = 2048;
             if (context.par1 != null)
             {
