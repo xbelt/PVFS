@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using VFS.VFS.Models;
 
@@ -58,6 +59,15 @@ namespace VFS.VFS
         public static void navigateUp()
         {
             throw new NotImplementedException();
+        }
+
+        public static void UnloadDisk(string name)
+        {
+            var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name);
+            foreach (var unmountedDisk in unmountedDisks)
+            {
+                unmountedDisk.FileStream.Close();
+            }
         }
     }
 
