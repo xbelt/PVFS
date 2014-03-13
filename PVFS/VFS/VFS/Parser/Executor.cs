@@ -59,7 +59,7 @@ namespace VFS.VFS.Parser
                 if (context.par2.name != null)
                 {
                     name = context.par2.name.Text;
-                    if (!name.Contains("."))
+                    if (!name.EndsWith(".vdi"))
                     {
                         name += ".vdi";
                     }
