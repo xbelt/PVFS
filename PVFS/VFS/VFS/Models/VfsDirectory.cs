@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace VFS.VFS.Models
 {
@@ -19,15 +21,22 @@ namespace VFS.VFS.Models
         //Changed from List<Blocks>
         public List<VfsFile> Elements { get; set; }
 
+        public VfsDirectory GetSubDirectory(string name)
+        {
+            try
+            {
+                return Elements.Single(el => el.isDirectory) as VfsDirectory;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidDirectoryException("directory " + name + " not found");
+            }
+        }
+
         public List<VfsFile> GetFiles() {
             List<VfsFile> result = new List<VfsFile>();
             if (Elements.Count > 0) {
-                foreach (VfsFile element in Elements)
-                {
-                    if (!element.isDirectory) {
-                        result.Add(element);
-                    }
-                }
+                result.AddRange(Elements.Where(element => !element.isDirectory));
             }
             return result;
         }
@@ -35,13 +44,7 @@ namespace VFS.VFS.Models
         
         public VfsFile GetFileIgnoringSubDirectories(string name) {
             if (Elements.Count > 0) {
-                foreach (VfsFile element in Elements) {
-                    if (!element.isDirectory) {
-                        if (element.Name.Equals(name)) {
-                            return element;
-                        }
-                    }
-                }
+                return Elements.Where(element => !element.isDirectory).FirstOrDefault(element => element.Name.Equals(name));
             }
             //Size was 0 or no file has been found
             //TODO: how to handle this exception?
@@ -77,6 +80,14 @@ namespace VFS.VFS.Models
         //TODO: might throw excpetion
         public void RemoveElement(VfsFile element) {
             Elements.Remove(element);
+        }
+    }
+
+    public class InvalidDirectoryException : Exception
+    {
+        public InvalidDirectoryException(string s)
+        {
+            throw new NotImplementedException();
         }
     }
 }
