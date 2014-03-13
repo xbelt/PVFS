@@ -40,6 +40,10 @@ namespace VFS.VFS.Parser
                 if (context.par1.name != null)
                 {
                     name = context.par1.name.Text;
+                    if (!name.Contains("."))
+                    {
+                        name += ".vdi";
+                    }
                 }
                 if (context.par1.block != null)
                 {
@@ -55,6 +59,10 @@ namespace VFS.VFS.Parser
                 if (context.par2.name != null)
                 {
                     name = context.par2.name.Text;
+                    if (!name.Contains("."))
+                    {
+                        name += ".vdi";
+                    }
                 }
                 if (context.par2.block != null)
                 {
