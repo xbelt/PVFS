@@ -15,7 +15,14 @@ namespace VFS.VFS.Models {
             var buffer = new byte[28];
             reader.Read(buffer, 0, 28);
             dp.RootAddress = BitConverter.ToInt32(buffer, 0);
-            dp.
+            dp.NumberOfBlocks = BitConverter.ToInt32(buffer, 4);
+            dp.NumberOfUsedBlocks = BitConverter.ToInt32(buffer, 8);
+            dp.MaximumSize = BitConverter.ToDouble(buffer, 12);
+            dp.BlockSize = BitConverter.ToInt32(buffer, 20);
+            var nameLength = BitConverter.ToInt32(buffer, 24);
+            var nameBuffer = new byte[nameLength];
+            reader.Read(nameBuffer, 28, nameLength);
+            dp.Name = BitConverter.ToString(nameBuffer);
             return dp;
         }
 
