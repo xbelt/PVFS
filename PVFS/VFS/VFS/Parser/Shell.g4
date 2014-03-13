@@ -16,24 +16,24 @@ grammar Shell;
  */
 
 compileUnit
-	:	EOF
-	| 'ls' compileUnit
-	| 'cd' Path compileUnit
-	| ('copy' | 'cp') ('-R')? Path Path compileUnit
-	| ('createdisk' | 'cdisk') optParams* '-s' (Integer SizeUnit | Size)  optParams* compileUnit
-	| ('removedisk' | 'rmdisk') ('-p' SysPath | '-n' String)+
-	| 'mkdir' (Path | Identifier)
-	| ('remove' | 'rm') ('-R')? (Path | Identifier)+
-	| ('move' | 'mv') ('-R')? (Path | Identifier) (Path | Identifier)
-	| ('import' | 'im') SysPath (Path | Identifier)
-	| ('export' | 'ex') (Path | Identifier) SysPath
-	| 'free'
-	| 'occ'
+	:	EOF																							#Eof
+	| 'ls' compileUnit																				#Ls
+	| 'cd' Path compileUnit																			#Cd
+	| ('copy' | 'cp') ('-R')? Path Path compileUnit													#Cp
+	| ('createdisk' | 'cdisk') optParams* '-s' (Integer SizeUnit | Size)  optParams* compileUnit	#Cdisk
+	| ('removedisk' | 'rmdisk') ('-p' SysPath | '-n' String)+										#Rmdisk
+	| 'mkdir' (Path | Identifier)																	#Mkdir
+	| ('remove' | 'rm') ('-R')? (Path | Identifier)+												#Rm
+	| ('move' | 'mv') ('-R')? (Path | Identifier) (Path | Identifier)								#Mv
+	| ('import' | 'im') SysPath (Path | Identifier)													#Im
+	| ('export' | 'ex') (Path | Identifier) SysPath													#Ex
+	| 'free'																						#Free
+	| 'occ'																							#Occ
 	;
 
 optParams
-	: '-p' Path
-	| '-n' String
+	: '-p' Path																						#PathParam
+	| '-n' String																					#StringParam
 	;
 /*
  * Lexer Rules
