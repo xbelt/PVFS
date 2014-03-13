@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using VFS.VFS.Models;
@@ -8,9 +9,9 @@ namespace VFS.VFS
 {
     class DiskFactory : Factory
     {
-        public VfsDisk create(DiskInfo info)
+        public static VfsDisk Create(DiskInfo info)
         {
-            VfsDisk disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name, NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1});
+            VfsDisk disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1});
             if (Directory.Exists(info.Path))
             {
                 FileStream stream;
@@ -64,8 +65,9 @@ namespace VFS.VFS
                 writer.Write(0); //NrOfChildren
                 writer.Write(1); //NoBlocks
                 writer.Write(one); //Directory?
-                writer.Write(zero); //NameSize
-                for (int i = 0; i < disk.DiskProperties.BlockSize - 18; i++)
+                writer.Write(disk.DiskProperties.Name.Length); //NameSize
+                writer.Write(disk.DiskProperties.Name);
+                for (int i = 0; i < disk.DiskProperties.BlockSize - 18 - disk.DiskProperties.Name.Length - 4; i++)
                 {
                     writer.Write(zero); //Fill block with 0's
                 }
@@ -78,7 +80,7 @@ namespace VFS.VFS
             return disk;
         }
 
-        public VfsDisk load(string path)
+        public static VfsDisk Load(string path)
         {
             if (File.Exists(path))
             {
