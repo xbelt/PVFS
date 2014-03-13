@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace VFS.VFS.Models
 {
@@ -23,12 +25,47 @@ namespace VFS.VFS.Models
             get { return isDirectory ? null : Name.Substring(Name.LastIndexOf(".") + 1); }
         }
 
-        public void Write(BinaryReader reader) {
+        private VfsDisk disk;
+
+        public VfsFile(VfsDisk disk)
+        {
+            this.disk = disk;
+        }
+
+        public void Read(BinaryReader reader) {
             
         }
 
-        public void Read(BinaryWriter writer) {
+        public void Write(BinaryWriter writer) {
             
+        }
+
+        public override void Open(string path)
+        {
+            base.Open(path);
+        }
+
+        public override void Open(int address)
+        {
+            //TODO: I am not yet sure how to get the parent directory
+            var reader = new BinaryReader(disk.FileStream);
+            var blockSize = disk.DiskProperties.BlockSize;
+            var buffer = new Byte[blockSize];
+            reader.Read(buffer, address*blockSize, blockSize);
+            var numberOfBlocks = BitConverter.ToInt32(buffer, 12);
+            isDirectory = BitConverter.ToBoolean(buffer, 16);
+            Name = BitConverter.ToString(buffer, 18, 110);
+            Inodes.Add(new Block(address, address, null));
+            var nextAddress = BitConverter.ToInt32(buffer, 0);
+
+            for (int i = 0; i < numberOfBlocks - 1; i++)
+            {
+                reader.Read(buffer, nextAddress*blockSize, blockSize);
+                var nextBlock = new Block(nextAddress, address, null);
+                Inodes.Last().NextBlock = nextBlock;
+                Inodes.Add(nextBlock);
+                nextAddress = BitConverter.ToInt32(buffer, 0);
+            }
         }
     }
 }
