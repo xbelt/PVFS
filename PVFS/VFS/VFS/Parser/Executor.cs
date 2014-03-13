@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace VFS.VFS.Parser
 {
@@ -25,7 +26,75 @@ namespace VFS.VFS.Parser
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
         {
-            base.EnterCdisk(context);
+            var path = Directory.GetCurrentDirectory().ToString();
+            var name = "disk" + DateTime.Now + ".vdi";
+            name = name.Replace(':', '.');
+            var blockSize = 2048;
+            if (context.par1 != null)
+            {
+                if (context.par1.path != null)
+                {
+                    path = context.par1.path.Text;
+                }
+                if (context.par1.name != null)
+                {
+                    name = context.par1.name.Text;
+                }
+                if (context.par1.block != null)
+                {
+                    blockSize = Convert.ToInt32(context.par1.block.Text);
+                }
+            }
+            if (context.par2 != null)
+            {
+                if (context.par2.path != null)
+                {
+                    path = context.par2.path.Text;
+                }
+                if (context.par2.name != null)
+                {
+                    name = context.par2.name.Text;
+                }
+                if (context.par2.block != null)
+                {
+                    blockSize = Convert.ToInt32(context.par2.block.Text);
+                }
+            }
+
+            var size = 0d;
+            if (context.Integer() != null)
+            {
+                var intSize = (double)Convert.ToInt32(context.Integer().Symbol.Text);
+                size = getSizeInBytes(intSize, context.SizeUnit().Symbol.Text);
+            }
+            if (context.Size() != null)
+            {
+                var intSize = (double)Convert.ToInt32(context.Size().Symbol.Text.Substring(0, context.Size().Symbol.Text.Length - 2));
+                size = getSizeInBytes(intSize, context.Size().Symbol.Text.Substring(context.Size().Symbol.Text.Length - 2));
+            }
+
+            var disk = new DiskFactory().create(new DiskInfo(path, name, size, blockSize));
+            VFSManager.addAndOpenDisk(disk);
+        }
+
+        private double getSizeInBytes(double intSize, string type)
+        {
+            switch (type)
+            {
+                case "kb":
+                case "KB":
+                    return 1000d * intSize;
+                case "mb":
+                case "MB":
+                    return 1000d * 1000 * intSize;
+                case "gb":
+                case "GB":
+                    return 1000d * 1000 * 1000 * intSize;
+                case "tb":
+                case "TB":
+                    return 1000d * 1000 * 1000 * 1000 * intSize;
+            }
+            throw new UnsupportedFileSizeType("only kb, mb, gb and tb are allowed as units");
         }
 
         public override void EnterRmdisk(ShellParser.RmdiskContext context)
@@ -66,6 +135,14 @@ namespace VFS.VFS.Parser
         public override void EnterOcc(ShellParser.OccContext context)
         {
             base.EnterOcc(context);
+        }
+    }
+
+    internal class UnsupportedFileSizeType : Exception
+    {
+        public UnsupportedFileSizeType(string msg)
+        {
+            throw new NotImplementedException();
         }
     }
 }
