@@ -33,6 +33,11 @@ namespace VFS.VFS.Models
             }
         }
 
+        public List<VfsDirectory> GetSubDirectories()
+        {
+            return Elements.Where(el => el.isDirectory) as List<VfsDirectory>;
+        } 
+
         public List<VfsFile> GetFiles() {
             List<VfsFile> result = new List<VfsFile>();
             if (Elements.Count > 0) {
