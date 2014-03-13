@@ -16,28 +16,29 @@ grammar Shell;
  */
 
 compileUnit
-	:	EOF																							#Eof
-	| 'ls' compileUnit																				#Ls
-	| 'cd' Path compileUnit																			#Cd
-	| ('copy' | 'cp') ('-R')? Path Path compileUnit													#Cp
-	| ('createdisk' | 'cdisk') optParams* '-s' (Integer SizeUnit | Size)  optParams* compileUnit	#Cdisk
-	| ('removedisk' | 'rmdisk') ('-p' SysPath | '-n' String)+										#Rmdisk
-	| 'mkdir' (Path | Identifier)																	#Mkdir
-	| ('remove' | 'rm') ('-R')? (Path | Identifier)+												#Rm
-	| ('move' | 'mv') ('-R')? (Path | Identifier) (Path | Identifier)								#Mv
-	| ('import' | 'im') SysPath (Path | Identifier)													#Im
-	| ('export' | 'ex') (Path | Identifier) SysPath													#Ex
-	| 'free'																						#Free
-	| 'occ'																							#Occ
+	:	EOF																									#Eof
+	| 'ls' compileUnit																						#Ls
+	| 'cd' path=Path compileUnit																			#Cd
+	| ('copy' | 'cp') opt=R? src=Path dst=Path compileUnit													#Cp
+	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
+	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=String)+										#Rmdisk
+	| 'mkdir' trgt=Path																						#Mkdir
+	| ('remove' | 'rm') opt=R? trgt=Path																	#Rm
+	| ('move' | 'mv') opt=R? src=Path dst=Path																#Mv
+	| ('import' | 'im') ext=SysPath int=Path																#Im
+	| ('export' | 'ex') int=Path ext=SysPath																#Ex
+	| 'free'																								#Free
+	| 'occ'																									#Occ
 	;
 
 optParams
-	: '-p' Path																						#PathParam
-	| '-n' String																					#StringParam
+	: '-p' Path																								#PathParam
+	| '-n' String																							#StringParam
 	;
 /*
  * Lexer Rules
  */
+ R : '-R';
  SizeUnit
 	:'kb' | 'mb' | 'gb' | 'tb' | 'KB' | 'MB' | 'GB' | 'TB';
 
@@ -57,12 +58,12 @@ String
 	;
 
 Path
-	: ('/' String)+ ('/')?
+	: ('/' String)+ ('/')? ('/' Identifier)?
 	| '/'
 	;
 
 SysPath
-	: [a-zA-Z]+ ':' ('\\' String)* ('\\')?
+	: [a-zA-Z]+ ':' ('\\' String)* ('\\')? ('\\' Identifier)?
 	;
 
 WS
