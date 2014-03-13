@@ -9,12 +9,16 @@ namespace VFS.VFS
         private static List<VfsDisk> _disks;
         private static VfsDirectory workingDirectory;
 
-        public static List<VfsEntry> ls(string path) {
-            throw new NotImplementedException();
-        }
-
-        public static List<VfsFile> ls()
+        public static List<VfsFile> ls(bool files, bool dirs)
         {
+            if (dirs && !files)
+            {
+                return workingDirectory.GetSubDirectories();
+            }
+            if (!dirs && files)
+            {
+                return workingDirectory.GetFiles();
+            }
             return workingDirectory.Elements;
         }
 
