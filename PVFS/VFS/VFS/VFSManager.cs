@@ -8,6 +8,7 @@ namespace VFS.VFS
     class VFSManager {
         private static List<VfsDisk> _disks;
         private static VfsDirectory workingDirectory;
+        private static VfsDisk currentDisk;
 
         public static List<VfsFile> ls(bool files, bool dirs)
         {
@@ -32,7 +33,9 @@ namespace VFS.VFS
         {
             try
             {
-                workingDirectory = new VfsDirectory().Open(path) as VfsDirectory;
+                var vfsDirectory = new VfsDirectory(currentDisk);
+                vfsDirectory.Open(path);
+                workingDirectory = vfsDirectory;
             }
             catch (InvalidCastException exception)
             {
