@@ -55,7 +55,7 @@ namespace VFS.VFS.Models
             var numberOfBlocks = BitConverter.ToInt32(buffer, 12);
             isDirectory = BitConverter.ToBoolean(buffer, 16);
             Name = BitConverter.ToString(buffer, 18, 110);
-            Inodes.Add(new Block(address, address, null));
+            Inodes.Add(new Block(address, address, new Block(address, address, null)));
             var nextAddress = BitConverter.ToInt32(buffer, 0);
 
             for (int i = 0; i < numberOfBlocks - 1; i++)
