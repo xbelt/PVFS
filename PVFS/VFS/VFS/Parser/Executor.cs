@@ -6,7 +6,7 @@ namespace VFS.VFS.Parser
     {
         public override void EnterLs(ShellParser.LsContext context)
         {
-            VFSManager.ls();
+            VFSManager.ls(context.files == null ? false : true, context.dirs == null ? false : true);
         }
 
         public override void EnterCd(ShellParser.CdContext context)
