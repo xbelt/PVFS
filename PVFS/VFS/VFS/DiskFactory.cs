@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using VFS.VFS.Models;
+using VFS.VFS.Parser;
 
 namespace VFS.VFS
 {
@@ -90,6 +91,18 @@ namespace VFS.VFS
                 return new VfsDisk(path, dp);
             }
             throw new InvalidPathException(path + " is not a valid path to a vdi");
+        }
+
+        public static void Remove(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            else
+            {
+                throw new DiskNotFoundException();
+            }
         }
     }
 
