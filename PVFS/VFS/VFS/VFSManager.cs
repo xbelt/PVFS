@@ -10,6 +10,12 @@ namespace VFS.VFS
         private static VfsDirectory workingDirectory;
         private static VfsDisk currentDisk;
 
+        public static void addAndOpenDisk(VfsDisk disk)
+        {
+            currentDisk = disk;
+            _disks.Add(disk);
+        }
+
         public static List<VfsFile> ls(bool files, bool dirs)
         {
             if (dirs && !files)
