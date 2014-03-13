@@ -14,7 +14,7 @@ grammar Shell;
 /*
  * Parser Rules
  */
-
+ //TODO: we do not yet support paths with whitespaces
 compileUnit
 	:	EOF																									#Eof
 	| 'ls' files=F? dirs=D? compileUnit																						#Ls
