@@ -2,6 +2,9 @@
 using System.IO;
 
 namespace VFS.VFS.Models {
+    /// <summary>
+    /// delete this class and move address to vfsfile?
+    /// </summary>
     public abstract class VfsEntry {
         public int Address { get; set; }
 
@@ -30,7 +33,7 @@ namespace VFS.VFS.Models {
             string name = new string(reader.ReadChars(nameSize));
             if (directory)
             {
-                return new VfsDirectory(disk, null, name, address, fileSize, noBlocks, nextBlock);
+                return new VfsDirectory(disk, address, name, null, fileSize, noBlocks, nextBlock);
             }
             else
             {
