@@ -3,7 +3,7 @@ using System.IO;
 
 namespace VFS.VFS.Models
 {
-    class VfsDisk {
+    public class VfsDisk {
 
         public VfsDisk(string path, DiskProperties properties) {
             Path = path;
@@ -12,8 +12,10 @@ namespace VFS.VFS.Models
         }
 
         private BitMap BitMap { get; set; }
-        private DiskProperties DiskProperties { get; set; }
+        public DiskProperties DiskProperties { get; set; }
         private string Path { get; set; }
+
+        public Stream FileStream { get; set; }
 
         public bool isFull() {
             return DiskProperties.NumberOfBlocks == DiskProperties.NumberOfUsedBlocks;
