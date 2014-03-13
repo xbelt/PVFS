@@ -18,7 +18,13 @@ namespace VFS.VFS
             return workingDirectory.Elements;
         }
 
-        public static void cd(string path)
+        public static void cdIdent(string name)
+        {
+            workingDirectory = workingDirectory.GetSubDirectory(name);
+            Console.WriteLine("new path: " + name);
+        }
+
+        public static void cdPath(string path)
         {
             try
             {
@@ -31,10 +37,11 @@ namespace VFS.VFS
             Console.WriteLine("new path: " + path);
         }
 
-        public static void cp(string src, string dst)
+        public static void cp(string src, string dst, bool isRecursive)
         {
             Console.WriteLine("copy " + src + " to " + dst);
         }
+
     }
 
     internal class InvalidArgumentException : Exception
