@@ -32,7 +32,7 @@ compileUnit
 	;
 
 optParams
-	: ('-p' path=Path																								
+	: ('-p' path=SysPath																								
 	| '-n' name=String
 	| '-b' block=Integer)
 	;
