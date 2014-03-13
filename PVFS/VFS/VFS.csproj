@@ -56,6 +56,7 @@
     <Compile Include="VFS\Models\VfsDisk.cs" />
     <Compile Include="VFS\Models\VfsEntry.cs" />
     <Compile Include="VFS\Models\VfsFile.cs" />
+    <Compile Include="VFS\Parser\Executor.cs" />
     <Compile Include="VFS\Parser\Shell.g4.lexer.cs">
       <DependentUpon>Shell.g4</DependentUpon>
     </Compile>
