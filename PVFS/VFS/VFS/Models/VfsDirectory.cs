@@ -47,43 +47,71 @@ namespace VFS.VFS.Models
 
         
         public VfsFile GetFileIgnoringSubDirectories(string name) {
-            if (Elements.Count > 0) {
-                return Elements.Where(element => !element.isDirectory).FirstOrDefault(element => element.Name.Equals(name));
+            if (Elements.Count <= 0) {
+                throw new Exception("Elements.Count was < 1");
             }
-            //Size was 0 or no file has been found
-            //TODO: how to handle this exception?
-            return null;
+            if (name == null) {
+                throw new Exception("Argument 'name' is null.");
+            }
+
+            return Elements.Where(element => !element.isDirectory).FirstOrDefault(element => element.Name.Equals(name));
         }
 
         public VfsFile GetFileCheckingSubDirectories ( string name ) {
             VfsFile result;
-            if (Elements.Count > 0) {
-                foreach (VfsFile element in Elements) {
-                    if (element.isDirectory) {
-                        VfsDirectory dir = (VfsDirectory) element;
-                        result = dir.GetFileCheckingSubDirectories(name);
-                        if (result != null)
-                            return result;
-                    } else {
-                        if (element.Name.Equals(name)) {
-                            return element;
-                        }
+            if (name == null)
+                throw new Exception("argument 'name' was null");
+            if (Elements.Count <= 0)
+                throw new Exception("Elements.Count was < 1");
+            
+            foreach (VfsFile element in Elements)
+            {
+                if (element.isDirectory)
+                {
+                    var dir = (VfsDirectory) element;
+                    result = dir.GetFileCheckingSubDirectories(name);
+                    if (result != null)
+                        return result;
+                }
+                else
+                {
+                    if (element.Name.Equals(name))
+                    {
+                        return element;
                     }
                 }
             }
-            //Size was 0 or no file has been found
-            //TODO: how to handle this exception?
-            return null;
+            throw new Exception("File" + name + "was not found");
         }
 
         //TODO: might throw exception
-        public void AddElement(VfsFile element) {
-            Elements.Add(element);
+        public void AddElement(VfsFile element) 
+        {
+            if (element != null) {
+                if (Elements != null) {
+                    Elements.Remove(element);
+                } else {
+                    throw new Exception("Elements was null");
+                }
+            } else {
+                throw new Exception("argument 'element' was null");
+            }
         }
 
         //TODO: might throw excpetion
-        public void RemoveElement(VfsFile element) {
-            Elements.Remove(element);
+        public void RemoveElement(VfsFile element)
+        {
+            if (element != null) {
+                if (Elements != null) {
+                    Elements.Remove(element);
+                }
+                else {
+                    throw new Exception("Elements was null");
+                }
+            }
+            else {
+                throw new Exception("argument 'element' was null");
+            }
         }
     }
 
