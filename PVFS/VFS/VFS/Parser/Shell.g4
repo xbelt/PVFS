@@ -32,8 +32,9 @@ compileUnit
 	;
 
 optParams
-	: '-p' Path																								#PathParam
-	| '-n' String																							#StringParam
+	: ('-p' path=Path																								
+	| '-n' name=String
+	| '-b' block=Integer)
 	;
 /*
  * Lexer Rules
