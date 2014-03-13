@@ -17,23 +17,24 @@ grammar Shell;
  //TODO: we do not yet support paths with whitespaces
 compileUnit
 	:	EOF																									#Eof
-	| 'ls' files=F? dirs=D? compileUnit																						#Ls
-	| 'cd' path=Path? ident=Identifier? compileUnit																			#Cd
+	| 'ls' files=F? dirs=D? compileUnit																		#Ls
+	| 'cd' path=Path? ident=Identifier? dots='..'? compileUnit												#Cd
 	| ('copy' | 'cp') opt=R? src=Path dst=Path compileUnit													#Cp
 	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
-	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=String)+										#Rmdisk
-	| 'mkdir' trgt=Path																						#Mkdir
-	| ('remove' | 'rm') opt=R? trgt=Path																	#Rm
-	| ('move' | 'mv') opt=R? src=Path dst=Path																#Mv
-	| ('import' | 'im') ext=SysPath int=Path																#Im
-	| ('export' | 'ex') int=Path ext=SysPath																#Ex
+	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit						#Rmdisk
+	| ('loaddisk' | 'ldisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit							#Ldisk
+	| 'mkdir' trgt=Path compileUnit																			#Mkdir
+	| ('remove' | 'rm') opt=R? trgt=Path compileUnit														#Rm
+	| ('move' | 'mv') opt=R? src=Path dst=Path compileUnit													#Mv
+	| ('import' | 'im') ext=SysPath int=Path compileUnit													#Im
+	| ('export' | 'ex') int=Path ext=SysPath compileUnit													#Ex
 	| 'free'																								#Free
 	| 'occ'																									#Occ
 	;
 
 optParams
 	: ('-p' path=SysPath																								
-	| '-n' name=String
+	| '-n' name=Identifier
 	| '-b' block=Integer)
 	;
 /*
@@ -54,13 +55,15 @@ Size
 	: [0-9]+
 	;
 
- Identifier
-	: String '.' String
+fragment
+String
+	: [a-zA-Z0-9_]+
 	;
 
-String
-	: [a-zA-Z0-9]+
+ Identifier
+	: String ('.' String)*
 	;
+
 
 Path
 	: ('/' String)+ ('/')? ('/' Identifier)?
