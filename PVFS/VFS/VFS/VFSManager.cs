@@ -39,9 +39,9 @@ namespace VFS.VFS
         {
             try
             {
-                var vfsDirectory = new VfsDirectory(currentDisk);
+                /*var vfsDirectory = new VfsDirectory(currentDisk);
                 vfsDirectory.Open(path);
-                workingDirectory = vfsDirectory;
+                workingDirectory = vfsDirectory;*/
             }
             catch (InvalidCastException exception)
             {
@@ -55,6 +55,10 @@ namespace VFS.VFS
             Console.WriteLine("copy " + src + " to " + dst);
         }
 
+        public static void navigateUp()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     internal class InvalidArgumentException : Exception
