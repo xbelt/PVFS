@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using VFS.VFS.Models;
 
 namespace VFS.VFS.Parser
 {
@@ -16,6 +17,8 @@ namespace VFS.VFS.Parser
                 VFSManager.cdPath(context.path.Text);
             if (context.ident != null)
                 VFSManager.cdIdent(context.ident.Text);
+            if (context.dots != null)
+                VFSManager.navigateUp();
             throw new InvalidArgumentException("cd requires at least one argument");
         }
 
@@ -82,7 +85,7 @@ namespace VFS.VFS.Parser
                 size = getSizeInBytes(intSize, context.Size().Symbol.Text.Substring(context.Size().Symbol.Text.Length - 2));
             }
 
-            var disk = new DiskFactory().create(new DiskInfo(path, name, size, blockSize));
+            var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize));
             VFSManager.addAndOpenDisk(disk);
         }
 
@@ -109,6 +112,33 @@ namespace VFS.VFS.Parser
         public override void EnterRmdisk(ShellParser.RmdiskContext context)
         {
             base.EnterRmdisk(context);
+        }
+
+        public override void EnterLdisk(ShellParser.LdiskContext context)
+        {
+            VfsDisk disk = null;
+            if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
+            {
+                disk = DiskFactory.Load(context.sys.Text);
+            }
+            if (context.name != null)
+            {
+                string path = Directory.GetCurrentDirectory();
+                if (!path.EndsWith("\\"))
+                {
+                    path += "\\";
+                }
+                string name = context.name.Text;
+                if (!context.name.Text.EndsWith(".vdi"))
+                    name += ".vdi";
+                disk = DiskFactory.Load(path + name);
+            }
+            if (disk != null)
+            {
+                VFSManager.addAndOpenDisk(disk);
+                return;
+            }
+            throw new DiskNotFoundException();
         }
 
         public override void EnterMkdir(ShellParser.MkdirContext context)
@@ -145,6 +175,10 @@ namespace VFS.VFS.Parser
         {
             base.EnterOcc(context);
         }
+    }
+
+    internal class DiskNotFoundException : Exception
+    {
     }
 
     internal class UnsupportedFileSizeType : Exception
