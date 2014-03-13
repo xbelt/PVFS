@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 
 namespace VFS.VFS.Models {
     public class DiskProperties {
@@ -21,8 +22,9 @@ namespace VFS.VFS.Models {
             dp.BlockSize = BitConverter.ToInt32(buffer, 20);
             var nameLength = BitConverter.ToInt32(buffer, 24);
             var nameBuffer = new byte[nameLength];
-            reader.Read(nameBuffer, 28, nameLength);
-            dp.Name = BitConverter.ToString(nameBuffer);
+            reader.Read(nameBuffer, 0, nameLength);
+            var diskName = Encoding.ASCII.GetString(nameBuffer);
+            dp.Name = diskName.Remove(diskName.LastIndexOf("."));
             return dp;
         }
 
