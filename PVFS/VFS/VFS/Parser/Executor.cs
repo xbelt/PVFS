@@ -11,12 +11,16 @@ namespace VFS.VFS.Parser
 
         public override void EnterCd(ShellParser.CdContext context)
         {
-            VFSManager.cd(context.path.Text);
+            if (context.path != null)
+                VFSManager.cdPath(context.path.Text);
+            if (context.ident != null)
+                VFSManager.cdIdent(context.ident.Text);
+            throw new InvalidArgumentException("cd requires at least one argument");
         }
 
         public override void EnterCp(ShellParser.CpContext context)
         {
-            VFSManager.cp(context.src.Text, context.dst.Text);
+            VFSManager.cp(context.src.Text, context.dst.Text, context.opt == null? false : true);
         }
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
