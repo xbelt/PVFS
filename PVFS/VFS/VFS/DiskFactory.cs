@@ -19,13 +19,21 @@ namespace VFS.VFS
                 var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + 4 + 4 + 4 + 8 + 4 + 4*128;
                 var blocksUsedForPreamble = (int)Math.Ceiling((double)numberOfUsedBitsInPreamble / (disk.DiskProperties.BlockSize*8));
                 //write bitMap
-                byte firstByte = 0;
-                for (int i = 0; i <= blocksUsedForPreamble; i++)
+                for (int i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
                 {
-                    firstByte += (byte) Math.Pow(2, 7 - i);
+                    byte firstByte = 0;
+                    for (int j = 0; j < (blocksUsedForPreamble + 1) - 8*i; j++)
+                    {
+                        firstByte += (byte)Math.Pow(2, 7 - j);
+                        if (j == 7)
+                        {
+                            break;
+                        }
+                    }
+                    writer.Write(firstByte);
                 }
+
                 byte zero = 0;
-                writer.Write(firstByte);
 
                 for (int i = 1; i < Math.Ceiling(disk.DiskProperties.NumberOfBlocks/4d); i++)
                 {
@@ -44,6 +52,7 @@ namespace VFS.VFS
                 writer.Write(disk.DiskProperties.Name.Length);
                 writer.Write(disk.DiskProperties.Name.ToCharArray());
                 writer.Flush();
+                //TODO: add root folder
             }
             else
             {
