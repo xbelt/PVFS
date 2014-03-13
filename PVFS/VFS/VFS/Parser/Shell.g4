@@ -23,6 +23,7 @@ compileUnit
 	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
 	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit						#Rmdisk
 	| ('loaddisk' | 'ldisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit							#Ldisk
+	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
 	| 'mkdir' trgt=Path compileUnit																			#Mkdir
 	| ('remove' | 'rm') opt=R? trgt=Path compileUnit														#Rm
 	| ('move' | 'mv') opt=R? src=Path dst=Path compileUnit													#Mv
@@ -30,6 +31,7 @@ compileUnit
 	| ('export' | 'ex') int=Path ext=SysPath compileUnit													#Ex
 	| 'free'																								#Free
 	| 'occ'																									#Occ
+	| ('exit' | 'quit')																						#Exit
 	;
 
 optParams
