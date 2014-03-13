@@ -13,10 +13,10 @@ namespace VFS.VFS
     internal class DiskInfo {
         private String _path;
         private String _name;
-        private int _size;
+        private double _size;
         private int _blockSize = 2048;
 
-        public DiskInfo(string path, string name, int size, int blockSize) {
+        public DiskInfo(string path, string name, double size, int blockSize) {
             _path = path;
             _name = name;
             _size = size;
@@ -30,7 +30,7 @@ namespace VFS.VFS
             set { _name = value; }
         }
 
-        public int Size {
+        public double Size {
             get { return _size; }
             set { _size = value; }
         }
