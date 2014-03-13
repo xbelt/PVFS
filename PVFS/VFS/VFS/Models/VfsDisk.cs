@@ -17,6 +17,17 @@ namespace VFS.VFS.Models
 
         public Stream FileStream { get; set; }
 
+        public BinaryReader getReader()
+        {
+            // do not create a new reader here, reuse!
+            throw new NotImplementedException();
+        }
+        public BinaryWriter getWriter()
+        {
+            // do not create a new writer here, reuse!
+            throw new NotImplementedException();
+        }
+
         public bool isFull() {
             return DiskProperties.NumberOfBlocks == DiskProperties.NumberOfUsedBlocks;
         }
@@ -42,6 +53,11 @@ namespace VFS.VFS.Models
         #endregion
 
 
+
+        public int BlockSize
+        {
+            get { return this.DiskProperties.BlockSize; }
+        }
     }
 
     internal class BitMap {

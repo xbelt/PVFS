@@ -18,8 +18,11 @@ namespace VFS.VFS.Models
     //TODO: GetFile-Functions could use NrOfChildren instead of Elements.Count
     public class VfsDirectory : VfsFile
     {
-        public VfsDirectory(VfsDisk disk) : base(disk)
+        public VfsDirectory(VfsDisk disk, VfsDirectory parent, string name, int address, int noEntries, int noBlocks, int nextBlock)
+            : base(disk,address,name,parent,noEntries, noBlocks, nextBlock)
         {
+            this.IsDirectory = true;
+            // careful filesize is == noEntrys in this class!
         }
 
         public List<VfsFile> Elements { get; set; }
@@ -28,7 +31,7 @@ namespace VFS.VFS.Models
         {
             try
             {
-                return Elements.Single(el => el.isDirectory) as VfsDirectory;
+                return Elements.Single(el => el.IsDirectory) as VfsDirectory;
             }
             catch (Exception e)
             {
@@ -38,11 +41,11 @@ namespace VFS.VFS.Models
 
         public List<VfsFile> GetSubDirectories()
         {
-            return Elements.Where(el => el.isDirectory) as List<VfsFile>;
+            return Elements.Where(el => el.IsDirectory) as List<VfsFile>;
         } 
 
         public List<VfsFile> GetFiles() {
-            return Elements.Where(element => !element.isDirectory) as List<VfsFile>;
+            return Elements.Where(element => !element.IsDirectory) as List<VfsFile>;
         }
 
         
@@ -54,7 +57,7 @@ namespace VFS.VFS.Models
                 throw new Exception("Argument 'name' is null.");
             }
 
-            return Elements.Where(element => !element.isDirectory).FirstOrDefault(element => element.Name.Equals(name));
+            return Elements.Where(element => !element.IsDirectory).FirstOrDefault(element => element.Name.Equals(name));
         }
 
         public VfsFile GetFileCheckingSubDirectories ( string name ) {
@@ -66,7 +69,7 @@ namespace VFS.VFS.Models
             
             foreach (VfsFile element in Elements)
             {
-                if (element.isDirectory)
+                if (element.IsDirectory)
                 {
                     var dir = (VfsDirectory) element;
                     result = dir.GetFileCheckingSubDirectories(name);
