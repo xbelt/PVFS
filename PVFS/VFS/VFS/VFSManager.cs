@@ -6,7 +6,7 @@ using VFS.VFS.Models;
 namespace VFS.VFS
 {
     class VFSManager {
-        private static List<VfsDisk> _disks;
+        private static List<VfsDisk> _disks = new List<VfsDisk>();
         private static VfsDirectory workingDirectory;
         private static VfsDisk currentDisk;
 
