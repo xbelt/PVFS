@@ -13,7 +13,7 @@ namespace VFS.VFS.Models
      * Name 110
      * Data
      */
-    class VfsFile : VfsEntry
+    public class VfsFile : VfsEntry
     {
         public List<Block> Inodes { get; set; }
         public bool isDirectory { get; set; }

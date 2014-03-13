@@ -14,7 +14,7 @@ namespace VFS.VFS.Models
  */
 
     //TODO: GetFile-Functions could use NrOfChildren instead of Elements.Count
-    class VfsDirectory : VfsFile
+    public class VfsDirectory : VfsFile
     {
         //Changed from List<Blocks>
         public List<VfsFile> Elements { get; set; }
