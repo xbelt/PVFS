@@ -18,7 +18,7 @@ grammar Shell;
 compileUnit
 	:	EOF																									#Eof
 	| 'ls' compileUnit																						#Ls
-	| 'cd' path=Path compileUnit																			#Cd
+	| 'cd' path=Path? ident=Identifier? compileUnit																			#Cd
 	| ('copy' | 'cp') opt=R? src=Path dst=Path compileUnit													#Cp
 	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
 	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=String)+										#Rmdisk
