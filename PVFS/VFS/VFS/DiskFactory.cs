@@ -25,22 +25,13 @@ namespace VFS.VFS
                 disk.FileStream = stream;
                 var writer = new BinaryWriter(stream, new ASCIIEncoding(), true);
 
-                //RootAddress + #Block + #UsedBlocks + Size + BlockSize + NameLength + Name + BitMap
-                var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + 4 + 4 + 4 + 8 + 4 + 4 + 4*128;
+                //blocksForPreamble + RootAddress + #Block + #UsedBlocks + Size + BlockSize + NameLength + Name + BitMap
+                var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + 4 + 4 + 4 + 4 + 8 + 4 + 4 + 4*128;
                 var blocksUsedForPreamble = (int)Math.Ceiling((double)numberOfUsedBitsInPreamble / (disk.DiskProperties.BlockSize*8));
-                writer.Flush();
                 //Write disk info
                 writer.Write(blocksUsedForPreamble);
-                writer.Write(disk.DiskProperties.NumberOfBlocks);
-                writer.Write(disk.DiskProperties.NumberOfUsedBlocks);
-                writer.Write(disk.DiskProperties.MaximumSize);
-                writer.Write(disk.DiskProperties.BlockSize);
-                if (disk.DiskProperties.Name.Length > 128)
-                {
-                    disk.DiskProperties.Name = disk.DiskProperties.Name.Substring(0, 128);
-                }
-                writer.Write(disk.DiskProperties.Name.Length);
-                writer.Write(disk.DiskProperties.Name.ToCharArray());
+                
+                DiskProperties.Write(writer, disk.DiskProperties);
 
                 //write bitMap
                 for (int i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
@@ -58,24 +49,25 @@ namespace VFS.VFS
                 }
 
                 byte zero = 0;
+                byte one = 1;
 
                 for (int i = 1; i < Math.Ceiling(disk.DiskProperties.NumberOfBlocks/4d); i++)
                 {
                     writer.Write(zero);
                 }
                 writer.Flush();
-                //TODO: add root folder
 
                 //Write root folder manually
-                byte one = 1;
                 writer.Write(blocksUsedForPreamble); //NextBlock
                 writer.Write(blocksUsedForPreamble); //StartBlock
                 writer.Write(0); //NrOfChildren
                 writer.Write(1); //NoBlocks
                 writer.Write(one); //Directory?
                 writer.Write(zero); //NameSize
-                writer.Write(""); //Name
-
+                for (int i = 0; i < disk.DiskProperties.BlockSize - 18; i++)
+                {
+                    writer.Write(zero); //Fill block with 0's
+                }
                 writer.Close();
             }
             else
@@ -91,15 +83,10 @@ namespace VFS.VFS
             {
                 var stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite);
                 var reader = new BinaryReader(stream, new ASCIIEncoding(), true);
-                var dp = new DiskProperties();
-                var buffer = new byte[4];
-                reader.Read(buffer, 0, 4);
-                dp.RootAddress = BitConverter.ToInt32(buffer, 0);
+                var dp = DiskProperties.Load(reader);
+                return new VfsDisk(path, dp);
             }
-            else
-            {
-                throw new InvalidPathException(path + " is not a valid path to a vdi");
-            }
+            throw new InvalidPathException(path + " is not a valid path to a vdi");
         }
     }
 

@@ -15,10 +15,21 @@ namespace VFS.VFS.Models {
             var buffer = new byte[28];
             reader.Read(buffer, 0, 28);
             dp.RootAddress = BitConverter.ToInt32(buffer, 0);
+            dp.
+            return dp;
         }
 
-        public static void Write(BinaryWriter path) {
-            throw new NotImplementedException();
+        public static void Write(BinaryWriter writer, DiskProperties diskProperties) {
+            writer.Write(diskProperties.NumberOfBlocks);
+            writer.Write(diskProperties.NumberOfUsedBlocks);
+            writer.Write(diskProperties.MaximumSize);
+            writer.Write(diskProperties.BlockSize);
+            if (diskProperties.Name.Length > 128)
+            {
+                diskProperties.Name = diskProperties.Name.Substring(0, 128);
+            }
+            writer.Write(diskProperties.Name.Length);
+            writer.Write(diskProperties.Name.ToCharArray());
         }
     }
 }
