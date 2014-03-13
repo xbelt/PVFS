@@ -56,15 +56,23 @@
     <Compile Include="VFS\Models\VfsDisk.cs" />
     <Compile Include="VFS\Models\VfsEntry.cs" />
     <Compile Include="VFS\Models\VfsFile.cs" />
+    <Compile Include="VFS\Parser\Shell.g4.lexer.cs">
+      <DependentUpon>Shell.g4</DependentUpon>
+    </Compile>
+    <Compile Include="VFS\Parser\Shell.g4.parser.cs">
+      <DependentUpon>Shell.g4</DependentUpon>
+    </Compile>
     <Compile Include="VFS\VFSManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <Antlr4 Include="VFS\Parser\Shell.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>VFS.VFS.Parser</CustomToolNamespace>
+    </Antlr4>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="VFS\Parser\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
