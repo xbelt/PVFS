@@ -19,6 +19,10 @@ namespace VFS.VFS.Models
     public class VfsDirectory : VfsFile
     {
         //Changed from List<Blocks>
+        public VfsDirectory(VfsDisk disk) : base(disk)
+        {
+        }
+
         public List<VfsFile> Elements { get; set; }
 
         public VfsDirectory GetSubDirectory(string name)
