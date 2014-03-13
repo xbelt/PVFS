@@ -38,7 +38,9 @@ optParams
 /*
  * Lexer Rules
  */
+
  R : '-R';
+
  SizeUnit
 	:'kb' | 'mb' | 'gb' | 'tb' | 'KB' | 'MB' | 'GB' | 'TB';
 
