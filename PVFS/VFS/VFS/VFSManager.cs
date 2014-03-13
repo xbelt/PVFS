@@ -23,5 +23,10 @@ namespace VFS.VFS
         {
             Console.WriteLine("new path: " + path);
         }
+
+        public static void cp(string src, string dst)
+        {
+            Console.WriteLine("copy " + src + " to " + dst);
+        }
     }
 }
