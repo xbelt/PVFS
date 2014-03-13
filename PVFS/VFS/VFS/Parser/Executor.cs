@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using VFS.VFS.Models;
 
 namespace VFS.VFS.Parser
@@ -111,7 +113,33 @@ namespace VFS.VFS.Parser
 
         public override void EnterRmdisk(ShellParser.RmdiskContext context)
         {
-            base.EnterRmdisk(context);
+            if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
+            {
+                string path = context.sys.Text;
+                var noFileEnding = path.Remove(path.LastIndexOf("."));
+                VFSManager.UnloadDisk(noFileEnding.Substring(noFileEnding.LastIndexOf("\\")));
+                DiskFactory.Remove(context.sys.Text);
+                return;
+            }
+            if (context.name != null)
+            {
+                string path = Directory.GetCurrentDirectory();
+                if (!path.EndsWith("\\"))
+                {
+                    path += "\\";
+                }
+                string name = context.name.Text;
+                if (!context.name.Text.EndsWith(".vdi"))
+                {
+                    VFSManager.UnloadDisk(name);
+                    name += ".vdi";
+                }
+                else
+                {
+                    VFSManager.UnloadDisk(name.Remove(name.LastIndexOf(".")));
+                }
+                DiskFactory.Remove(path + name);
+            }
         }
 
         public override void EnterLdisk(ShellParser.LdiskContext context)
@@ -139,6 +167,23 @@ namespace VFS.VFS.Parser
                 return;
             }
             throw new DiskNotFoundException();
+        }
+
+        public override void EnterLdisks(ShellParser.LdisksContext context)
+        {
+            IEnumerable<string> files;
+            if (context.sys != null)
+            {
+                files = Directory.EnumerateFiles(context.sys.Text, "*.vdi");
+            }
+            else
+            {
+                files = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.vdi");
+            }
+            foreach (var file in files)
+            {
+                Console.WriteLine(file);
+            }
         }
 
         public override void EnterMkdir(ShellParser.MkdirContext context)
@@ -174,6 +219,11 @@ namespace VFS.VFS.Parser
         public override void EnterOcc(ShellParser.OccContext context)
         {
             base.EnterOcc(context);
+        }
+
+        public override void EnterExit(ShellParser.ExitContext context)
+        {
+            Environment.Exit(0);
         }
     }
 
