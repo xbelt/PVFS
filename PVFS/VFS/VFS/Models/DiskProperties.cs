@@ -4,6 +4,9 @@ using System.Text;
 
 namespace VFS.VFS.Models {
     public class DiskProperties {
+        /// <summary>
+        /// The name of the disk without its .vdi ending
+        /// </summary>
         public string Name { get; set; }
         public int NumberOfBlocks { get; set; }
         public int NumberOfUsedBlocks { get; set; }
@@ -15,16 +18,20 @@ namespace VFS.VFS.Models {
             var dp = new DiskProperties();
             var buffer = new byte[28];
             reader.Read(buffer, 0, 28);
+
             dp.RootAddress = BitConverter.ToInt32(buffer, 0);
             dp.NumberOfBlocks = BitConverter.ToInt32(buffer, 4);
             dp.NumberOfUsedBlocks = BitConverter.ToInt32(buffer, 8);
             dp.MaximumSize = BitConverter.ToDouble(buffer, 12);
             dp.BlockSize = BitConverter.ToInt32(buffer, 20);
             var nameLength = BitConverter.ToInt32(buffer, 24);
+
             var nameBuffer = new byte[nameLength];
             reader.Read(nameBuffer, 0, nameLength);
+
             var diskName = Encoding.ASCII.GetString(nameBuffer);
             dp.Name = diskName.Remove(diskName.LastIndexOf("."));
+
             return dp;
         }
 
