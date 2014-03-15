@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Antlr4.Runtime.Atn;
+using VFS.VFS.Extensions;
 
 namespace VFS.VFS.Models
 {
@@ -31,12 +32,20 @@ namespace VFS.VFS.Models
         /// </summary>
         public const int SmallHeaderSize = 8;
 
+        /// <summary>
+        /// Maximal File size
+        /// </summary>
+        public const int MaxSize = 1024 * 1024 * 1024; // 1Gb
+
+        /// <summary>
+        /// Maximal File/Directory Name Length
+        /// </summary>
+        public const int MaxNameLength = 110;
+
         #endregion
 
-
-        public bool IsDirectory { get; set; }
-        public VfsDirectory Parent { get; set; }
-        public string Name { get; set; }
+        public VfsDirectory Parent { get; protected set; }
+        public string Name { get; protected set; }
         public string Type
         {
             get { return IsDirectory ? null : Name.Substring(Name.LastIndexOf(".") + 1); }
@@ -47,8 +56,9 @@ namespace VFS.VFS.Models
         protected int FileSize, NoBlocks, NextBlock;
         protected List<Block> Inodes;
 
-        public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, int noBlocks,
-            int nextBlock)
+        #region Constructor
+
+        public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, int noBlocks, int nextBlock)
         {
             this.Disk = disk;
             this.Address = address;
@@ -78,6 +88,9 @@ namespace VFS.VFS.Models
             this.Inodes = blocks;
         }
 
+        #endregion
+
+
         /// <summary>
         /// used in write and read to load the blocks
         /// </summary>
@@ -93,15 +106,17 @@ namespace VFS.VFS.Models
                 this.Inodes.Last().NextBlock = next;
                 this.Inodes.Add(next);
 
-                reader.BaseStream.Seek(next.Address * Disk.BlockSize, SeekOrigin.Begin);
+                reader.Seek(Disk, next.Address);
                 nextAddress = reader.ReadInt32();
                 if (reader.ReadInt32() != this.Address)
                     throw new IOException("The startBlock Address of block " + this.Inodes.Last().Address + " was inconsistent.");
             }
+            if (nextAddress != 0)
+                throw new IOException("The nextBlock Address of block " + this.Inodes.Last().Address + " was not 0 (it's the last block).");
         }
 
         /// <summary>
-        /// writes the content of a BinaryReader to this vFile.TODO: Extends file if thie content is longer than the original vFile.
+        /// writes the content of a BinaryReader to this vFile. Extends file if thie content is longer than the original vFile.
         /// </summary>
         public void Write(BinaryReader reader)
         {
@@ -112,28 +127,54 @@ namespace VFS.VFS.Models
             if (!this.IsLoaded)
                 this.Load();
 
-            int blockId = 0, head = HeaderSize, totalSize = 0;
+            int blockId = 0, head = HeaderSize, totalSize = 0, count;
             byte[] buffer = new byte[Disk.BlockSize - SmallHeaderSize];
             while (blockId < Inodes.Count)
             {
-                int count = reader.Read(buffer, 0, Disk.BlockSize - head);
-                writer.Seek(Inodes[blockId].Address * Disk.BlockSize + head, SeekOrigin.Begin);
+                count = reader.Read(buffer, 0, Disk.BlockSize - head);
+                writer.Seek(Disk, Inodes[blockId].Address, head);
                 writer.Write(buffer, 0, count);
                 totalSize += count;
+
                 if (count < Disk.BlockSize - head)
-                    goto end;// LOL
+                    break;
 
                 blockId++;
                 head = SmallHeaderSize; // only first block has large header
             }
-            //if we reach this then the file is larger than the vfile -> extend vfile
-            //dont forget to update the file header - noBlocks!
 
-            end://wait this really works? THIS IS INSANE
+            // If the file is larger than the initially allocated vFile: extend the vFile
+            while ((count = reader.Read(buffer, 0, Disk.BlockSize - SmallHeaderSize)) > 0)
+            {
+                int address;
+                if (!Disk.allocate(out address))
+                    throw new ArgumentException("There is not enough space on this disk!");
+
+                Block last = Inodes.Last(); // This is inefficient (the write head jumps back and forth to fill nextBlock-address)
+                writer.Seek(Disk, last.Address);
+                writer.Write(address);
+                last.NextBlock = new Block(address, this.Address, null);
+                Inodes.Add(last.NextBlock);
+
+                writer.Seek(Disk, address);
+                writer.Write(0);// nextBlock unknown
+                writer.Write(this.Address);
+                writer.Write(buffer, 0, count);
+                totalSize += count;
+            }
+
+            // Update Header
+            if (Inodes.Count != NoBlocks)
+            {
+                this.NoBlocks = Inodes.Count;
+                writer.Seek(Disk, this.Address, 12);
+                writer.Write(this.NoBlocks);
+            }
+
             if (totalSize != FileSize)
             {
-                // write file size
-                writer.Seek(this.Address * Disk.BlockSize + 8, SeekOrigin.Begin);
+                this.FileSize = totalSize;
+                writer.Seek(Disk, this.Address, 8);
                 writer.Write(totalSize);
             }
         }
@@ -143,41 +184,48 @@ namespace VFS.VFS.Models
         /// </summary>
         public void Read(BinaryWriter writer)
         {
+            BinaryReader reader = Disk.getReader();
 
+            if (!this.IsLoaded)
+                this.Load();
+
+            int blockId = 0, head = HeaderSize, totalRead = 0;
+            byte[] buffer = new byte[Disk.BlockSize - SmallHeaderSize];
+            while (blockId < Inodes.Count)
+            {
+                reader.Seek(Disk, Inodes[blockId].Address, head);
+                reader.Read(buffer, 0, Disk.BlockSize - head);
+
+                int count = Disk.BlockSize - head;
+                if (count > FileSize - totalRead)
+                    count = FileSize - totalRead;
+
+                writer.Write(buffer, 0, count);
+
+                totalRead += count;
+                blockId++;
+                head = SmallHeaderSize; // only first block has large header
+            }
         }
+
 
         /// <summary>
-        /// move to VfsManager!
+        /// Returns the total number of blocks needed for a file of specified size on the target disk. This accounts for the startblock.
         /// </summary>
-        /// <param name="path"></param>
-        public override void Open(string path)
+        /// <param name="disk">the target disk</param>
+        /// <param name="filesize">thie FileSize in Bytes</param>
+        /// <returns>number of blocks (Startblock + Following blocks) needed for this file</returns>
+        public static int getNoBlocks(VfsDisk disk, int filesize)
         {
-            base.Open(path);
-        }
-
-        public void Open(int address)
-        {
-            //TODO: I am not yet sure how to get the parent directory
-            //F: opening of files/directories will be done in VfsEntry/EntryFactory
-            //F: maybe we don't need the fields disk, parent and directory.
-            var reader = new BinaryReader(Disk.FileStream);
-            var blockSize = Disk.DiskProperties.BlockSize;
-            var buffer = new Byte[blockSize];
-            reader.Read(buffer, address * blockSize, blockSize);
-            var numberOfBlocks = BitConverter.ToInt32(buffer, 12);
-            IsDirectory = BitConverter.ToBoolean(buffer, 16);
-            Name = BitConverter.ToString(buffer, 18, 110);
-            Inodes.Add(new Block(address, address, new Block(address, address, null)));
-            var nextAddress = BitConverter.ToInt32(buffer, 0);
-
-            for (int i = 0; i < numberOfBlocks - 1; i++)
+            int blockSize = disk.BlockSize;
+            if (filesize > blockSize - HeaderSize)
             {
-                reader.Read(buffer, nextAddress * blockSize, blockSize);
-                var nextBlock = new Block(nextAddress, address, null);
-                Inodes.Last().NextBlock = nextBlock;
-                Inodes.Add(nextBlock);
-                nextAddress = BitConverter.ToInt32(buffer, 0);
+                filesize -= blockSize - HeaderSize;
+                int noBlocks = filesize / (blockSize - SmallHeaderSize);
+                if (noBlocks * (blockSize - SmallHeaderSize) != filesize) noBlocks++;
+                return noBlocks + 1;
             }
+            else return 1;
         }
     }
 }

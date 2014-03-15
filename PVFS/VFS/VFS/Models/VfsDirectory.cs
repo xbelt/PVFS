@@ -41,11 +41,11 @@ namespace VFS.VFS.Models
 
         public List<VfsFile> GetSubDirectories()
         {
-            return Elements.Where(el => el.IsDirectory) as List<VfsFile>;
+            return Elements.Where(el => el.IsDirectory).ToList();
         } 
 
         public List<VfsFile> GetFiles() {
-            return Elements.Where(element => !element.IsDirectory) as List<VfsFile>;
+            return Elements.Where(element => !element.IsDirectory).ToList();
         }
 
         

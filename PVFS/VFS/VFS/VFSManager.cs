@@ -11,6 +11,24 @@ namespace VFS.VFS
         private static VfsDirectory workingDirectory;
         private static VfsDisk currentDisk;
 
+        /// <summary>
+        /// Returns the corresponding VfsEntry.
+        /// </summary>
+        /// <param name="path">A path containing the disk name</param>
+        /// <returns></returns>
+        private VfsEntry getEntry(string path)
+        {
+            throw new NotImplementedException();
+        }
+        private VfsEntry getEntry(VfsDisk disk, string path)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        #region Public Interface Methods
+
+
         public static void addAndOpenDisk(VfsDisk disk)
         {
             currentDisk = disk;
@@ -69,6 +87,8 @@ namespace VFS.VFS
                 unmountedDisk.FileStream.Close();
             }
         }
+
+        #endregion
     }
 
     internal class InvalidArgumentException : Exception
