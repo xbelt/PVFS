@@ -48,7 +48,13 @@ namespace VFS.VFS.Models
         public string Name { get; protected set; }
         public string Type
         {
-            get { return IsDirectory ? null : Name.Substring(Name.LastIndexOf(".") + 1); }
+            get
+            {
+                if (Name.Length > Name.LastIndexOf(".") + 1)
+                    return IsDirectory ? null : Name.Substring(Name.LastIndexOf(".") + 1);
+                else
+                    return null;
+            }
         }
 
         protected VfsDisk Disk;
@@ -58,6 +64,9 @@ namespace VFS.VFS.Models
 
         #region Constructor
 
+        /// <summary>
+        /// Constructs an unloaded file.
+        /// </summary>
         public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, int noBlocks, int nextBlock)
         {
             this.Disk = disk;
@@ -73,6 +82,7 @@ namespace VFS.VFS.Models
 
         /// <summary>
         /// if we already know all blocks, use this (this happens when we just allocated a new file)
+        /// Constructs a Loaded File
         /// </summary>
         public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, List<Block> blocks)
         {
@@ -90,9 +100,8 @@ namespace VFS.VFS.Models
 
         #endregion
 
-
         /// <summary>
-        /// used in write and read to load the blocks
+        /// used in write, read and free to load the blocks
         /// </summary>
         private void Load()
         {
@@ -106,14 +115,17 @@ namespace VFS.VFS.Models
                 this.Inodes.Last().NextBlock = next;
                 this.Inodes.Add(next);
 
-                reader.Seek(Disk, next.Address);
+                reader.Seek(Disk, nextAddress);
                 nextAddress = reader.ReadInt32();
                 if (reader.ReadInt32() != this.Address)
                     throw new IOException("The startBlock Address of block " + this.Inodes.Last().Address + " was inconsistent.");
             }
             if (nextAddress != 0)
-                throw new IOException("The nextBlock Address of block " + this.Inodes.Last().Address + " was not 0 (it's the last block).");
+                throw new IOException("The nextBlock Address of block " + this.Inodes.Last().Address + " is not 0 (it's the last block).");
+
+            this.IsLoaded = true;
         }
+
 
         /// <summary>
         /// writes the content of a BinaryReader to this vFile. Extends file if thie content is longer than the original vFile.
@@ -208,6 +220,22 @@ namespace VFS.VFS.Models
             }
         }
 
+        /// <summary>
+        /// Deallocates all Blocks.
+        /// </summary>
+        public void free()
+        {
+            if (!this.IsLoaded)
+                this.Load();
+
+            foreach (Block inode in Inodes)
+            {
+                this.Disk.free(inode.Address);
+            }
+
+            this.Inodes = null;
+            this.IsLoaded = false;
+        }
 
         /// <summary>
         /// Returns the total number of blocks needed for a file of specified size on the target disk. This accounts for the startblock.
