@@ -70,6 +70,8 @@ namespace VFS.VFS
             BinaryWriter writer = disk.getWriter();
 
             // Write File Header
+            //(Might want to export this in a single function?)
+            //TODO: apparently wrong parameter for Seek?
             writer.Seek(disk, addresses[0]);
             writer.Write(addresses.Length == 1 ? 0 : addresses[1]);
             writer.Write(addresses[0]);
@@ -84,6 +86,7 @@ namespace VFS.VFS
             for (int i = 1; i < addresses.Length; i++)
             {
                 // Write block header
+                //TODO: apparently wrong parameter for Seek?
                 writer.Seek(disk, addresses[i]);
                 writer.Write(i == addresses.Length - 1 ? 0 : addresses[i + 1]);
                 writer.Write(addresses[0]);
@@ -100,6 +103,7 @@ namespace VFS.VFS
         /// <returns>a handle for the directory</returns>
         public VfsDirectory createDirectory(VfsDisk disk, string name, VfsDirectory parent)
         {
+            //TODO: prevent creation if directory with same name already exists (here)
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The directory-name can't be longer than " + VfsFile.MaxNameLength + ".");
             int address;
@@ -108,6 +112,7 @@ namespace VFS.VFS
             BinaryWriter writer = disk.getWriter();
 
             // Write Directory Header
+            //TODO: apparently wrong parameter for Seek?
             writer.Seek(disk, address);
             writer.Write(0);
             writer.Write(address);
