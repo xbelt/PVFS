@@ -67,6 +67,8 @@ namespace VFS.VFS.Models
 
             // TODO F: see remark at Elements definition
             Elements = elementAddresses.Select(address => EntryFactory.OpenEntry(Disk, address, this)).ToList();
+
+            this.IsLoaded = true;
         }
 
 
