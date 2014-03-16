@@ -11,28 +11,28 @@ namespace VFS.VFS.Models
             //BitMap = BitMap.Load();
         }
 
+        public BinaryReader Reader;
+        public BinaryWriter Writer;
         private BitMap BitMap { get; set; }
         public DiskProperties DiskProperties { get; set; }
         private string Path { get; set; }
 
         public Stream FileStream { get; set; }
 
-        public BinaryReader getReader()
+        public BinaryReader getReader() 
         {
-            // do not create a new reader here, reuse!
-            throw new NotImplementedException();
+            return Reader;
         }
         public BinaryWriter getWriter()
         {
-            // do not create a new writer here, reuse!
-            throw new NotImplementedException();
-        }
+            return Writer;
+        } 
 
         public bool isFull() {
             return DiskProperties.NumberOfBlocks == DiskProperties.NumberOfUsedBlocks;
         }
 
-        public VfsDirectory root() {
+        public VfsDirectory root() { //Which root? Of the host-system?
             throw new NotImplementedException();
         }
         #region Block
