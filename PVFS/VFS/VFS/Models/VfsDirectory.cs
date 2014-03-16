@@ -148,7 +148,7 @@ namespace VFS.VFS.Models
             {
                 if (Elements != null)
                 {
-                    Elements.Remove(element);
+                    Elements.Add(element);
                 }
                 else
                 {
