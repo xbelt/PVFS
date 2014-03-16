@@ -70,7 +70,7 @@ namespace VFS.VFS
                 writer.Write(disk.DiskProperties.Name);
                 for (int i = 0; i < disk.DiskProperties.BlockSize - 18 - disk.DiskProperties.Name.Length - 4; i++)
                 {
-                    writer.Write(zero); //Fill block with 0's
+                    writer.Write(zero); //Fill block with 0's TODO: (not needed)
                 }
                 writer.Close();
             }

@@ -50,6 +50,7 @@
     <Compile Include="VFS\DiskFactory.cs" />
     <Compile Include="VFS\EntryFactory.cs" />
     <Compile Include="VFS\Extensions\ArrayExtensions.cs" />
+    <Compile Include="VFS\Extensions\IOExtensions.cs" />
     <Compile Include="VFS\Factory.cs" />
     <Compile Include="VFS\Models\Block.cs" />
     <Compile Include="VFS\Models\DiskProperties.cs" />

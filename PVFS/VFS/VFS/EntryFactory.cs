@@ -26,7 +26,7 @@ namespace VFS.VFS
         /// <param name="address">The address of the startblock</param>
         /// <param name="parent">The parent folder of the entry</param>
         /// <returns>A new VfsFile or VfsDirectory</returns>
-        public static VfsFile OpenEntry(VfsDisk disk, int address, VfsDirectory parent)
+        public static VfsEntry OpenEntry(VfsDisk disk, int address, VfsDirectory parent)
         {
             BinaryReader reader = disk.getReader();
             reader.Seek(disk, address);
