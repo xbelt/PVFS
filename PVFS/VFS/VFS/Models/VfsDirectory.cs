@@ -82,7 +82,6 @@ namespace VFS.VFS.Models
             }
             catch (Exception e)
             {
-                //TODO: or more than one directory with the same name exists
                 throw new InvalidDirectoryException("directory " + name + " not found");
             }
         }
