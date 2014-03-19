@@ -123,7 +123,7 @@ namespace VFS.VFS.Parser
             }
             if (context.name != null)
             {
-                string path = Directory.GetCurrentDirectory();
+                var path = Directory.GetCurrentDirectory();
                 if (!path.EndsWith("\\"))
                 {
                     path += "\\";
@@ -151,7 +151,7 @@ namespace VFS.VFS.Parser
             }
             if (context.name != null)
             {
-                string path = Directory.GetCurrentDirectory();
+                var path = Directory.GetCurrentDirectory();
                 if (!path.EndsWith("\\"))
                 {
                     path += "\\";

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 
 namespace VFS.VFS.Models
@@ -38,11 +39,13 @@ namespace VFS.VFS.Models
         #region Block
         public bool allocate(out int address)
         {
+            //TODO: update noUsedBlocks
             throw new NotImplementedException();
         }
 
         public bool allocate(out int[] address, int numberOfBlocks)
         {
+            //TODO: update noUsedBlocks
             throw new NotImplementedException();
         }
 
@@ -56,11 +59,13 @@ namespace VFS.VFS.Models
 
         public int BlockSize
         {
-            get { return this.DiskProperties.BlockSize; }
+            get { return DiskProperties.BlockSize; }
         }
     }
 
     internal class BitMap {
+
+        BitArray bitMap = new BitArray();
         private BitMap Load(BinaryReader path) {
             throw new NotImplementedException();
         }

@@ -23,7 +23,7 @@ namespace VFS.VFS.Models
         public VfsDirectory(VfsDisk disk, int address, string name, VfsDirectory parent, int noEntries, int noBlocks, int nextBlock)
             : base(disk, address, name, parent, noEntries, noBlocks, nextBlock)
         {
-            this.IsDirectory = true;
+            IsDirectory = true;
             // careful filesize is == noEntrys in this class!
         }
 
@@ -32,14 +32,14 @@ namespace VFS.VFS.Models
         /// </summary>
         private void Load()
         {
-            BinaryReader reader = Disk.getReader();
-            this.Inodes = new List<Block> { new Block(this.Address, this.Address, null) };
-            List<int> elementAddresses = new List<int>();
+            var reader = Disk.getReader();
+            Inodes = new List<Block> { new Block(Address, Address, null) };
+            var elementAddresses = new List<int>();
             int head = HeaderSize, doneEntriesInCurrentBlock = 0, totalEntries = 0;
-            int nextBlock = this.NextBlock;
+            var nextBlock = NextBlock;
 
-            reader.Seek(Disk, this.Address, head);
-            while (totalEntries < this.FileSize)
+            reader.Seek(Disk, Address, head);
+            while (totalEntries < FileSize)
             {
                 elementAddresses.Add(reader.ReadInt32());
                 totalEntries++;
@@ -48,14 +48,14 @@ namespace VFS.VFS.Models
                 // Current Block exhausted?
                 if (doneEntriesInCurrentBlock >= (Disk.BlockSize - head) / 4 && totalEntries != FileSize)
                 {
-                    Block next = new Block(nextBlock, this.Address, null);
-                    this.Inodes.Last().NextBlock = next;
-                    this.Inodes.Add(next);
+                    var next = new Block(nextBlock, Address, null);
+                    Inodes.Last().NextBlock = next;
+                    Inodes.Add(next);
 
                     reader.Seek(Disk, nextBlock);
                     nextBlock = reader.ReadInt32();
-                    if (reader.ReadInt32() != this.Address)
-                        throw new IOException("The startBlock Address of block " + this.Inodes.Last().Address + " was inconsistent.");
+                    if (reader.ReadInt32() != Address)
+                        throw new IOException("The startBlock Address of block " + Inodes.Last().Address + " was inconsistent.");
 
                     doneEntriesInCurrentBlock = 0;
                     head = SmallHeaderSize;
@@ -63,18 +63,18 @@ namespace VFS.VFS.Models
             }
 
             if (nextBlock != 0)
-                throw new IOException("The nextBlock Address of block " + this.Inodes.Last().Address + " is not 0 (it's the last block).");
+                throw new IOException("The nextBlock Address of block " + Inodes.Last().Address + " is not 0 (it's the last block).");
 
             // TODO F: see remark at Elements definition
             Elements = elementAddresses.Select(address => EntryFactory.OpenEntry(Disk, address, this)).ToList();
 
-            this.IsLoaded = true;
+            IsLoaded = true;
         }
 
 
 
         // TODO F: this should be a VfsEntry list, because it can contain both, VfsFiles and VfsDirectories, otherwise it's missleading. Maybe take VfsFile.Name, etc into VfsEntry?
-        public List<VfsFile> Elements { get; set; }
+        public List<VfsEntry> Elements { get; set; }
 
         public VfsDirectory GetSubDirectory(string name)
         {
@@ -186,7 +186,7 @@ namespace VFS.VFS.Models
     {
         public InvalidDirectoryException(string s)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(s);
         }
     }
 }

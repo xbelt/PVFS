@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Antlr4.Runtime.Atn;
 using VFS.VFS.Extensions;
 
 namespace VFS.VFS.Models
@@ -69,15 +68,15 @@ namespace VFS.VFS.Models
         /// </summary>
         public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, int noBlocks, int nextBlock)
         {
-            this.Disk = disk;
-            this.Address = address;
-            this.Name = name;
-            this.IsDirectory = false;
-            this.IsLoaded = false;
-            this.Parent = parent;
-            this.FileSize = filesize;
-            this.NoBlocks = noBlocks;
-            this.NextBlock = nextBlock;
+            Disk = disk;
+            Address = address;
+            Name = name;
+            IsDirectory = false;
+            IsLoaded = false;
+            Parent = parent;
+            FileSize = filesize;
+            NoBlocks = noBlocks;
+            NextBlock = nextBlock;
         }
 
         /// <summary>
@@ -86,16 +85,16 @@ namespace VFS.VFS.Models
         /// </summary>
         public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, List<Block> blocks)
         {
-            this.Disk = disk;
-            this.Address = address;
-            this.Name = name;
-            this.IsDirectory = false;
-            this.IsLoaded = true;
-            this.Parent = parent;
-            this.FileSize = filesize;
-            this.NoBlocks = blocks.Count;
-            this.NextBlock = NoBlocks > 0 ? blocks[1].Address : 0;
-            this.Inodes = blocks;
+            Disk = disk;
+            Address = address;
+            Name = name;
+            IsDirectory = false;
+            IsLoaded = true;
+            Parent = parent;
+            FileSize = filesize;
+            NoBlocks = blocks.Count;
+            NextBlock = NoBlocks > 0 ? blocks[1].Address : 0;
+            Inodes = blocks;
         }
 
         #endregion
@@ -105,25 +104,25 @@ namespace VFS.VFS.Models
         /// </summary>
         private void Load()
         {
-            BinaryReader reader = Disk.getReader();
-            this.Inodes = new List<Block> { new Block(this.Address, this.Address, null) };
-            int nextAddress = this.NextBlock;
+            var reader = Disk.getReader();
+            Inodes = new List<Block> { new Block(Address, Address, null) };
+            var nextAddress = NextBlock;
 
-            for (int i = 0; i < NoBlocks - 1; i++)
+            for (var i = 0; i < NoBlocks - 1; i++)
             {
-                Block next = new Block(nextAddress, this.Address, null);
-                this.Inodes.Last().NextBlock = next;
-                this.Inodes.Add(next);
+                var next = new Block(nextAddress, Address, null);
+                Inodes.Last().NextBlock = next;
+                Inodes.Add(next);
 
                 reader.Seek(Disk, nextAddress);
                 nextAddress = reader.ReadInt32();
-                if (reader.ReadInt32() != this.Address)
-                    throw new IOException("The startBlock Address of block " + this.Inodes.Last().Address + " was inconsistent.");
+                if (reader.ReadInt32() != Address)
+                    throw new IOException("The startBlock Address of block " + Inodes.Last().Address + " was inconsistent.");
             }
             if (nextAddress != 0)
-                throw new IOException("The nextBlock Address of block " + this.Inodes.Last().Address + " is not 0 (it's the last block).");
+                throw new IOException("The nextBlock Address of block " + Inodes.Last().Address + " is not 0 (it's the last block).");
 
-            this.IsLoaded = true;
+            IsLoaded = true;
         }
 
 
@@ -134,13 +133,13 @@ namespace VFS.VFS.Models
         {
             //TODO: add extendability if file > vFile
 
-            BinaryWriter writer = Disk.getWriter();
+            var writer = Disk.getWriter();
 
-            if (!this.IsLoaded)
-                this.Load();
+            if (!IsLoaded)
+                Load();
 
             int blockId = 0, head = HeaderSize, totalSize = 0, count;
-            byte[] buffer = new byte[Disk.BlockSize - SmallHeaderSize];
+            var buffer = new byte[Disk.BlockSize - SmallHeaderSize];
             while (blockId < Inodes.Count)
             {
                 count = reader.Read(buffer, 0, Disk.BlockSize - head);
@@ -162,15 +161,15 @@ namespace VFS.VFS.Models
                 if (!Disk.allocate(out address))
                     throw new ArgumentException("There is not enough space on this disk!");
 
-                Block last = Inodes.Last(); // This is inefficient (the write head jumps back and forth to fill nextBlock-address)
+                var last = Inodes.Last(); // This is inefficient (the write head jumps back and forth to fill nextBlock-address)
                 writer.Seek(Disk, last.Address);
                 writer.Write(address);
-                last.NextBlock = new Block(address, this.Address, null);
+                last.NextBlock = new Block(address, Address, null);
                 Inodes.Add(last.NextBlock);
 
                 writer.Seek(Disk, address);
                 writer.Write(0);// nextBlock unknown
-                writer.Write(this.Address);
+                writer.Write(Address);
                 writer.Write(buffer, 0, count);
                 totalSize += count;
             }
@@ -178,15 +177,15 @@ namespace VFS.VFS.Models
             // Update Header
             if (Inodes.Count != NoBlocks)
             {
-                this.NoBlocks = Inodes.Count;
-                writer.Seek(Disk, this.Address, 12);
-                writer.Write(this.NoBlocks);
+                NoBlocks = Inodes.Count;
+                writer.Seek(Disk, Address, 12);
+                writer.Write(NoBlocks);
             }
 
             if (totalSize != FileSize)
             {
-                this.FileSize = totalSize;
-                writer.Seek(Disk, this.Address, 8);
+                FileSize = totalSize;
+                writer.Seek(Disk, Address, 8);
                 writer.Write(totalSize);
             }
         }
@@ -196,19 +195,19 @@ namespace VFS.VFS.Models
         /// </summary>
         public void Read(BinaryWriter writer)
         {
-            BinaryReader reader = Disk.getReader();
+            var reader = Disk.getReader();
 
-            if (!this.IsLoaded)
-                this.Load();
+            if (!IsLoaded)
+                Load();
 
             int blockId = 0, head = HeaderSize, totalRead = 0;
-            byte[] buffer = new byte[Disk.BlockSize - SmallHeaderSize];
+            var buffer = new byte[Disk.BlockSize - SmallHeaderSize];
             while (blockId < Inodes.Count)
             {
                 reader.Seek(Disk, Inodes[blockId].Address, head);
                 reader.Read(buffer, 0, Disk.BlockSize - head);
 
-                int count = Disk.BlockSize - head;
+                var count = Disk.BlockSize - head;
                 if (count > FileSize - totalRead)
                     count = FileSize - totalRead;
 
@@ -223,18 +222,18 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Deallocates all Blocks.
         /// </summary>
-        public void free()
+        public void Free()
         {
-            if (!this.IsLoaded)
-                this.Load();
+            if (!IsLoaded)
+                Load();
 
-            foreach (Block inode in Inodes)
+            foreach (var inode in Inodes)
             {
-                this.Disk.free(inode.Address);
+                Disk.free(inode.Address);
             }
 
-            this.Inodes = null;
-            this.IsLoaded = false;
+            Inodes = null;
+            IsLoaded = false;
         }
 
         /// <summary>
@@ -243,13 +242,13 @@ namespace VFS.VFS.Models
         /// <param name="disk">the target disk</param>
         /// <param name="filesize">thie FileSize in Bytes</param>
         /// <returns>number of blocks (Startblock + Following blocks) needed for this file</returns>
-        public static int getNoBlocks(VfsDisk disk, int filesize)
+        public static int GetNoBlocks(VfsDisk disk, int filesize)
         {
-            int blockSize = disk.BlockSize;
+            var blockSize = disk.BlockSize;
             if (filesize > blockSize - HeaderSize)
             {
                 filesize -= blockSize - HeaderSize;
-                int noBlocks = filesize / (blockSize - SmallHeaderSize);
+                var noBlocks = filesize / (blockSize - SmallHeaderSize);
                 if (noBlocks * (blockSize - SmallHeaderSize) != filesize) noBlocks++;
                 return noBlocks + 1;
             }

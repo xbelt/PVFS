@@ -10,9 +10,10 @@ namespace VFS.VFS
 {
     class DiskFactory : Factory
     {
+        //TODO: L store readers/writers in disk
         public static VfsDisk Create(DiskInfo info)
         {
-            VfsDisk disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1});
+            var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1});
             if (Directory.Exists(info.Path))
             {
                 FileStream stream;
@@ -37,10 +38,10 @@ namespace VFS.VFS
                 DiskProperties.Write(writer, disk.DiskProperties);
 
                 //write bitMap
-                for (int i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
+                for (var i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
                 {
                     byte firstByte = 0;
-                    for (int j = 0; j < (blocksUsedForPreamble + 1) - 8*i; j++)
+                    for (var j = 0; j < (blocksUsedForPreamble + 1) - 8*i; j++)
                     {
                         firstByte += (byte)Math.Pow(2, 7 - j);
                         if (j == 7)
@@ -53,22 +54,22 @@ namespace VFS.VFS
 
                 byte zero = 0;
                 byte one = 1;
-
-                for (int i = 1; i < Math.Ceiling(disk.DiskProperties.NumberOfBlocks/4d); i++)
+                //TODO: check
+                for (var i = 1; i < Math.Ceiling(disk.DiskProperties.NumberOfBlocks/4d); i++)
                 {
                     writer.Write(zero);
                 }
                 writer.Flush();
 
                 //Write root folder manually
-                writer.Write(blocksUsedForPreamble); //NextBlock
+                writer.Write(0); //NextBlock
                 writer.Write(blocksUsedForPreamble); //StartBlock
                 writer.Write(0); //NrOfChildren
                 writer.Write(1); //NoBlocks
                 writer.Write(one); //Directory?
                 writer.Write(disk.DiskProperties.Name.Length); //NameSize
                 writer.Write(disk.DiskProperties.Name);
-                for (int i = 0; i < disk.DiskProperties.BlockSize - 18 - disk.DiskProperties.Name.Length - 4; i++)
+                for (var i = 0; i < disk.DiskProperties.BlockSize - 18 - disk.DiskProperties.Name.Length - 4; i++)
                 {
                     writer.Write(zero); //Fill block with 0's TODO: (not needed)
                 }

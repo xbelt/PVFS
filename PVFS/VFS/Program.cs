@@ -12,15 +12,15 @@ namespace VFS
             while (true)
             {
                 var value = Console.ReadLine();
-                AntlrInputStream input = new AntlrInputStream(value);
-                ShellLexer lexer = new ShellLexer(input);
-                CommonTokenStream tokens = new CommonTokenStream(lexer);
-                ShellParser parser = new ShellParser(tokens);
+                var input = new AntlrInputStream(value);
+                var lexer = new ShellLexer(input);
+                var tokens = new CommonTokenStream(lexer);
+                var parser = new ShellParser(tokens);
 
                 var entry = parser.compileUnit();
 
                 var walker = new ParseTreeWalker();
-                Executor exec = new Executor();
+                var exec = new Executor();
                 walker.Walk(exec, entry);
             }
         }

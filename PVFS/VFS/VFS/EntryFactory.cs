@@ -28,19 +28,19 @@ namespace VFS.VFS
         /// <returns>A new VfsFile or VfsDirectory</returns>
         public static VfsEntry OpenEntry(VfsDisk disk, int address, VfsDirectory parent)
         {
-            BinaryReader reader = disk.getReader();
+            var reader = disk.getReader();
             reader.Seek(disk, address);
 
-            int nextBlock = reader.ReadInt32();
-            int startBlock = reader.ReadInt32();
+            var nextBlock = reader.ReadInt32();
+            var startBlock = reader.ReadInt32();
             if (startBlock != address)
                 throw new ArgumentException("Address is not a startblock of a file or directory!");
 
-            int fileSize = reader.ReadInt32();//fileSize doubles as noEntries for a directory!
-            int noBlocks = reader.ReadInt32();
-            bool directory = reader.ReadBoolean();
-            byte nameSize = reader.ReadByte();
-            string name = new string(reader.ReadChars(nameSize));
+            var fileSize = reader.ReadInt32();//fileSize doubles as noEntries for a directory!
+            var noBlocks = reader.ReadInt32();
+            var directory = reader.ReadBoolean();
+            var nameSize = reader.ReadByte();
+            var name = new string(reader.ReadChars(nameSize));
 
             if (directory)
             {
@@ -64,10 +64,10 @@ namespace VFS.VFS
             if (size < 0 || size > VfsFile.MaxSize)
                 throw new ArgumentException("Can't create files larger than 1 Gb.");
             int[] addresses;
-            if (!disk.allocate(out addresses, VfsFile.getNoBlocks(disk, size)))
+            if (!disk.allocate(out addresses, VfsFile.GetNoBlocks(disk, size)))
                 throw new ArgumentException("There is not enough space on this disk!");
-            List<Block> blocks = new List<Block>();
-            BinaryWriter writer = disk.getWriter();
+            var blocks = new List<Block>();
+            var writer = disk.getWriter();
 
             // Write File Header
             writer.Seek(disk, addresses[0]);
@@ -81,7 +81,7 @@ namespace VFS.VFS
 
             blocks.Add(new Block(addresses[0], addresses[0], null));
 
-            for (int i = 1; i < addresses.Length; i++)
+            for (var i = 1; i < addresses.Length; i++)
             {
                 // Write block header
                 writer.Seek(disk, addresses[i]);
@@ -105,7 +105,7 @@ namespace VFS.VFS
             int address;
             if (!disk.allocate(out address))
                 throw new ArgumentException("There is not enough place on this disk!");
-            BinaryWriter writer = disk.getWriter();
+            var writer = disk.getWriter();
 
             // Write Directory Header
             writer.Seek(disk, address);

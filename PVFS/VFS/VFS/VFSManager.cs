@@ -35,7 +35,7 @@ namespace VFS.VFS
             _disks.Add(disk);
         }
 
-        public static List<VfsFile> ls(bool files, bool dirs)
+        public static IEnumerable<VfsEntry> ls(bool files, bool dirs)
         {
             if (dirs && !files)
             {
