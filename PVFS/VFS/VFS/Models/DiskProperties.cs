@@ -39,7 +39,12 @@ namespace VFS.VFS.Models {
             reader.Read(nameBuffer, 0, nameLength);
 
             var diskName = Encoding.ASCII.GetString(nameBuffer);
-            dp.Name = diskName.Remove(diskName.LastIndexOf("."));
+            var lastDot = diskName.LastIndexOf(".");
+            if (lastDot == -1)
+            {
+                return dp;
+            }
+            dp.Name = diskName.Remove(lastDot);
 
             return dp;
         }
