@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using VFS.VFS.Models;
@@ -11,10 +12,20 @@ namespace VFS.VFS.Parser
         public override void EnterLs(ShellParser.LsContext context)
         {
             var entries = VFSManager.ListEntries(context.files == null ? false : true, context.dirs == null ? false : true);
+            var oldColor = Console.ForegroundColor;
             foreach (var entry in entries)
             {
+                if (entry.IsDirectory)
+                {
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
                 Console.WriteLine(entry.Name);
             }
+            Console.ForegroundColor = oldColor;
         }
 
         public override void EnterCd(ShellParser.CdContext context)
@@ -192,7 +203,14 @@ namespace VFS.VFS.Parser
 
         public override void EnterMkdir(ShellParser.MkdirContext context)
         {
-            base.EnterMkdir(context);
+            if (context.id != null)
+            {
+                EntryFactory.createDirectory(VFSManager.CurrentDisk, context.id.Text, VFSManager.workingDirectory);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public override void EnterMkFile(ShellParser.MkFileContext context)
