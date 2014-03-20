@@ -24,8 +24,8 @@ compileUnit
 	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit						#Rmdisk
 	| ('loaddisk' | 'ldisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit							#Ldisk
 	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
-	| 'mkdir' trgt=Path compileUnit																			#Mkdir
-	| ('mk' | 'touch') (id=Identifier | path=Path)															#MkFile
+	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir
+	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
 	| ('remove' | 'rm') opt=R? trgt=Path compileUnit														#Rm
 	| ('move' | 'mv') opt=R? src=Path dst=Path compileUnit													#Mv
 	| ('import' | 'im') ext=SysPath int=Path compileUnit													#Im
