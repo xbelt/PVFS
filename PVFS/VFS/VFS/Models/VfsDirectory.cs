@@ -24,13 +24,14 @@ namespace VFS.VFS.Models
             : base(disk, address, name, parent, noEntries, noBlocks, nextBlock)
         {
             IsDirectory = true;
+            Elements = new List<VfsEntry>();
             // careful filesize is == noEntrys in this class!
         }
 
         /// <summary>
         /// Loads the directory, fills Inodes and Elements. Should only be called in getEntries();
         /// </summary>
-        private void Load()
+        public void Load()
         {
             var reader = Disk.getReader();
             Inodes = new List<Block> { new Block(Address, Address, null) };
@@ -70,10 +71,50 @@ namespace VFS.VFS.Models
 
             IsLoaded = true;
         }
+        private void Store()
+        {
+            if (FileSize == Elements.Count)
+            {
+                throw new Exception("Why did you call Store when nothing has changed?");
+            }
+            var writer = Disk.getWriter();
+            var reader = Disk.getReader();
+            int doneEntriesInCurrentBlock = 0, totalEntries = 0, blockNumber = 0, currentBlockAddress = Address;
+            writer.Seek(Disk, Address, HeaderSize);
+            FileSize = Elements.Count;
+            writer.Seek(Disk, Address, 8);
+            writer.Write(FileSize);
+            while (totalEntries < FileSize)
+            {
+                writer.Write(Elements[totalEntries].Address);
+                totalEntries++;
+                doneEntriesInCurrentBlock++;
 
+                // Current Block exhausted?
+                if (doneEntriesInCurrentBlock >= (Disk.BlockSize - HeaderSize) / 4 && totalEntries != FileSize)
+                {
+                    blockNumber++;
+                    if (blockNumber > NoBlocks)
+                    {
+                        int next;
+                        Disk.allocate(out next);
+                        writer.Seek(Disk, currentBlockAddress);
+                        writer.Write(next);
+                        writer.Seek(Disk, Address, 12);
+                        writer.Write(++NoBlocks);
+                        writer.Seek(Disk, next, SmallHeaderSize);
+                    }
+                    else
+                    {
+                        reader.Seek(Disk, currentBlockAddress);
+                        currentBlockAddress = reader.ReadInt32();
+                    }
 
+                    doneEntriesInCurrentBlock = 0;
+                }
+            }
+        }
 
-        // TODO F: this should be a VfsEntry list, because it can contain both, VfsFiles and VfsDirectories, otherwise it's missleading. Maybe take VfsFile.Name, etc into VfsEntry?
         public List<VfsEntry> Elements { get; set; }
 
         public VfsDirectory GetSubDirectory(string name)
@@ -144,22 +185,10 @@ namespace VFS.VFS.Models
         //TODO: might throw exception
         public void AddElement(VfsFile element)
         {
-            if (element != null)
-            {
-                if (Elements != null)
-                {
-                    Elements.Add(element);
-                }
-                else
-                {
-                    throw new Exception("Elements was null");
-                }
-            }
-            else
-            {
-                throw new Exception("argument 'element' was null");
-            }
+            Elements.Add(element);
+            Store();
         }
+
 
         //TODO: might throw excpetion
         public void RemoveElement(VfsFile element)
