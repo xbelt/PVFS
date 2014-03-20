@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using VFS.VFS.Extensions;
 
 namespace VFS.VFS.Models
@@ -23,40 +24,54 @@ namespace VFS.VFS.Models
         public VfsDirectory(VfsDisk disk, int address, string name, VfsDirectory parent, int noEntries, int noBlocks, int nextBlock)
             : base(disk, address, name, parent, noEntries, noBlocks, nextBlock)
         {
-            IsDirectory = true;
-            Elements = new List<VfsEntry>();
-            // careful filesize is == noEntrys in this class!
+            this.IsDirectory = true;
+        }
+
+        private List<VfsEntry> elements;
+        private int noEntries
+        {
+            get { return this.FileSize; }
+            set { this.FileSize = value; }
         }
 
         /// <summary>
         /// Loads the directory, fills Inodes and Elements. Should only be called in getEntries();
         /// </summary>
-        public void Load()
+        private void Load()
         {
-            var reader = Disk.getReader();
-            Inodes = new List<Block> { new Block(Address, Address, null) };
-            var elementAddresses = new List<int>();
-            int head = HeaderSize, doneEntriesInCurrentBlock = 0, totalEntries = 0;
-            var nextBlock = NextBlock;
+            if (this.noEntries == 0)
+            {
+                this.Inodes = new List<Block> { new Block(this.Address, this.Address, null) };
+                this.elements = new List<VfsEntry>();
+                this.IsLoaded = true;
+                return;
+            }
 
-            reader.Seek(Disk, Address, head);
-            while (totalEntries < FileSize)
+
+            BinaryReader reader = Disk.getReader();
+            this.Inodes = new List<Block> { new Block(this.Address, this.Address, null) };
+            List<int> elementAddresses = new List<int>();
+            int head = HeaderSize, doneEntriesInCurrentBlock = 0, totalEntries = 0;
+            int nextBlock = this.NextBlock;
+
+            reader.Seek(Disk, this.Address, head);
+            while (totalEntries < this.noEntries)
             {
                 elementAddresses.Add(reader.ReadInt32());
                 totalEntries++;
                 doneEntriesInCurrentBlock++;
 
                 // Current Block exhausted?
-                if (doneEntriesInCurrentBlock >= (Disk.BlockSize - head) / 4 && totalEntries != FileSize)
+                if (doneEntriesInCurrentBlock >= (Disk.BlockSize - head) / 4 && totalEntries != this.noEntries)
                 {
-                    var next = new Block(nextBlock, Address, null);
-                    Inodes.Last().NextBlock = next;
-                    Inodes.Add(next);
+                    Block next = new Block(nextBlock, this.Address, null);
+                    this.Inodes.Last().NextBlock = next;
+                    this.Inodes.Add(next);
 
                     reader.Seek(Disk, nextBlock);
                     nextBlock = reader.ReadInt32();
-                    if (reader.ReadInt32() != Address)
-                        throw new IOException("The startBlock Address of block " + Inodes.Last().Address + " was inconsistent.");
+                    if (reader.ReadInt32() != this.Address)
+                        throw new IOException("The startBlock Address of block " + this.Inodes.Last().Address + " was inconsistent.");
 
                     doneEntriesInCurrentBlock = 0;
                     head = SmallHeaderSize;
@@ -64,17 +79,36 @@ namespace VFS.VFS.Models
             }
 
             if (nextBlock != 0)
-                throw new IOException("The nextBlock Address of block " + Inodes.Last().Address + " is not 0 (it's the last block).");
+                throw new IOException("The nextBlock Address of block " + this.Inodes.Last().Address + " is not 0 (it's the last block).");
 
-            // TODO F: see remark at Elements definition
-            Elements = elementAddresses.Select(address => EntryFactory.OpenEntry(Disk, address, this)).ToList();
+            elements = elementAddresses.Select(address => EntryFactory.OpenEntry(Disk, address, this)).ToList();
 
-            IsLoaded = true;
+            this.IsLoaded = true;
         }
+
+        /// <summary>
+        /// Returns the entries contained in this directory and loads it if it was unloaded before.
+        /// </summary>
+        /// <returns>Returns the entries contained in this directory.</returns>
+        public List<VfsEntry> GetEntries()
+        {
+            if (!this.IsLoaded)
+                this.Load();
+
+            return this.elements;
+        }
+        public VfsEntry GetEntry(string name)
+        {
+            return this.GetEntries().First(entry => entry.Name == name);
+        }
+
+        /// <summary>
+        /// Stores the directory to disk.
+        /// </summary>
         private void Store()
         {
             //TODO: L store also new name in case of rename and other properties
-            if (FileSize == Elements.Count)
+            if (noEntries == GetEntries().Count)
             {
                 throw new Exception("Why did you call Store when nothing has changed?");
             }
@@ -82,12 +116,12 @@ namespace VFS.VFS.Models
             var reader = Disk.getReader();
             int doneEntriesInCurrentBlock = 0, totalEntries = 0, blockNumber = 0, currentBlockAddress = Address;
             writer.Seek(Disk, Address, HeaderSize);
-            FileSize = Elements.Count;
+            FileSize = elements.Count;
             writer.Seek(Disk, Address, 8);
             writer.Write(FileSize);
             while (totalEntries < FileSize)
             {
-                writer.Write(Elements[totalEntries].Address);
+                writer.Write(elements[totalEntries].Address);
                 totalEntries++;
                 doneEntriesInCurrentBlock++;
 
@@ -116,54 +150,45 @@ namespace VFS.VFS.Models
             }
         }
 
-        public List<VfsEntry> Elements { get; set; }
-
-        public VfsDirectory GetSubDirectory(string name)
+        public IEnumerable<VfsDirectory> GetDirectories()
         {
-            try
-            {
-                return Elements.Single(el => el.IsDirectory) as VfsDirectory;
-            }
-            catch (Exception e)
-            {
-                throw new InvalidDirectoryException("directory " + name + " not found");
-            }
+            return this.GetEntries().Where(el => el.IsDirectory).Cast<VfsDirectory>().ToList();
         }
-
-        public IEnumerable<VfsDirectory> GetSubDirectories()
+        public VfsDirectory GetDirectory(string name)
         {
-            return Elements.Where(el => el.IsDirectory) as List<VfsDirectory>;
+            VfsEntry e = this.GetEntries().FirstOrDefault(entry => entry.Name == name);
+            if (e != null && e.IsDirectory)
+                return (VfsDirectory)e;
+            else
+                return null;
         }
-
         public IEnumerable<VfsFile> GetFiles()
         {
-            return Elements.Where(element => !element.IsDirectory) as List<VfsFile>;
+            return this.GetEntries().Where(el => !el.IsDirectory).Cast<VfsFile>().ToList();
         }
-
-
-        public VfsFile GetFileIgnoringSubDirectories(string name)
+        public VfsFile GetFile(string name)
         {
-            if (Elements.Count <= 0)
-            {
-                throw new Exception("Elements.Count was < 1");
-            }
-            if (name == null)
-            {
-                throw new Exception("Argument 'name' is null.");
-            }
-
-            return Elements.Where(element => !element.IsDirectory).FirstOrDefault(element => element.Name.Equals(name)) as VfsFile;
+            VfsEntry e = this.GetEntries().FirstOrDefault(entry => entry.Name == name);
+            if (e != null && !e.IsDirectory)
+                return (VfsFile)e;
+            else
+                return null;
         }
 
+        /// <summary>
+        /// Recursively looks for a name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public VfsFile GetFileCheckingSubDirectories(string name)
         {
             VfsFile result;
             if (name == null)
                 throw new Exception("argument 'name' was null");
-            if (Elements.Count <= 0)
+            if (GetEntries().Count <= 0)
                 throw new Exception("Elements.Count was < 1");//TODO F: This is no good for a recursive method!
 
-            foreach (VfsFile element in Elements)
+            foreach (VfsFile element in elements)
             {
                 if (element.IsDirectory)
                 {
@@ -183,40 +208,135 @@ namespace VFS.VFS.Models
             throw new Exception("File " + name + " was not found");
         }
 
-        //TODO: might throw exception
-        public void AddElement(VfsEntry element)
+        /// <summary>
+        /// Adds an element to this directory. If it was already contained this does nothing.
+        /// Throws an exception if there is not enough space on the disk to add this element.
+        /// </summary>
+        /// <param name="element">The element to add</param>
+        /// <returns>Returns True if the element was sucessfully added to this directory, False if it was already contained in the directory.</returns>
+        public bool AddElement(VfsFile element)
         {
-            Elements.Add(element);
-            Store();
-        }
+            if (element == null)
+                throw new ArgumentException("Argument 'element' was null.");
 
+            if (!this.IsLoaded)
+                this.Load();
 
-        //TODO: might throw excpetion
-        public void RemoveElement(VfsFile element)
-        {
-            if (element != null)
-            {
-                if (Elements != null)
-                {
-                    Elements.Remove(element);
-                }
-                else
-                {
-                    throw new Exception("Elements was null");
-                }
+            if (this.elements.Contains(element))
+                return false;
+
+            BinaryWriter writer = this.Disk.getWriter();
+
+            if (GetNoBlocks(this.Disk, 4 * this.noEntries + 4) > this.NoBlocks)
+            {// add a new block
+                int address;
+                if (!Disk.allocate(out address))
+                    throw new ArgumentException("There is not enough space on this disk to add a new File to this directory!");
+                Block block = new Block(address, this.Address, null), last = this.Inodes.Last();
+                last.NextBlock = block;
+                this.Inodes.Add(block);
+
+                writer.Seek(this.Disk, last.Address);
+                writer.Write(address);
+                writer.Seek(this.Disk, address);
+                writer.Write(0);
+                writer.Write(this.Address);
             }
             else
             {
-                throw new Exception("argument 'element' was null");
+                // seek to end of used content
+                // TODO: Please check really hard for index errors, there are probably some in here.
+                int head = HeaderSize, noSubs, pos = this.noEntries;
+                Block current = this.Inodes.First();
+                while ((noSubs = (this.Disk.BlockSize - head) / 4) <= pos)// find block
+                {
+                    current = current.NextBlock;
+                    pos -= noSubs;
+                    head = SmallHeaderSize;
+                }
+                writer.Seek(this.Disk, current.Address, head + pos * 4);
             }
-        }
-    }
 
-    public class InvalidDirectoryException : Exception
-    {
-        public InvalidDirectoryException(string s)
+            writer.Write(element.Address);
+
+            this.elements.Add(element);
+            this.noEntries = this.elements.Count;
+            writer.Seek(this.Disk, this.Address, 8);// Update noEntries
+            writer.Write(this.noEntries);
+            if (this.Inodes.Count != this.NoBlocks) // Update noBlocks
+            {
+                this.NoBlocks = this.Inodes.Count;
+                writer.Write(this.NoBlocks);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Removes an element from this directory. If it's not in this directory this returns False.
+        /// </summary>
+        /// <param name="element">The element to remove.</param>
+        /// <returns>Returns True iff the element was in the directory, otherwise False.</returns>
+        public bool RemoveElement(VfsFile element)
         {
-            Console.WriteLine(s);
+            if (element == null)
+                throw new ArgumentException("Argument 'element' was null.");
+
+            int index = this.GetEntries().IndexOf(element);
+
+            if (index == -1)
+                return false;
+
+            BinaryWriter writer = this.Disk.getWriter();
+
+            if (GetNoBlocks(this.Disk, 4 * this.noEntries - 4) < this.NoBlocks)
+            {
+                // remove last block
+                this.Disk.free(this.Inodes.Last().Address);
+                this.Inodes.RemoveAt(this.Inodes.Count - 1);
+                this.Inodes.Last().NextBlock = null;
+
+                writer.Seek(this.Disk, Inodes.Last().Address);// noBlocks is written later
+                writer.Write(0);
+            }
+
+            // Remove from disk (rewrite from index till last)
+            // TODO: Please check for index errors. There are probably some in this part.
+            int head = HeaderSize, noSubs, pos = index;
+            Block current = this.Inodes.First();
+            while ((noSubs = (this.Disk.BlockSize - head) / 4) <= pos)// find block
+            {
+                current = current.NextBlock;
+                pos -= noSubs;
+                head = SmallHeaderSize;
+            }
+            writer.Seek(this.Disk, current.Address, head + pos * 4);
+            index++; // Skip removed element
+            while (index < this.noEntries)
+            {
+                writer.Write(this.elements[index].Address);
+                index++;
+                pos++;
+
+                // current block exhausted?
+                if (pos >= (this.Disk.BlockSize - head) / 4 && index < this.noEntries)
+                {
+                    pos = 0;
+                    current = current.NextBlock;
+                    head = SmallHeaderSize;
+                    writer.Seek(this.Disk, current.Address, head);
+                }
+            }
+
+            this.elements.Remove(element);
+            this.noEntries = this.elements.Count;
+            writer.Seek(this.Disk, this.Address, 8);// Update noEntries
+            writer.Write(this.noEntries);
+            if (this.Inodes.Count != this.NoBlocks) // Update noBlocks
+            {
+                this.NoBlocks = this.Inodes.Count;
+                writer.Write(this.NoBlocks);
+            }
+            return true;
         }
     }
 }
