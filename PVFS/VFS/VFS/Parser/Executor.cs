@@ -13,7 +13,7 @@ namespace VFS.VFS.Parser
         {
             var entries = VFSManager.ListEntries(context.files == null ? false : true, context.dirs == null ? false : true);
             var oldColor = Console.ForegroundColor;
-            foreach (var entry in entries)
+            foreach (var entry in entries.OrderBy(x => x.IsDirectory))
             {
                 if (entry.IsDirectory)
                 {
@@ -237,12 +237,12 @@ namespace VFS.VFS.Parser
 
         public override void EnterIm(ShellParser.ImContext context)
         {
-            base.EnterIm(context);
+            VFSManager.Import(context.ext.Text, context.inte.Text);
         }
 
         public override void EnterEx(ShellParser.ExContext context)
         {
-            base.EnterEx(context);
+            VFSManager.Export(context.inte.Text, context.ext.Text);
         }
 
         public override void EnterFree(ShellParser.FreeContext context)
