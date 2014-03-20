@@ -51,6 +51,29 @@ namespace VFS.VFS
                 return new VfsFile(disk, address, name, parent, fileSize, noBlocks, nextBlock);
             }
         }
+        public static VfsEntry OpenEntry(string path)
+        {
+            var diskName = path.Substring(1);
+            diskName = diskName.Substring(0, path.IndexOf("/"));
+            var disk = VFSManager.GetDisk(diskName);
+
+            var currentParent = disk.root;
+            path = path.Substring(path.IndexOf("/") + 1);
+
+            while (path != "")
+            {
+                var endIndex = path.IndexOf("/");
+                if (endIndex == -1)
+                {
+                    return OpenEntry(disk, currentParent.GetFile(path).Address,
+                        currentParent);
+                }
+                var entry = currentParent.GetDirectory(path.Substring(0, endIndex));
+                path = path.Substring(endIndex + 1);
+                currentParent = entry;
+            }
+            throw new FileNotFoundException();
+        }
 
         /// <summary>
         /// creates a file on the disk with the specified size, with random content
@@ -124,5 +147,6 @@ namespace VFS.VFS
             parent.AddElement(vfsDirectory);
             return vfsDirectory;
         }
+
     }
 }
