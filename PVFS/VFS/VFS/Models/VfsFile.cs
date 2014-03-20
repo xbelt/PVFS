@@ -44,7 +44,6 @@ namespace VFS.VFS.Models
         #endregion
 
         public VfsDirectory Parent { get; protected set; }
-
         public string Type
         {
             get
@@ -234,6 +233,23 @@ namespace VFS.VFS.Models
 
             Inodes = null;
             IsLoaded = false;
+        }
+
+        /// <summary>
+        /// Renames the File/Directory and 
+        /// </summary>
+        /// <param name="name"></param>
+        public void Rename(string name)
+        {
+            if (name == null)
+                throw new ArgumentException("Name was null.");
+            if (name.Length > MaxNameLength)
+                throw new ArgumentException("Name was too long.");
+
+            BinaryWriter writer = this.Disk.getWriter();
+            writer.Seek(this.Disk, this.Address, 14);
+            writer.Write(name.ToCharArray());
+            this.Name = name;
         }
 
         /// <summary>
