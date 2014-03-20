@@ -265,6 +265,7 @@ namespace VFS.VFS.Models
             writer.Write(element.Address);
 
             this.elements.Add(element);
+            element.Parent = this;
             this.noEntries = this.elements.Count;
             writer.Seek(this.Disk, this.Address, 8);// Update noEntries
             writer.Write(this.noEntries);

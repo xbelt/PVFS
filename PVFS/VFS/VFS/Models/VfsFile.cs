@@ -43,7 +43,7 @@ namespace VFS.VFS.Models
 
         #endregion
 
-        public VfsDirectory Parent { get; protected set; }
+        public VfsDirectory Parent { get; protected internal set; }
         public string Type
         {
             get

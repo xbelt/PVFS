@@ -6,7 +6,8 @@ using VFS.VFS.Models;
 
 namespace VFS.VFS
 {
-    class VFSManager {
+    class VFSManager
+    {
         private static List<VfsDisk> _disks = new List<VfsDisk>();
         public static VfsDirectory workingDirectory;
         public static VfsDisk CurrentDisk;
@@ -16,11 +17,11 @@ namespace VFS.VFS
         /// </summary>
         /// <param name="path">A path containing the disk name</param>
         /// <returns></returns>
-        private VfsEntry getEntry(string path)
+        private static VfsEntry getEntry(string path)
         {
             throw new NotImplementedException();
         }
-        private VfsEntry getEntry(VfsDisk disk, string path)
+        private static VfsEntry getEntry(VfsDisk disk, string path)
         {
             throw new NotImplementedException();
         }
@@ -70,6 +71,34 @@ namespace VFS.VFS
                 throw new InvalidArgumentException("cd requires a path to a folder not a file");
             }
             Console.WriteLine("new path: " + path);
+        }
+
+        /// <summary>
+        /// Moves a File or Directory to a new location. A directory is moved recursively.
+        /// </summary>
+        /// <param name="srcPath">The absolute path to the File/Directory that should be moved.</param>
+        /// <param name="dstPath">The absolute path to the target Directory.</param>
+        public static void move(string srcPath, string dstPath)
+        {
+            if (srcPath == null || dstPath == null)
+                throw new ArgumentException("Argument null.");
+            if (dstPath.StartsWith(srcPath)) // TODO: make a real recursive test
+                throw new ArgumentException("Can't move a directory into itself!");
+
+            VfsFile src = (VfsFile) getEntry(srcPath);
+            VfsEntry dst = getEntry(dstPath);
+
+            if (src == null || dst == null)
+                throw new ArgumentException("Src or Dst did not exist.");
+            if (!dst.IsDirectory)
+                throw new ArgumentException("Destination must be a directory.");
+
+            VfsDirectory parent = src.Parent;
+            parent.RemoveElement(src);
+            VfsDirectory target = (VfsDirectory) dst;
+            target.AddElement(src);
+
+            Console.WriteLine("copy " + src + " to " + dst);
         }
 
         public static void cp(string src, string dst, bool isRecursive)
