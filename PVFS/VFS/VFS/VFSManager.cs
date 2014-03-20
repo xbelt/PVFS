@@ -92,6 +92,16 @@ namespace VFS.VFS
         }
 
         #endregion
+
+        public static void Import(string src, string dst)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void Export(string dst, string src)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     internal class InvalidArgumentException : Exception
