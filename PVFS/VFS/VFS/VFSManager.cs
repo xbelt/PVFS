@@ -150,9 +150,18 @@ namespace VFS.VFS
         }
 
         #endregion
-
+        //Assuming full paths?
         public static void Import(string src, string dst)
         {
+
+            //Get disk:
+            String diskName = dst.TakeWhile(e => !e.Equals('/')).ToString();
+            var disk = DiskFactory.Load(diskName);
+            var reader = disk.getReader();
+            var writer = disk.getWriter();
+            //TODO: still contains file ending
+            var parent = dst.Substring(dst.LastIndexOf('/'), dst.Length);
+
             throw new NotImplementedException();
         }
 
