@@ -11,5 +11,7 @@ namespace VFS.VFS.Models {
         /// Indicates whether this is a VfsFile or VfsDirectory
         /// </summary>
         public bool IsDirectory { get; protected set; }
+
+        public string Name { get; protected set; }
     }
 }
