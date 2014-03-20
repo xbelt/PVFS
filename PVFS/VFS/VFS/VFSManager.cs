@@ -8,8 +8,8 @@ namespace VFS.VFS
 {
     class VFSManager {
         private static List<VfsDisk> _disks = new List<VfsDisk>();
-        private static VfsDirectory workingDirectory;
-        private static VfsDisk currentDisk;
+        public static VfsDirectory workingDirectory;
+        public static VfsDisk CurrentDisk;
 
         /// <summary>
         /// Returns the corresponding VfsEntry.
@@ -29,13 +29,14 @@ namespace VFS.VFS
         #region Public Interface Methods
 
 
-        public static void addAndOpenDisk(VfsDisk disk)
+        public static void AddAndOpenDisk(VfsDisk disk)
         {
-            currentDisk = disk;
+            CurrentDisk = disk;
             _disks.Add(disk);
+            workingDirectory = (VfsDirectory)EntryFactory.OpenEntry(disk, disk.root.Address, null);
         }
 
-        public static IEnumerable<VfsEntry> ls(bool files, bool dirs)
+        public static IEnumerable<VfsEntry> ListEntries(bool files, bool dirs)
         {
             if (dirs && !files)
             {
@@ -48,7 +49,7 @@ namespace VFS.VFS
             return workingDirectory.Elements;
         }
 
-        public static void cdIdent(string name)
+        public static void ChangeDirectoryByIdentifier(string name)
         {
             workingDirectory = workingDirectory.GetSubDirectory(name);
             Console.WriteLine("new path: " + name);
@@ -84,7 +85,8 @@ namespace VFS.VFS
             var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name);
             foreach (var unmountedDisk in unmountedDisks)
             {
-                unmountedDisk.FileStream.Close();
+                unmountedDisk.getReader().Close();
+                unmountedDisk.getWriter().Close();
             }
         }
 
