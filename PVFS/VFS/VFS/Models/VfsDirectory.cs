@@ -155,10 +155,19 @@ namespace VFS.VFS.Models
             }
         }
 
+        /// <summary>
+        /// Lists all SubDirectories.
+        /// </summary>
+        /// <returns>An enumeration of the subdirectories.</returns>
         public IEnumerable<VfsDirectory> GetDirectories()
         {
             return this.GetEntries().Where(el => el.IsDirectory).Cast<VfsDirectory>().ToList();
         }
+        /// <summary>
+        /// Finds a directory with a given name.
+        /// </summary>
+        /// <param name="name">The Name.</param>
+        /// <returns>Returns the VfsDirectory, if there exists one with the given name, othewise null.</returns>
         public VfsDirectory GetDirectory(string name)
         {
             VfsEntry e = this.GetEntries().FirstOrDefault(entry => entry.Name == name);
@@ -167,10 +176,19 @@ namespace VFS.VFS.Models
             else
                 return null;
         }
+        /// <summary>
+        /// Lists all contained files.
+        /// </summary>
+        /// <returns>An enumeration of the contained files.</returns>
         public IEnumerable<VfsFile> GetFiles()
         {
             return this.GetEntries().Where(el => !el.IsDirectory).Cast<VfsFile>().ToList();
         }
+        /// <summary>
+        /// Finds a file with a given name.
+        /// </summary>
+        /// <param name="name">The Name.</param>
+        /// <returns>Returns the VfsFile, if there exists one with the given name, othewise null.</returns>
         public VfsFile GetFile(string name)
         {
             VfsEntry e = this.GetEntries().FirstOrDefault(entry => entry.Name == name);
