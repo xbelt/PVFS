@@ -227,7 +227,7 @@ namespace VFS.VFS.Parser
 
         public override void EnterRm(ShellParser.RmContext context)
         {
-            base.EnterRm(context);
+            VFSManager.Remove(context.trgt.Text, context.opt != null);
         }
 
         public override void EnterMv(ShellParser.MvContext context)

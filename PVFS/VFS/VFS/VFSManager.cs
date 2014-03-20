@@ -103,5 +103,9 @@ namespace VFS.VFS
         {
             throw new NotImplementedException();
         }
+
+        public static void Remove(string text, bool isDirectory)
+        {
+        }
     }
 }
