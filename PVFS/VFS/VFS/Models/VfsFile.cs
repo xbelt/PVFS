@@ -246,10 +246,11 @@ namespace VFS.VFS.Models
             if (name.Length > MaxNameLength)
                 throw new ArgumentException("Name was too long.");
 
-            BinaryWriter writer = this.Disk.getWriter();
-            writer.Seek(this.Disk, this.Address, 14);
+            BinaryWriter writer = Disk.getWriter();
+            writer.Seek(Disk, Address, 14);
+            writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
-            this.Name = name;
+            Name = name;
         }
 
         /// <summary>
