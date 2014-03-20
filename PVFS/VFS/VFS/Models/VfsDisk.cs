@@ -132,7 +132,7 @@ namespace VFS.VFS.Models
 
         public void free(int address) 
         {
-            throw new NotImplementedException();
+            SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
         }
         #endregion
 
