@@ -57,7 +57,7 @@ namespace VFS.VFS
         /// throws exceptions if invalid name/invalid size/disk too full
         /// </summary>
         /// <returns>a handle for the file</returns>
-        public VfsFile createFile(VfsDisk disk, string name, int size, VfsDirectory parent)
+        public static VfsFile createFile(VfsDisk disk, string name, int size, VfsDirectory parent)
         {
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The filename can't be longer than " + VfsFile.MaxNameLength + ".");
@@ -90,6 +90,7 @@ namespace VFS.VFS
 
                 blocks.Add(new Block(addresses[i], addresses[0], blocks.Last()));
             }
+            writer.Flush();
             return new VfsFile(disk, addresses[0], name, parent, size, blocks);
         }
 
@@ -98,7 +99,7 @@ namespace VFS.VFS
         /// throws exception if the disk is too full/invalid name
         /// </summary>
         /// <returns>a handle for the directory</returns>
-        public VfsDirectory createDirectory(VfsDisk disk, string name, VfsDirectory parent)
+        public static VfsDirectory createDirectory(VfsDisk disk, string name, VfsDirectory parent)
         {
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The directory-name can't be longer than " + VfsFile.MaxNameLength + ".");
