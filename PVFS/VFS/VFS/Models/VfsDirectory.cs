@@ -17,7 +17,6 @@ namespace VFS.VFS.Models
  * Children x * 4
  */
 
-    //TODO: GetFile-Functions could use NrOfChildren instead of Elements.Count
     public class VfsDirectory : VfsFile
     {
         public VfsDirectory(VfsDisk disk, int address, string name, VfsDirectory parent, int noEntries, int noBlocks, int nextBlock)
@@ -96,6 +95,10 @@ namespace VFS.VFS.Models
 
             return this.elements;
         }
+        /// <summary>
+        /// Looks for an entry with a given name.
+        /// </summary>
+        /// <returns>VfsEntry if one existed, otherwise null.</returns>
         public VfsEntry GetEntry(string name)
         {
             return this.GetEntries().FirstOrDefault(entry => entry.Name == name);

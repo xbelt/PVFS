@@ -238,7 +238,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Renames the File/Directory and 
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The new Name.</param>
         public void Rename(string name)
         {
             if (name == null)
