@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using VFS.VFS.Extensions;
 using VFS.VFS.Models;
 using VFS.VFS.Parser;
 
@@ -16,17 +17,7 @@ namespace VFS.VFS
             var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1});
             if (Directory.Exists(info.Path))
             {
-                FileStream stream;
-                if (info.Path.EndsWith("\\"))
-                {
-                    stream = File.Open(info.Path + info.Name, FileMode.Create, FileAccess.ReadWrite);
-                }
-                else
-                {
-                    stream = File.Open(info.Path + "\\" + info.Name, FileMode.Create, FileAccess.ReadWrite);
-                }
-                disk.FileStream = stream;
-                var writer = new BinaryWriter(stream, new ASCIIEncoding(), true);
+                var writer = disk.getWriter();
 
                 //blocksForPreamble + RootAddress + #Block + #UsedBlocks + Size + BlockSize + NameLength + Name + BitMap
                 var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + (4 + 4 + 4 + 8 + 4 + 4 + 4*128) * 8;
@@ -34,9 +25,10 @@ namespace VFS.VFS
                 //Write disk info
                 //writes the address of root
                 writer.Write(blocksUsedForPreamble);
+                disk.DiskProperties.RootAddress = blocksUsedForPreamble;
                 
                 DiskProperties.Write(writer, disk.DiskProperties);
-
+                writer.Seek(disk, 0, disk.DiskProperties.BitMapOffset);
                 //write bitMap
                 for (var i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
                 {
@@ -54,14 +46,11 @@ namespace VFS.VFS
 
                 byte zero = 0;
                 byte one = 1;
-                //TODO: check
-                for (var i = 1; i < Math.Ceiling(disk.DiskProperties.NumberOfBlocks/4d); i++)
-                {
-                    writer.Write(zero);
-                }
+
                 writer.Flush();
 
                 //Write root folder manually
+                writer.Seek(disk, blocksUsedForPreamble);
                 writer.Write(0); //NextBlock
                 writer.Write(blocksUsedForPreamble); //StartBlock
                 writer.Write(0); //NrOfChildren
@@ -73,7 +62,8 @@ namespace VFS.VFS
                 {
                     writer.Write(zero); //Fill block with 0's TODO: (not needed)
                 }
-                writer.Close();
+                writer.Flush();
+                disk.Init();
             }
             else
             {
