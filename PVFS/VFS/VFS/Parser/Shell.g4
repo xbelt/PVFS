@@ -28,8 +28,8 @@ compileUnit
 	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
 	| ('remove' | 'rm') opt=R? trgt=Path compileUnit														#Rm
 	| ('move' | 'mv') opt=R? src=Path dst=Path compileUnit													#Mv
-	| ('import' | 'im') ext=SysPath int=Path compileUnit													#Im
-	| ('export' | 'ex') int=Path ext=SysPath compileUnit													#Ex
+	| ('import' | 'im') ext=SysPath inte=Path compileUnit													#Im
+	| ('export' | 'ex') inte=Path ext=SysPath compileUnit													#Ex
 	| 'free'																								#Free
 	| 'occ'																									#Occ
 	| ('exit' | 'quit')																						#Exit
