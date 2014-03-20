@@ -109,7 +109,7 @@ namespace VFS.VFS
         public static void move(string srcPath, string dstPath)
         {
             if (srcPath == null || dstPath == null)
-                throw new ArgumentException("Argument null.");
+                throw new ArgumentNullException("Argument null.");
             if (dstPath.StartsWith(srcPath)) // TODO: make a real recursive test
                 throw new ArgumentException("Can't move a directory into itself!");
 
@@ -150,7 +150,13 @@ namespace VFS.VFS
         }
 
         #endregion
-        //Assuming full paths?
+        /// <summary>
+        /// Imports a File from the host Filesystem to a directory inside the virtual Filesystem. (are we supporting importing whole directories too?)
+        /// Overwrites already existing files with the same name.
+        /// Creates the target directory if it doesn't exist. Introduces grandpa Joe.
+        /// </summary>
+        /// <param name="src">The absolute path to the File that should be imported.</param>
+        /// <param name="dst">The absolute path to the target Directory.</param>
         public static void Import(string src, string dst)
         {
 
