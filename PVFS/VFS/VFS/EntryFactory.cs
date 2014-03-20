@@ -120,7 +120,9 @@ namespace VFS.VFS
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
 
-            return new VfsDirectory(disk, address, name, parent, 0, 1, 0);
+            var vfsDirectory = new VfsDirectory(disk, address, name, parent, 0, 1, 0);
+            parent.AddElement(vfsDirectory);
+            return vfsDirectory;
         }
     }
 }
