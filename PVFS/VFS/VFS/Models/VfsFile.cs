@@ -44,7 +44,7 @@ namespace VFS.VFS.Models
         #endregion
 
         public VfsDirectory Parent { get; protected set; }
-        public string Name { get; protected set; }
+
         public string Type
         {
             get
@@ -93,7 +93,7 @@ namespace VFS.VFS.Models
             Parent = parent;
             FileSize = filesize;
             NoBlocks = blocks.Count;
-            NextBlock = NoBlocks > 0 ? blocks[1].Address : 0;
+            NextBlock = NoBlocks > 1 ? blocks[1].Address : 0;
             Inodes = blocks;
         }
 
@@ -252,7 +252,7 @@ namespace VFS.VFS.Models
                 if (noBlocks * (blockSize - SmallHeaderSize) != filesize) noBlocks++;
                 return noBlocks + 1;
             }
-            else return 1;
+            return 1;
         }
     }
 }
