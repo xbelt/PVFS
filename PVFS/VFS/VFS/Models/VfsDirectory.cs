@@ -88,14 +88,14 @@ namespace VFS.VFS.Models
             }
         }
 
-        public List<VfsFile> GetSubDirectories()
+        public IEnumerable<VfsDirectory> GetSubDirectories()
         {
-            return Elements.Where(el => el.IsDirectory).ToList();
+            return Elements.Where(el => el.IsDirectory) as List<VfsDirectory>;
         }
 
-        public List<VfsFile> GetFiles()
+        public IEnumerable<VfsFile> GetFiles()
         {
-            return Elements.Where(element => !element.IsDirectory).ToList();
+            return Elements.Where(element => !element.IsDirectory) as List<VfsFile>;
         }
 
 
@@ -110,7 +110,7 @@ namespace VFS.VFS.Models
                 throw new Exception("Argument 'name' is null.");
             }
 
-            return Elements.Where(element => !element.IsDirectory).FirstOrDefault(element => element.Name.Equals(name));
+            return Elements.Where(element => !element.IsDirectory).FirstOrDefault(element => element.Name.Equals(name)) as VfsFile;
         }
 
         public VfsFile GetFileCheckingSubDirectories(string name)
