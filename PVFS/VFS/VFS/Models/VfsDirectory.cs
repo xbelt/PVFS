@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using VFS.VFS.Extensions;
 
 namespace VFS.VFS.Models
@@ -99,7 +98,7 @@ namespace VFS.VFS.Models
         }
         public VfsEntry GetEntry(string name)
         {
-            return this.GetEntries().First(entry => entry.Name == name);
+            return this.GetEntries().FirstOrDefault(entry => entry.Name == name);
         }
 
         /// <summary>
