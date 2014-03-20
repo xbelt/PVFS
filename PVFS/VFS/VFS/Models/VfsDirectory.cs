@@ -184,7 +184,7 @@ namespace VFS.VFS.Models
         }
 
         //TODO: might throw exception
-        public void AddElement(VfsFile element)
+        public void AddElement(VfsEntry element)
         {
             Elements.Add(element);
             Store();
