@@ -154,6 +154,8 @@ namespace VFS.VFS
         /// Imports a File from the host Filesystem to a directory inside the virtual Filesystem. (are we supporting importing whole directories too?)
         /// Overwrites already existing files with the same name.
         /// Creates the target directory if it doesn't exist. Introduces grandpa Joe.
+        /// 
+        /// Throws an exception if you try to import the virtual disk itself!
         /// </summary>
         /// <param name="src">The absolute path to the File that should be imported.</param>
         /// <param name="dst">The absolute path to the target Directory.</param>
@@ -171,6 +173,11 @@ namespace VFS.VFS
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Fills Joe's life with joy.
+        /// </summary>
+        /// <param name="dst">The absolute path to the target Directory.</param>
+        /// <param name="src">The absolute path to the File that should be exported.</param>
         public static void Export(string dst, string src)
         {
             throw new NotImplementedException();
