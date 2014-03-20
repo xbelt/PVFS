@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using VFS.VFS.Models;
+using VFS.VFS.Parser;
 
 namespace VFS.VFS
 {
@@ -82,7 +83,7 @@ namespace VFS.VFS
         public static void ChangeDirectoryByIdentifier(string name)
         {
             // TODO: exception if null
-            workingDirectory = workingDirectory.GetDirectory(name);
+            workingDirectory = workingDirectory.GetDirectory(name) ?? workingDirectory;
             Console.WriteLine("new path: " + name);
         }
 
@@ -96,7 +97,7 @@ namespace VFS.VFS
             }
             catch (InvalidCastException exception)
             {
-                throw new InvalidArgumentException("cd requires a path to a folder not a file");
+                throw new ArgumentException("cd requires a path to a folder not a file");
             }
             Console.WriteLine("new path: " + path);
         }
@@ -185,7 +186,24 @@ namespace VFS.VFS
 
         public static void RemoveByPath(string path, bool isDirectory)
         {
-            var entry = EntryFactory.OpenEntry(path);
+            var entry = EntryFactory.OpenEntry(path) as VfsFile;
+            if (isDirectory)
+            {
+                var files = ((VfsDirectory)entry).GetFiles();
+                foreach (var file in files)
+                {
+                    file.Free();
+                }
+                var directories = ((VfsDirectory)entry).GetDirectories();
+                foreach (var directory in directories)
+                {
+                    RemoveByPath(directory.GetAbsolutePath(), true);
+                }
+            }
+            else
+            {
+                entry.Free();
+            }
         }
 
         public static void RemoveByIdentifier(string ident, bool isDirectory)
@@ -209,6 +227,15 @@ namespace VFS.VFS
             {
                 entry.Free();
             }
+        }
+
+        public static VfsDisk GetDisk(string diskName)
+        {
+            if (_disks.Any(x => x.DiskProperties.Name == diskName))
+            {
+                _disks.Single(x => x.DiskProperties.Name == diskName);
+            }
+            throw new DiskNotFoundException();
         }
     }
 }
