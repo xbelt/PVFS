@@ -253,6 +253,15 @@ namespace VFS.VFS.Models
             Name = name;
         }
 
+        public string GetAbsolutePath()
+        {
+            if (Parent != null)
+            {
+                return Parent.GetAbsolutePath() + "/" + Name;
+            }
+            return "/" + Name;
+        }
+
         /// <summary>
         /// Returns the total number of blocks needed for a file of specified size on the target disk. This accounts for the startblock.
         /// </summary>
