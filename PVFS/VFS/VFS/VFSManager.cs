@@ -43,7 +43,15 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(VfsDisk disk, string path)
         {
-            throw new NotImplementedException();
+            VfsDirectory current = disk.root;
+            string[] names = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < names.Length - 1; i++)
+            {
+                current = current.GetDirectory(names[i]);
+                if (current == null)
+                    return null; // not found
+            }
+            return current.GetEntry(names.Last());
         }
 
 
