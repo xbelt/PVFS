@@ -38,7 +38,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Loads the directory, fills Inodes and Elements. Should only be called in getEntries();
         /// </summary>
-        private void Load()
+        public void Load()
         {
             if (this.noEntries == 0)
             {
@@ -170,7 +170,7 @@ namespace VFS.VFS.Models
         /// <returns>Returns the VfsDirectory, if there exists one with the given name, othewise null.</returns>
         public VfsDirectory GetDirectory(string name)
         {
-            VfsEntry e = this.GetEntries().FirstOrDefault(entry => entry.Name == name);
+            VfsEntry e = this.GetDirectories().FirstOrDefault(entry => entry.Name == name);
             if (e != null && e.IsDirectory)
                 return (VfsDirectory)e;
             else

@@ -101,7 +101,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// used in write, read and free to load the blocks
         /// </summary>
-        private void Load()
+        public void Load()
         {
             var reader = Disk.getReader();
             Inodes = new List<Block> { new Block(Address, Address, null) };
