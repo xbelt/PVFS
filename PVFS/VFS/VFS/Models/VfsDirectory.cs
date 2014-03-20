@@ -73,6 +73,7 @@ namespace VFS.VFS.Models
         }
         private void Store()
         {
+            //TODO: L store also new name in case of rename and other properties
             if (FileSize == Elements.Count)
             {
                 throw new Exception("Why did you call Store when nothing has changed?");
