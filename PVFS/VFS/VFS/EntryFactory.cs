@@ -91,7 +91,9 @@ namespace VFS.VFS
                 blocks.Add(new Block(addresses[i], addresses[0], blocks.Last()));
             }
             writer.Flush();
-            return new VfsFile(disk, addresses[0], name, parent, size, blocks);
+            var vfsFile = new VfsFile(disk, addresses[0], name, parent, size, blocks);
+            parent.AddElement(vfsFile);
+            return vfsFile;
         }
 
         /// <summary>
