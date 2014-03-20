@@ -31,11 +31,20 @@ namespace VFS.VFS.Parser
         public override void EnterCd(ShellParser.CdContext context)
         {
             if (context.path != null)
+            {
                 VFSManager.cdPath(context.path.Text);
+                return;
+            }
             if (context.ident != null)
+            {
                 VFSManager.ChangeDirectoryByIdentifier(context.ident.Text);
+                return;
+            }
             if (context.dots != null)
+            {
                 VFSManager.navigateUp();
+                return;
+            }
             throw new ArgumentException("cd requires at least one argument");
         }
 
@@ -48,7 +57,7 @@ namespace VFS.VFS.Parser
         {
             var path = Directory.GetCurrentDirectory();
             var name = "disk" + DateTime.Now + ".vdi";
-            name = name.Replace(':', '.');
+            name = name.Replace(':', '_');
             name = name.Replace(' ', '_');
             var blockSize = 2048;
             if (context.par1 != null)
