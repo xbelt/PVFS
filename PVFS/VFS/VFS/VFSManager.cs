@@ -13,14 +13,34 @@ namespace VFS.VFS
         public static VfsDisk CurrentDisk;
 
         /// <summary>
+        /// Returns the disk with the corresponding name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>Returns a VfsDisk if it was found, otherwise null.</returns>
+        private static VfsDisk getDisk(string name)
+        {
+            return _disks.FirstOrDefault(d => d.DiskProperties.Name == name);
+        }
+        /// <summary>
         /// Returns the corresponding VfsEntry.
         /// </summary>
-        /// <param name="path">A path containing the disk name</param>
-        /// <returns></returns>
+        /// <param name="path">An absolute path containing the disk name</param>
+        /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(string path)
         {
-            throw new NotImplementedException();
+            var disk = getDisk(path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries)[0]);
+            if (disk != null)
+                return getEntry(disk, path);
+            else
+                return null;
         }
+
+        /// <summary>
+        /// Returns the corresponding VfsEntry.
+        /// </summary>
+        /// <param name="disk">The disk to start on.</param>
+        /// <param name="path">An absolute path, not containing the disk name</param>
+        /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(VfsDisk disk, string path)
         {
             throw new NotImplementedException();
