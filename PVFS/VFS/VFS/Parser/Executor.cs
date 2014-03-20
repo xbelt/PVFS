@@ -10,7 +10,11 @@ namespace VFS.VFS.Parser
     {
         public override void EnterLs(ShellParser.LsContext context)
         {
-            VFSManager.ls(context.files == null ? false : true, context.dirs == null ? false : true);
+            var entries = VFSManager.ListEntries(context.files == null ? false : true, context.dirs == null ? false : true);
+            foreach (var entry in entries)
+            {
+                Console.WriteLine(entry.Name);
+            }
         }
 
         public override void EnterCd(ShellParser.CdContext context)
@@ -18,7 +22,7 @@ namespace VFS.VFS.Parser
             if (context.path != null)
                 VFSManager.cdPath(context.path.Text);
             if (context.ident != null)
-                VFSManager.cdIdent(context.ident.Text);
+                VFSManager.ChangeDirectoryByIdentifier(context.ident.Text);
             if (context.dots != null)
                 VFSManager.navigateUp();
             throw new InvalidArgumentException("cd requires at least one argument");
@@ -88,7 +92,7 @@ namespace VFS.VFS.Parser
             }
 
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize));
-            VFSManager.addAndOpenDisk(disk);
+            VFSManager.AddAndOpenDisk(disk);
         }
 
         private double getSizeInBytes(double intSize, string type)
@@ -97,16 +101,16 @@ namespace VFS.VFS.Parser
             {
                 case "kb":
                 case "KB":
-                    return 1000d * intSize;
+                    return 1024d * intSize;
                 case "mb":
                 case "MB":
-                    return 1000d * 1000 * intSize;
+                    return 1024d * 1024 * intSize;
                 case "gb":
                 case "GB":
-                    return 1000d * 1000 * 1000 * intSize;
+                    return 1024d * 1024 * 1024 * intSize;
                 case "tb":
                 case "TB":
-                    return 1000d * 1000 * 1000 * 1000 * intSize;
+                    return 1024d * 1024 * 1024 * 1024 * intSize;
             }
             throw new UnsupportedFileSizeType("only kb, mb, gb and tb are allowed as units");
         }
@@ -163,7 +167,7 @@ namespace VFS.VFS.Parser
             }
             if (disk != null)
             {
-                VFSManager.addAndOpenDisk(disk);
+                VFSManager.AddAndOpenDisk(disk);
                 return;
             }
             throw new DiskNotFoundException();
@@ -189,6 +193,18 @@ namespace VFS.VFS.Parser
         public override void EnterMkdir(ShellParser.MkdirContext context)
         {
             base.EnterMkdir(context);
+        }
+
+        public override void EnterMkFile(ShellParser.MkFileContext context)
+        {
+            if (context.id != null)
+            {
+                EntryFactory.createFile(VFSManager.CurrentDisk, context.id.Text, 0, VFSManager.workingDirectory);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public override void EnterRm(ShellParser.RmContext context)
