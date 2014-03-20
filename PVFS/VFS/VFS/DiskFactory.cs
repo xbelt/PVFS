@@ -77,9 +77,12 @@ namespace VFS.VFS
             if (File.Exists(path))
             {
                 var stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite);
-                var reader = new BinaryReader(stream, new ASCIIEncoding(), true);
+                var reader = new BinaryReader(stream, new ASCIIEncoding(), false);
                 var dp = DiskProperties.Load(reader);
-                return new VfsDisk(path, dp);
+                reader.Close();
+                var vfsDisk = new VfsDisk(path, dp);
+                vfsDisk.Init();
+                return vfsDisk;
             }
             throw new InvalidPathException(path + " is not a valid path to a vdi");
         }
