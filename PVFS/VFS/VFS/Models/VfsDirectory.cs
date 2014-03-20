@@ -25,6 +25,9 @@ namespace VFS.VFS.Models
             this.IsDirectory = true;
         }
 
+        /// <summary>
+        /// Do not use, for Load method only. Use GetEntries() instead (this makes sure it's loaded).
+        /// </summary>
         private List<VfsEntry> elements;
         private int noEntries
         {
