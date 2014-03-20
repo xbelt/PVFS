@@ -7,11 +7,10 @@ namespace VFS.VFS.Models {
     /// </summary>
     public abstract class VfsEntry {
         public int Address { get; protected set; }
+        public string Name { get; protected set; }
         /// <summary>
         /// Indicates whether this is a VfsFile or VfsDirectory
         /// </summary>
         public bool IsDirectory { get; protected set; }
-
-        public string Name { get; protected set; }
     }
 }

@@ -41,18 +41,19 @@ namespace VFS.VFS
         {
             if (dirs && !files)
             {
-                return workingDirectory.GetSubDirectories();
+                return workingDirectory.GetDirectories();
             }
             if (!dirs && files)
             {
                 return workingDirectory.GetFiles();
             }
-            return workingDirectory.Elements;
+            return workingDirectory.GetEntries();
         }
 
         public static void ChangeDirectoryByIdentifier(string name)
         {
-            workingDirectory = workingDirectory.GetSubDirectory(name);
+            // TODO: exception if null
+            workingDirectory = workingDirectory.GetDirectory(name);
             Console.WriteLine("new path: " + name);
         }
 
@@ -101,14 +102,6 @@ namespace VFS.VFS
         public static void Export(string dst, string src)
         {
             throw new NotImplementedException();
-        }
-    }
-
-    internal class InvalidArgumentException : Exception
-    {
-        public InvalidArgumentException(string msg)
-        {
-            Console.WriteLine(msg);
         }
     }
 }

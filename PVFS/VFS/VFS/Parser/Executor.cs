@@ -36,7 +36,7 @@ namespace VFS.VFS.Parser
                 VFSManager.ChangeDirectoryByIdentifier(context.ident.Text);
             if (context.dots != null)
                 VFSManager.navigateUp();
-            throw new InvalidArgumentException("cd requires at least one argument");
+            throw new ArgumentException("cd requires at least one argument");
         }
 
         public override void EnterCp(ShellParser.CpContext context)

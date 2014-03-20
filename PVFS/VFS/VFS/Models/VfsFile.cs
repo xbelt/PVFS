@@ -236,7 +236,7 @@ namespace VFS.VFS.Models
         }
 
         /// <summary>
-        /// Renames the File/Directory and 
+        /// Renames the File/Directory and updates the disk.
         /// </summary>
         /// <param name="name">The new Name.</param>
         public void Rename(string name)
