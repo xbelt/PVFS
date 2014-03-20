@@ -183,8 +183,32 @@ namespace VFS.VFS
             throw new NotImplementedException();
         }
 
-        public static void Remove(string text, bool isDirectory)
+        public static void RemoveByPath(string path, bool isDirectory)
         {
+            var entry = EntryFactory.OpenEntry(path);
+        }
+
+        public static void RemoveByIdentifier(string ident, bool isDirectory)
+        {
+            var entry = EntryFactory.OpenEntry(CurrentDisk,
+                workingDirectory.GetFile(ident).Address, workingDirectory) as VfsFile;
+            if (isDirectory)
+            {
+                var files = ((VfsDirectory) entry).GetFiles();
+                foreach (var file in files)
+                {
+                    file.Free();
+                }
+                var directories = ((VfsDirectory) entry).GetDirectories();
+                foreach (var directory in directories)
+                {
+                    RemoveByPath(directory.GetAbsolutePath(), true);
+                }
+            }
+            else
+            {
+                entry.Free();
+            }
         }
     }
 }
