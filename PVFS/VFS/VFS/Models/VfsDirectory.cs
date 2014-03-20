@@ -161,7 +161,7 @@ namespace VFS.VFS.Models
         /// <returns>An enumeration of the subdirectories.</returns>
         public IEnumerable<VfsDirectory> GetDirectories()
         {
-            return this.GetEntries().Where(el => el.IsDirectory).Cast<VfsDirectory>().ToList();
+            return this.GetEntries().Where(el => el.IsDirectory).Cast<VfsDirectory>();
         }
         /// <summary>
         /// Finds a directory with a given name.
@@ -182,7 +182,7 @@ namespace VFS.VFS.Models
         /// <returns>An enumeration of the contained files.</returns>
         public IEnumerable<VfsFile> GetFiles()
         {
-            return this.GetEntries().Where(el => !el.IsDirectory).Cast<VfsFile>().ToList();
+            return this.GetEntries().Where(el => !el.IsDirectory).Cast<VfsFile>();
         }
         /// <summary>
         /// Finds a file with a given name.
