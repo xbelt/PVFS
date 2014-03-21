@@ -261,6 +261,10 @@ namespace VFS.VFS
         {
             var entry = EntryFactory.OpenEntry(CurrentDisk,
                 workingDirectory.GetFile(ident).Address, workingDirectory) as VfsFile;
+            // TODO: this creates a new object of a possibliy already existing file/dir! We have errors if there are multiple objects of the same file/dir.
+            /* Use this:
+            var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident);
+            */
             if (isDirectory)
             {
                 var files = ((VfsDirectory) entry).GetFiles();
@@ -273,6 +277,7 @@ namespace VFS.VFS
                 {
                     RemoveByPath(directory.GetAbsolutePath(), true);
                 }
+                // TODO free entry
             }
             else
             {
