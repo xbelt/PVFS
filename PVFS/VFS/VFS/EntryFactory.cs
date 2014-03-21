@@ -76,16 +76,21 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// creates a file on the disk with the specified size, with random content
+        /// creates a file on the disk with the specified size, with random content.
+        /// Make sure that parent does not already contain a file with the same name.
         /// throws exceptions if invalid name/invalid size/disk too full
         /// </summary>
         /// <returns>a handle for the file</returns>
         public static VfsFile createFile(VfsDisk disk, string name, int size, VfsDirectory parent)
         {
+            if (disk == null)
+                throw new ArgumentNullException("disk");
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The filename can't be longer than " + VfsFile.MaxNameLength + ".");
             if (size < 0 || size > VfsFile.MaxSize)
                 throw new ArgumentException("Can't create files larger than 1 Gb.");
+            if (parent == null)
+                throw new ArgumentNullException("parent");
             int[] addresses;
             if (!disk.allocate(out addresses, VfsFile.GetNoBlocks(disk, size)))
                 throw new ArgumentException("There is not enough space on this disk!");
@@ -126,11 +131,16 @@ namespace VFS.VFS
         /// <returns>a handle for the directory</returns>
         public static VfsDirectory createDirectory(VfsDisk disk, string name, VfsDirectory parent)
         {
+            if (disk == null)
+                throw new ArgumentNullException("disk");
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The directory-name can't be longer than " + VfsFile.MaxNameLength + ".");
             int address;
             if (!disk.allocate(out address))
                 throw new ArgumentException("There is not enough place on this disk!");
+            if (parent == null)
+                throw new ArgumentNullException("parent");
+
             var writer = disk.getWriter();
 
             // Write Directory Header
