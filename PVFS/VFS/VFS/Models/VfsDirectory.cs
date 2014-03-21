@@ -38,7 +38,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Loads the directory, fills Inodes and Elements. Should only be called in getEntries();
         /// </summary>
-        public void Load()
+        private void Load()
         {
             if (this.noEntries == 0)
             {
