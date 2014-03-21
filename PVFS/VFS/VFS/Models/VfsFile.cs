@@ -253,6 +253,12 @@ namespace VFS.VFS.Models
             Name = name;
         }
 
+        /// <summary>
+        /// Returns the absolute path to this file/directory.
+        /// File Format: /Rootname/DirectoryName/.../Filename.exe
+        /// Directory Format: /Rootname/DirectoryName/.../DirectoryName
+        /// </summary>
+        /// <returns>Returns the absolute path to this file/directory.</returns>
         public string GetAbsolutePath()
         {
             if (Parent != null)
@@ -260,6 +266,46 @@ namespace VFS.VFS.Models
                 return Parent.GetAbsolutePath() + "/" + Name;
             }
             return "/" + Name;
+        }
+
+        /// <summary>
+        /// Copies this file into a destination directory with a given name.
+        /// Please check that nthere is no other file/dir in the destination with the same name.
+        /// </summary>
+        /// <param name="destination">The directory into which the copy goes.</param>
+        /// <param name="copyName">The name of the copied file.</param>
+        /// <returns>Returns the newly created file which is a copy of this.</returns>
+        public VfsFile Duplicate(VfsDirectory destination, string copyName)
+        {
+            if (destination == null)
+                throw new ArgumentNullException("destination");
+            if (copyName == null)
+                throw new ArgumentNullException("copyName");
+            if (destination.GetEntry(copyName) != null)
+                throw new ArgumentException("Destination already contained a file with name " + copyName + ". Add a check to VfsManager.copy().");
+
+            if (this.IsDirectory)
+                throw new ArgumentException("This can't be called on a directory!");
+
+            VfsFile copy = EntryFactory.createFile(this.Disk, this.Name, this.FileSize, destination);
+
+            BinaryReader reader = this.Disk.getReader();
+            BinaryWriter writer = this.Disk.getWriter();
+            byte[] buffer = new byte[this.Disk.BlockSize - SmallHeaderSize];
+            int head = HeaderSize;
+
+            for (int i = 0; i < this.Inodes.Count; i++)
+            {
+                reader.Seek(this.Disk, this.Inodes[i].Address, head);
+                reader.Read(buffer, 0, this.Disk.BlockSize - head);
+
+                writer.Seek(this.Disk, copy.Inodes[i].Address, head);
+                writer.Write(buffer, 0, this.Disk.BlockSize - head);
+
+                head = SmallHeaderSize;
+            }
+
+            return copy;
         }
 
         /// <summary>
