@@ -22,6 +22,7 @@ namespace VFS.VFS
         {
             return _disks.FirstOrDefault(d => d.DiskProperties.Name == name);
         }
+
         /// <summary>
         /// Returns the corresponding VfsEntry. Does not return the root directory.
         /// </summary>
@@ -29,14 +30,29 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(string path)
         {
+            VfsDirectory last;
+            return getEntry(path, out last);
+        }
+
+        /// <summary>
+        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// </summary>
+        /// <param name="path">An absolute path containing the disk name</param>
+        /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root. Null if disk was not found</param>
+        /// <returns>Returns the entry if found, otherwise null.</returns>
+        private static VfsEntry getEntry(string path, out VfsDirectory last)
+        {
             int i = path.IndexOf('/', 1);
             if (i == -1)
                 throw new ArgumentException("Path not valid.");
             var disk = getDisk(path.Substring(1, i - 1));
             if (disk != null)
-                return getEntry(disk, path.Substring(i + 1));
+                return getEntry(disk, path.Substring(i + 1), out last);
             else
+            {
+                last = null;
                 return null;
+            }
         }
 
         /// <summary>
@@ -47,16 +63,31 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(VfsDisk disk, string path)
         {
+            VfsDirectory last;
+            return getEntry(disk, path, out last);
+        }
+
+        /// <summary>
+        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// </summary>
+        /// <param name="disk">The disk to start on.</param>
+        /// <param name="path">An absolute path, not containing the disk name</param>
+        /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root.</param>
+        /// <returns>Returns the entry if found, otherwise null.</returns>
+        private static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last)
+        {
             VfsDirectory current = disk.root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
                 throw new ArgumentException("Path not valid. Root can't be accessed this way.");
             for (int i = 0; i < names.Length - 1; i++)
             {
+                last = current;
                 current = current.GetDirectory(names[i]);
                 if (current == null)
                     return null; // not found
             }
+            last = current;
             return current.GetEntry(names.Last());
         }
 
