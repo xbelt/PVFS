@@ -23,21 +23,24 @@ namespace VFS.VFS
             return _disks.FirstOrDefault(d => d.DiskProperties.Name == name);
         }
         /// <summary>
-        /// Returns the corresponding VfsEntry.
+        /// Returns the corresponding VfsEntry. Does not return the root directory.
         /// </summary>
         /// <param name="path">An absolute path containing the disk name</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(string path)
         {
-            var disk = getDisk(path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries)[0]);
+            int i = path.IndexOf('/', 1);
+            if (i == -1)
+                throw new ArgumentException("Path not valid.");
+            var disk = getDisk(path.Substring(1, i - 1));
             if (disk != null)
-                return getEntry(disk, path);
+                return getEntry(disk, path.Substring(i + 1));
             else
                 return null;
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry.
+        /// Returns the corresponding VfsEntry. Does not return the root directory.
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -45,7 +48,9 @@ namespace VFS.VFS
         private static VfsEntry getEntry(VfsDisk disk, string path)
         {
             VfsDirectory current = disk.root;
-            string[] names = path.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+            string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (names.Length == 0)
+                throw new ArgumentException("Path not valid. Root can't be accessed this way.");
             for (int i = 0; i < names.Length - 1; i++)
             {
                 current = current.GetDirectory(names[i]);
@@ -64,7 +69,6 @@ namespace VFS.VFS
             CurrentDisk = disk;
             _disks.Add(disk);
             workingDirectory = (VfsDirectory)EntryFactory.OpenEntry(disk, disk.root.Address, null);
-            workingDirectory.Load();
         }
 
         public static IEnumerable<VfsEntry> ListEntries(bool files, bool dirs)
@@ -94,6 +98,16 @@ namespace VFS.VFS
                 /*var vfsDirectory = new VfsDirectory(currentDisk);
                 vfsDirectory.Open(path);
                 workingDirectory = vfsDirectory;*/
+
+                /* try this
+                VfsEntry e = getEntry(path);
+                if (e == null)
+                    throw new ArgumentException("Invalid path.");
+                if (e.IsDirectory)
+                    workingDirectory = (VfsDirectory) e;
+                else
+                    throw new ArgumentException("cd requires a path to a folder not a file");
+                */
             }
             catch (InvalidCastException exception)
             {
@@ -110,11 +124,11 @@ namespace VFS.VFS
         public static void move(string srcPath, string dstPath)
         {
             if (srcPath == null || dstPath == null)
-                throw new ArgumentNullException("Argument null.");
+                throw new ArgumentNullException("", "Argument null.");
             if (dstPath.StartsWith(srcPath)) // TODO: make a real recursive test
                 throw new ArgumentException("Can't move a directory into itself!");
 
-            VfsFile src = (VfsFile) getEntry(srcPath);
+            VfsFile src = (VfsFile)getEntry(srcPath);
             VfsEntry dst = getEntry(dstPath);
 
             if (src == null || dst == null)
@@ -124,7 +138,7 @@ namespace VFS.VFS
 
             VfsDirectory parent = src.Parent;
             parent.RemoveElement(src);
-            VfsDirectory target = (VfsDirectory) dst;
+            VfsDirectory target = (VfsDirectory)dst;
             target.AddElement(src);
 
             Console.WriteLine("copy " + src + " to " + dst);
@@ -138,6 +152,12 @@ namespace VFS.VFS
         public static void navigateUp()
         {
             throw new NotImplementedException();
+            /*
+            if (workingDirectory.Parent == null) // we're root
+                throw new InvalidStateException("or do nothing, which might be smarter.");
+            else
+                workingDirectory = workingDirectory.Parent;
+            */
         }
 
         public static void UnloadDisk(string name)
