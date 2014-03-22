@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Security;
 using VFS.VFS.Models;
 using VFS.VFS.Parser;
 
@@ -42,6 +44,9 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(string path, out VfsDirectory last)
         {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
             int i = path.IndexOf('/', 1);
             if (i == -1)
                 throw new ArgumentException("Path not valid.");
@@ -76,6 +81,9 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last)
         {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
             VfsDirectory current = disk.root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
@@ -89,6 +97,21 @@ namespace VFS.VFS
             }
             last = current;
             return current.GetEntry(names.Last());
+        }
+
+        /// <summary>
+        /// Returns a path to a non-existent file in the host file system.
+        /// </summary>
+        /// <returns>The path.</returns>
+        private static string getTempFilePath()
+        {
+            string path;
+            int i = 0;
+            do
+            {
+                path = Environment.CurrentDirectory + "\\temp" + i++;
+            } while (File.Exists(path));
+            return path;
         }
 
 
@@ -159,25 +182,84 @@ namespace VFS.VFS
             if (dstPath.StartsWith(srcPath)) // TODO: make a real recursive test
                 throw new ArgumentException("Can't move a directory into itself!");
 
-            VfsFile src = (VfsFile)getEntry(srcPath);
-            VfsEntry dst = getEntry(dstPath);
+            VfsEntry srcEntry = getEntry(srcPath);
+            VfsEntry dstEntry = getEntry(dstPath);
 
-            if (src == null || dst == null)
+            if (srcEntry == null || dstEntry == null)
                 throw new ArgumentException("Src or Dst did not exist.");
-            if (!dst.IsDirectory)
+            if (!dstEntry.IsDirectory)
                 throw new ArgumentException("Destination must be a directory.");
 
-            VfsDirectory parent = src.Parent;
-            parent.RemoveElement(src);
-            VfsDirectory target = (VfsDirectory)dst;
-            target.AddElement(src);
+            VfsFile src = (VfsFile)srcEntry;
+            VfsDirectory dst = (VfsDirectory)dstEntry;
 
-            Console.WriteLine("copy " + src + " to " + dst);
+            if (src.Disk != dst.Disk)
+            {
+                if (src.IsDirectory)
+                    throw new ArgumentException("Can't move a directory to another disk.");
+
+                string tmp = getTempFilePath();
+
+                Export(tmp, srcPath);
+                Import(tmp, dstPath);
+                RemoveByPath(srcPath, false);
+                File.Delete(tmp);
+            }
+            else
+            {
+                src.Parent.RemoveElement(src);
+                dst.AddElement(src);
+            }
+            Console.WriteLine("copy " + src + " to " + dstEntry);
         }
 
-        public static void cp(string src, string dst, bool isRecursive)
+        /// <summary>
+        /// Copies a file/directory into a target directory. Directories will be copied recursively.
+        /// If the target directory does not exist it will be created.
+        /// </summary>
+        /// <param name="srcPath">The path to the file/directory which should be copied.</param>
+        /// <param name="dstPath">The target directory.</param>
+        public static void Copy(string srcPath, string dstPath)
         {
-            Console.WriteLine("copy " + src + " to " + dst);
+            if (srcPath == null || dstPath == null)
+                throw new ArgumentNullException("", "Argument null.");
+
+            VfsEntry srcEntry = getEntry(srcPath);
+            VfsDirectory last;
+            VfsEntry dst = getEntry(dstPath, out last);
+
+            if (srcEntry == null)
+                throw new ArgumentException("Source did not exist.");
+            if (dst != null && !dst.IsDirectory)
+                throw new ArgumentException("Destination must be a directory.");
+
+            if (dst == null)
+            {
+                // Create dst using last.
+            }
+
+            if (srcEntry.IsDirectory)
+            {
+                // copy directory.
+                // if directory already exists: cancel
+            }
+            else
+            {
+                VfsFile src = (VfsFile)srcEntry;
+                // copy file
+            }
+
+
+
+
+
+
+            Console.WriteLine("copy " + srcPath + " to " + dstPath);
+        }
+
+        private static void copyHelper(VfsEntry src, VfsDirectory dst)
+        {
+
         }
 
         public static void navigateUp()
@@ -209,7 +291,7 @@ namespace VFS.VFS
         /// 
         /// Throws an exception if you try to import the virtual disk itself!
         /// </summary>
-        /// <param name="src">The absolute path to the File that should be imported.</param>
+        /// <param name="src">The absolute path to the File that should be imported (Host file system).</param>
         /// <param name="dst">The absolute path to the target Directory.</param>
         public static void Import(string src, string dst)
         {
@@ -228,7 +310,7 @@ namespace VFS.VFS
         /// <summary>
         /// Fills Joe's life with joy.
         /// </summary>
-        /// <param name="dst">The absolute path to the target Directory.</param>
+        /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
         /// <param name="src">The absolute path to the File that should be exported.</param>
         public static void Export(string dst, string src)
         {
@@ -267,12 +349,12 @@ namespace VFS.VFS
             */
             if (isDirectory)
             {
-                var files = ((VfsDirectory) entry).GetFiles();
+                var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
                 {
                     file.Free();
                 }
-                var directories = ((VfsDirectory) entry).GetDirectories();
+                var directories = ((VfsDirectory)entry).GetDirectories();
                 foreach (var directory in directories)
                 {
                     RemoveByPath(directory.GetAbsolutePath(), true);
