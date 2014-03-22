@@ -242,6 +242,9 @@ namespace VFS.VFS.Models
             if (element == null)
                 throw new ArgumentException("Argument 'element' was null.");
 
+            if (element.Disk != this.Disk)
+                throw new ArgumentException("Can't add an element from another disk to this directory.");
+
             if (!this.IsLoaded)
                 this.Load();
 

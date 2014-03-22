@@ -55,7 +55,7 @@ namespace VFS.VFS.Models
             }
         }
 
-        protected VfsDisk Disk;
+        protected internal VfsDisk Disk;
         protected bool IsLoaded;
         protected int FileSize, NoBlocks, NextBlock;
         protected List<Block> Inodes;
@@ -67,6 +67,12 @@ namespace VFS.VFS.Models
         /// </summary>
         public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, int noBlocks, int nextBlock)
         {
+            if (disk == null)
+                throw new ArgumentNullException("disk");
+            if (name == null)
+                throw new ArgumentNullException("name");
+
+
             Disk = disk;
             Address = address;
             Name = name;
@@ -84,6 +90,15 @@ namespace VFS.VFS.Models
         /// </summary>
         public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, List<Block> blocks)
         {
+            if (disk == null)
+                throw new ArgumentNullException("disk");
+            if (name == null)
+                throw new ArgumentNullException("name");
+            if (blocks == null)
+                throw new ArgumentNullException("blocks");
+            if (blocks.Count == 0)
+                throw new ArgumentException("Blocks can't be empty.");
+
             Disk = disk;
             Address = address;
             Name = name;
