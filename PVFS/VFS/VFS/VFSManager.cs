@@ -161,7 +161,7 @@ namespace VFS.VFS
                 vfsDirectory.Open(path);
                 workingDirectory = vfsDirectory;*/
 
-                /* try this
+                /* F: try this
                 VfsEntry e = getEntry(path);
                 if (e == null)
                     throw new ArgumentException("Invalid path.");
@@ -173,9 +173,10 @@ namespace VFS.VFS
             }
             catch (InvalidCastException exception)
             {
-                throw new ArgumentException("cd requires a path to a folder not a file");
+                Console.Error("cd requires a path to a folder not a file");
+                return;
             }
-            Console.WriteLine("new path: " + path);
+            Console.Message("New working directory: " + path);
         }
 
         public static void CreateFile(string path)
@@ -184,7 +185,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Creates directories such that the whole path given exists. If the path contains a file this returns false/an exception?
+        /// Creates directories such that the whole path given exists. If the path contains a file this does nothing.
         /// </summary>
         /// <param name="path">The path to create.</param>
         public static void createDirectory(string path)
@@ -200,8 +201,10 @@ namespace VFS.VFS
             {
                 if (last == null)
                 {
-                    string diskName = remaining.Any() ? remaining.First() : "Unknown";
-                    Console.Message("The Disk " + diskName + " does not exist!");
+                    if (remaining.Any())
+                        Console.Error("The Disk " + remaining.First() + " does not exist!");
+                    else
+                        Console.Error("Please enter a valid path.");
                     return;
                 }
 
@@ -213,7 +216,7 @@ namespace VFS.VFS
                         // create
                         if (name.Length > VfsFile.MaxNameLength)
                         {
-                            Console.Message("The name of the directory was too long.");
+                            Console.Error("The name of the directory was too long.");
                             return;
                         }
                         VfsDirectory newDir = EntryFactory.createDirectory(last.Disk, name, last);
@@ -228,14 +231,17 @@ namespace VFS.VFS
                     else
                     {
                         // invalid path
-                        Console.Message("This path leads to a file.");
+                        Console.Error("A file with the same name already existed.");
                         return;
                     }
                 }
             }
             else
             {
-                Console.Message(entry.IsDirectory ? "The Directory already existed." : "This path leads to a file.");
+                if (entry.IsDirectory)
+                    Console.Message("This Directory already existed.");
+                else
+                    Console.Error("A file with the same name already existed.");
                 return;
             }
         }
@@ -250,16 +256,26 @@ namespace VFS.VFS
         {
             if (srcPath == null || dstPath == null)
                 throw new ArgumentNullException("", "Argument null.");
+
             if (dstPath.StartsWith(srcPath)) // TODO: make a real recursive test
-                throw new ArgumentException("Can't move a directory into itself!");
+            {
+                Console.Error("Can't move a directory into itself!");
+                return;
+            }
 
             VfsEntry srcEntry = getEntry(srcPath);
             VfsEntry dstEntry = getEntry(dstPath);
 
             if (srcEntry == null || dstEntry == null)
-                throw new ArgumentException("Src or Dst did not exist.");
+            {
+                Console.Error("The source or the destination did not exist.");
+                return;
+            }
             if (!dstEntry.IsDirectory)
-                throw new ArgumentException("Destination must be a directory.");
+            {
+                Console.Error("The destination must be a directory.");
+                return;
+            }
 
             VfsFile src = (VfsFile)srcEntry;
             VfsDirectory dst = (VfsDirectory)dstEntry;
@@ -267,7 +283,10 @@ namespace VFS.VFS
             if (src.Disk != dst.Disk)
             {
                 if (src.IsDirectory)
-                    throw new ArgumentException("Can't move a directory to another disk.");
+                {
+                    Console.Error("Can't move a directory to another disk.");
+                    return;
+                }
 
                 string tmp = getTempFilePath();
 
@@ -281,7 +300,7 @@ namespace VFS.VFS
                 src.Parent.RemoveElement(src);
                 dst.AddElement(src);
             }
-            Console.WriteLine("copy " + src + " to " + dstEntry);
+            Console.Message("copy " + src + " to " + dstEntry);
         }
 
         /// <summary>
@@ -310,7 +329,7 @@ namespace VFS.VFS
                 if (last == null)
                 {
                     string diskName = remainingPath.Any() ? remainingPath.First() : "Unknown";
-                    Console.Message("The Disk " + diskName + " does not exist!");
+                    Console.Error("The Disk " + diskName + " does not exist!");
                     return;
                 }
                 // Create dst using last.
@@ -332,7 +351,7 @@ namespace VFS.VFS
 
 
 
-            Console.WriteLine("copy " + srcPath + " to " + dstPath);
+            Console.Message("copy " + srcPath + " to " + dstPath);
         }
 
         private static void copyHelper(VfsEntry src, VfsDirectory dst)
