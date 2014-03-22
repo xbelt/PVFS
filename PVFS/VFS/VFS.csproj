@@ -65,6 +65,7 @@
     <Compile Include="VFS\Parser\Shell.g4.parser.cs">
       <DependentUpon>Shell.g4</DependentUpon>
     </Compile>
+    <Compile Include="VFS\VfsConsole.cs" />
     <Compile Include="VFS\VFSManager.cs" />
   </ItemGroup>
   <ItemGroup>
