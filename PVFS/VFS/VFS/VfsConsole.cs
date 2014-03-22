@@ -22,7 +22,7 @@ namespace VFS.VFS
             {
                 answer = Console.ReadLine();
             } while (!options.Contains(answer));
-            return options.ToList().IndexOf(answer);
+            return options.IndexOf(answer);
         }
     }
 }

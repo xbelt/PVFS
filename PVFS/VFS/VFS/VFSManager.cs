@@ -14,6 +14,7 @@ namespace VFS.VFS
         private static List<VfsDisk> _disks = new List<VfsDisk>();
         public static VfsDirectory workingDirectory;
         public static VfsDisk CurrentDisk;
+        public static VfsConsole Console = new VfsConsole();
 
         /// <summary>
         /// Returns the disk with the corresponding name.
@@ -41,8 +42,9 @@ namespace VFS.VFS
         /// </summary>
         /// <param name="path">An absolute path containing the disk name</param>
         /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root. Null if disk was not found</param>
+        /// <param name="remaining">Returns the remaining path, if the result was null.</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
-        private static VfsEntry getEntry(string path, out VfsDirectory last)
+        private static VfsEntry getEntry(string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -52,10 +54,11 @@ namespace VFS.VFS
                 throw new ArgumentException("Path not valid.");
             var disk = getDisk(path.Substring(1, i - 1));
             if (disk != null)
-                return getEntry(disk, path.Substring(i + 1), out last);
+                return getEntry(disk, path.Substring(i + 1), out last, out remaining);
             else
             {
                 last = null;
+                remaining = path.Split(new[] {'/'}, StringSplitOptions.None);
                 return null;
             }
         }
@@ -78,8 +81,9 @@ namespace VFS.VFS
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
         /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root.</param>
+        /// <param name="remaining">Returns the remaining path, if the result was null.</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
-        private static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last)
+        private static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -93,9 +97,13 @@ namespace VFS.VFS
                 last = current;
                 current = current.GetDirectory(names[i]);
                 if (current == null)
+                {
+                    remaining = names.Skip(i);
                     return null; // not found
+                }
             }
             last = current;
+            remaining = names.Skip(names.Length - 1);
             return current.GetEntry(names.Last());
         }
 
@@ -170,6 +178,69 @@ namespace VFS.VFS
             Console.WriteLine("new path: " + path);
         }
 
+        public static void CreateFile(string path)
+        {
+            
+        }
+
+        /// <summary>
+        /// Creates directories such that the whole path given exists. If the path contains a file this returns false/an exception?
+        /// </summary>
+        /// <param name="path">The path to create.</param>
+        public static void createDirectory(string path)
+        {
+            VfsDirectory last;
+            IEnumerable<string> remainingPath;
+
+            VfsEntry entry = getEntry(path, out last, out remainingPath);
+
+            List<string> remaining = remainingPath.ToList();
+
+            if (entry == null)
+            {
+                if (last == null)
+                {
+                    string diskName = remaining.Any() ? remaining.First() : "Unknown";
+                    Console.Message("The Disk " + diskName + " does not exist!");
+                    return;
+                }
+
+                foreach (string name in remaining)
+                {
+                    VfsEntry next = last.GetEntry(name);
+                    if (next == null)
+                    {
+                        // create
+                        if (name.Length > VfsFile.MaxNameLength)
+                        {
+                            Console.Message("The name of the directory was too long.");
+                            return;
+                        }
+                        VfsDirectory newDir = EntryFactory.createDirectory(last.Disk, name, last);
+                        last.AddElement(newDir);
+                        last = newDir;
+                    }
+                    else if (next.IsDirectory)
+                    {
+                        // go on
+                        last = (VfsDirectory)next;
+                    }
+                    else
+                    {
+                        // invalid path
+                        Console.Message("This path leads to a file.");
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                Console.Message(entry.IsDirectory ? "The Directory already existed." : "This path leads to a file.");
+                return;
+            }
+        }
+
+
         /// <summary>
         /// Moves a File or Directory to a new location. A directory is moved recursively.
         /// </summary>
@@ -226,15 +297,22 @@ namespace VFS.VFS
 
             VfsEntry srcEntry = getEntry(srcPath);
             VfsDirectory last;
-            VfsEntry dst = getEntry(dstPath, out last);
+            IEnumerable<string> remainingPath;
+            VfsEntry dstEntry = getEntry(dstPath, out last, out remainingPath);
 
             if (srcEntry == null)
                 throw new ArgumentException("Source did not exist.");
-            if (dst != null && !dst.IsDirectory)
+            if (dstEntry != null && !dstEntry.IsDirectory)
                 throw new ArgumentException("Destination must be a directory.");
 
-            if (dst == null)
+            if (dstEntry == null)
             {
+                if (last == null)
+                {
+                    string diskName = remainingPath.Any() ? remainingPath.First() : "Unknown";
+                    Console.Message("The Disk " + diskName + " does not exist!");
+                    return;
+                }
                 // Create dst using last.
             }
 
