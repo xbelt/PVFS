@@ -9,6 +9,11 @@ namespace VFS.VFS
     class VfsConsole
     {
 
+        public virtual void Error(string Message)
+        {
+            Console.WriteLine(Message);
+        }
+
         public virtual void Message(string Message)
         {
             Console.WriteLine(Message);
