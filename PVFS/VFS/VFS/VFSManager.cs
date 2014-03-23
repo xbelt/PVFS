@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -455,17 +456,70 @@ namespace VFS.VFS
         /// <param name="dst">The absolute path to the target Directory.</param>
         public static void Import(string src, string dst)
         {
-
+            if (src == null)
+                throw new ArgumentNullException("src");
+            if (dst == null)
+                throw new ArgumentNullException("dst");
+            
             //Get disk:
-            String diskName = dst.TakeWhile(e => !e.Equals('/')).ToString();
+            var diskName = dst.TakeWhile(e => !e.Equals('/')).ToString();
             var disk = DiskFactory.Load(diskName);
+            //Get reader & writer
             var reader = disk.getReader();
             var writer = disk.getWriter();
-            //TODO: still contains file ending
-            var parent = dst.Substring(dst.LastIndexOf('/'), dst.Length);
+            
+            //Get fileName
+            var startIndexFileName = src.LastIndexOf('/') + 1;
+            //Null meaning we're in 'root-directory' | -1 is return value if there was no '/'
+            var fileName = startIndexFileName == -1 ? null : dst.Substring(startIndexFileName, dst.Length -1);
 
+            //Get parent directory
+            var vfsParent = (VfsDirectory) getEntry(dst);
+            if (!vfsParent.IsDirectory) throw new ArgumentException(dst + "is not a path to a directory");
+
+            //check if there's already a file with that name
+            //TODO: check also extension? currently included
+            if (vfsParent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
+                throw new ArgumentException("this directory already has a file with the name " + fileName);
+            
+            
+
+
+            var fileInfo = new FileInfo(src);
+            //TODO: Might lose precision...
+            var fileLength = Convert.ToInt32(fileInfo.Length);
+            
+            //128 for the header
+            var vFileSize = (int) 128 + fileLength;
+            var toImport = EntryFactory.createFile(disk, fileName, vFileSize, vfsParent);
+            var buffer = new byte[vFileSize];
+            //Don't read stuff in header part --> skip 0-127 and start at 128
+            reader.Read(buffer, 128, fileLength);
+            
+
+            //TODO: when and where to write header? What about address?
+            toImport.Write(reader);
+            
+            
+            
             throw new NotImplementedException();
         }
+        
+        /// <summary>
+        /// Gets parent directory from a file path
+        /// </summary>
+        /// <param name="arg">The path to the file</param>
+        public static String GetParentStringFromPath(string arg) 
+        {
+            var startIndexFileName = arg.LastIndexOf('/') + 1;
+            int i = startIndexFileName - 2; char tmp;
+            do {
+                tmp = arg[i];
+                i--; //will be one position before secondLastSlash --> +2 for first char of parent
+            } while (!tmp.Equals('/'));
+            return arg.Substring(i + 2, startIndexFileName - 2); //-2 to be at last char before last slash
+        }
+
 
         /// <summary>
         /// Fills Joe's life with joy.
