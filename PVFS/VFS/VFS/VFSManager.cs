@@ -427,13 +427,10 @@ namespace VFS.VFS
 
         public static void navigateUp()
         {
-            throw new NotImplementedException();
-            /*
-            if (workingDirectory.Parent == null) // we're root
-                throw new InvalidStateException("or do nothing, which might be smarter.");
-            else
+            
+            if (workingDirectory.Parent != null)
                 workingDirectory = workingDirectory.Parent;
-            */
+            
         }
 
         public static void UnloadDisk(string name)
@@ -609,24 +606,26 @@ namespace VFS.VFS
         public static void GetFreeSpace()
         {
             var divisor = 1;
-            while (CurrentDisk.DiskProperties.NumberOfUsedBlocks*CurrentDisk.DiskProperties.BlockSize/divisor > 1024*1024)
+            while ((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
+                   CurrentDisk.DiskProperties.BlockSize/((int) Math.Pow(1024, divisor - 1)) > 1024)
             {
                 divisor++;
             }
-            Console.Message((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
-                            CurrentDisk.DiskProperties.BlockSize/((int)Math.Pow(1024, divisor - 1)) + idToSize[divisor - 1] + " free space available on " +
+            Console.Message(((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
+                            CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1))).ToString("#.##") + idToSize[divisor - 1] + " free space available on " +
                             CurrentDisk.DiskProperties.Name);
         }
 
         public static void GetOccupiedSpace()
         {
             var divisor = 1;
-            while (CurrentDisk.DiskProperties.NumberOfUsedBlocks*CurrentDisk.DiskProperties.BlockSize/divisor > 1024*1024)
+            while (CurrentDisk.DiskProperties.NumberOfUsedBlocks*CurrentDisk.DiskProperties.BlockSize/
+                   ((int) Math.Pow(1024, divisor - 1)) > 1024)
             {
                 divisor++;
             }
-            Console.Message(CurrentDisk.DiskProperties.NumberOfUsedBlocks*
-                            CurrentDisk.DiskProperties.BlockSize/((int)Math.Pow(1024, divisor - 1)) + idToSize[divisor - 1] + " space is occupied on " +
+            Console.Message((CurrentDisk.DiskProperties.NumberOfUsedBlocks*
+                            CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1))).ToString("#.##") + idToSize[divisor - 1] + " space is occupied on " +
                             CurrentDisk.DiskProperties.Name);
         }
 
