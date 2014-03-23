@@ -481,24 +481,48 @@ namespace VFS.VFS
             //TODO: check also extension? currently included
             if (vfsParent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
                 throw new ArgumentException("this directory already has a file with the name " + fileName);
-            
-            
 
-
+            //Get FileLength
             var fileInfo = new FileInfo(src);
             //TODO: Might lose precision...
             var fileLength = Convert.ToInt32(fileInfo.Length);
             
             //128 for the header
-            var vFileSize = 128 + fileLength;
+            var vFileSize = 128 + 4*fileLength; //convert to byte
             var toImport = EntryFactory.createFile(disk, fileName, vFileSize, vfsParent);
             var buffer = new byte[vFileSize];
             //Don't read stuff in header part --> skip 0-127 and start at 128
             reader.Read(buffer, 128, fileLength);
             
-
             //TODO: when and where to write header? What about address?
             toImport.Write(reader);
+            //TODO: I need to add the file to the elements of parent directory somehow
+        }
+
+        /// <summary>
+        /// Writes a VfsFile to the location indicated by dst in the host-file from src
+        /// </summary>
+        /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
+        /// <param name="src">The absolute path to the File that should be exported.</param>
+        public static void Export(string dst, string src) {
+            if (dst == null) throw new ArgumentNullException("dst");
+            if (src == null) throw new ArgumentNullException("src");
+            
+            //Get the file to export and its name
+            var toExport = (VfsFile) getEntry(src);
+            var fileName = toExport.Name;
+            //Create the path to destination (non existent folders are automatically created)
+            System.IO.Directory.CreateDirectory(dst);
+            //Get path including fileName
+            //TODO: What about those extensions?
+            var completePath = System.IO.Path.Combine(dst, fileName);
+
+            //Check if file with same name already exists at that location
+            if (!System.IO.File.Exists(completePath))
+            {
+                
+            }
+            throw new NotImplementedException();
         }
         
         /// <summary>
@@ -514,17 +538,6 @@ namespace VFS.VFS
                 i--; //will be one position before secondLastSlash --> +2 for first char of parent
             } while (!tmp.Equals('/'));
             return arg.Substring(i + 2, startIndexFileName - 2); //-2 to be at last char before last slash
-        }
-
-
-        /// <summary>
-        /// Fills Joe's life with joy.
-        /// </summary>
-        /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
-        /// <param name="src">The absolute path to the File that should be exported.</param>
-        public static void Export(string dst, string src)
-        {
-            throw new NotImplementedException();
         }
 
         public static void RemoveByPath(string path, bool isDirectory)
