@@ -82,6 +82,10 @@ namespace VFS.VFS
                 var reader = new BinaryReader(stream, new ASCIIEncoding(), false);
                 var dp = DiskProperties.Load(reader);
                 reader.Close();
+                if (path.EndsWith(".vdi"))
+                {
+                    path = path.Remove(path.LastIndexOf("\\"));
+                }
                 var vfsDisk = new VfsDisk(path, dp);
                 vfsDisk.Init();
                 return vfsDisk;
