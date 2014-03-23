@@ -242,7 +242,7 @@ namespace VFS.VFS.Parser
             }
             if (context.id != null)
             {
-                VFSManager.RemoveByIdentifier(context.trgt.Text, context.opt != null);
+                VFSManager.RemoveByIdentifier(context.id.Text, context.opt != null);
             }
         }
 
