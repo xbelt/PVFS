@@ -88,6 +88,9 @@ namespace VFS.VFS.Models
                 return false;
             }
             SetBit(true, address%8, DiskProperties.BitMapOffset + address/8, 0);
+            DiskProperties.NumberOfUsedBlocks++;
+            Writer.Seek(this, 0, 8);
+            Writer.Write(DiskProperties.NumberOfUsedBlocks);
             return true;
         }
 
