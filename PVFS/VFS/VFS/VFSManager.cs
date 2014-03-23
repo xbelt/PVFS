@@ -574,12 +574,8 @@ namespace VFS.VFS
 
         public static void RemoveByIdentifier(string ident, bool isDirectory)
         {
-            var entry = EntryFactory.OpenEntry(CurrentDisk,
-                workingDirectory.GetFile(ident).Address, workingDirectory) as VfsFile;
-            // TODO: this creates a new object of a possibliy already existing file/dir! We have errors if there are multiple objects of the same file/dir.
-            /* Use this:
             var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident);
-            */
+
             if (isDirectory)
             {
                 var files = ((VfsDirectory)entry).GetFiles();
@@ -609,5 +605,19 @@ namespace VFS.VFS
             throw new DiskNotFoundException();
         }
         #endregion
+        public static void GetFreeSpace()
+        {
+            Console.Message((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
+                            CurrentDisk.DiskProperties.BlockSize/1024 + "KB free space available on " +
+                            CurrentDisk.DiskProperties.Name);
+        }
+
+        public static void GetOccupiedSpace()
+        {
+            Console.Message(CurrentDisk.DiskProperties.NumberOfUsedBlocks*
+                            CurrentDisk.DiskProperties.BlockSize/1024 + "KB space is occupied on " +
+                            CurrentDisk.DiskProperties.Name);
+        }
+
     }
 }
