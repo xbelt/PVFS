@@ -26,6 +26,8 @@ namespace VFS.VFS
                 //writes the address of root
                 writer.Write(blocksUsedForPreamble);
                 disk.DiskProperties.RootAddress = blocksUsedForPreamble;
+
+                disk.DiskProperties.NumberOfUsedBlocks = blocksUsedForPreamble + 1;
                 
                 DiskProperties.Write(writer, disk.DiskProperties);
                 writer.Seek(disk, 0, disk.DiskProperties.BitMapOffset);
