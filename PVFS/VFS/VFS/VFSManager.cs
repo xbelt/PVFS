@@ -152,7 +152,6 @@ namespace VFS.VFS
 
         public static void ChangeDirectoryByIdentifier(string name)
         {
-            // TODO: exception if null
             workingDirectory = workingDirectory.GetDirectory(name) ?? workingDirectory;
             Console.Message("New working directory: " + name);
         }
@@ -161,19 +160,9 @@ namespace VFS.VFS
         {
             try
             {
-                /*var vfsDirectory = new VfsDirectory(currentDisk);
-                vfsDirectory.Open(path);
-                workingDirectory = vfsDirectory;*/
-
-                /* F: try this
-                VfsEntry e = getEntry(path);
-                if (e == null)
-                    throw new ArgumentException("Invalid path.");
-                if (e.IsDirectory)
-                    workingDirectory = (VfsDirectory) e;
-                else
-                    throw new ArgumentException("cd requires a path to a folder not a file");
-                */
+                var pathElements = path.Substring(1).Split('/');
+                CurrentDisk = GetDisk(pathElements[0]);
+                workingDirectory = EntryFactory.OpenEntry(path) as VfsDirectory;
             }
             catch (InvalidCastException exception)
             {
@@ -454,11 +443,6 @@ namespace VFS.VFS
         /// <param name="dst">The absolute path to the target Directory.</param>
         public static void Import(string src, string dst)
         {
-            if (src == null)
-                throw new ArgumentNullException("src");
-            if (dst == null)
-                throw new ArgumentNullException("dst");
-            
             //Get disk and parent directory:
             VfsDirectory parent;
             IEnumerable<string> remaining;

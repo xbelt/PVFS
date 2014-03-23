@@ -54,11 +54,22 @@ namespace VFS.VFS
         public static VfsEntry OpenEntry(string path)
         {
             var diskName = path.Substring(1);
-            diskName = diskName.Substring(0, path.IndexOf("/"));
+            if (diskName.IndexOf("/") > -1)
+            {
+                diskName = diskName.Substring(0, diskName.IndexOf("/"));
+            }
             var disk = VFSManager.GetDisk(diskName);
 
             var currentParent = disk.root;
-            path = path.Substring(path.IndexOf("/") + 1);
+            path = path.Substring(1);
+            if (path.IndexOf("/") == -1)
+            {
+                path = "";
+            }
+            else
+            {
+                path = path.Substring(path.IndexOf("/") + 1);
+            }
 
             while (path != "")
             {
@@ -72,7 +83,7 @@ namespace VFS.VFS
                 path = path.Substring(endIndex + 1);
                 currentParent = entry;
             }
-            throw new FileNotFoundException();
+            return currentParent;
         }
 
         /// <summary>
