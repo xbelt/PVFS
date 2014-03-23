@@ -503,8 +503,12 @@ namespace VFS.VFS
             
             //Get the file to export and its name
             var toExport = (VfsFile) getEntry(src);
+            if (toExport == null) 
+                throw new NullReferenceException("The file to export is null.");
             var fileName = toExport.Name;
-           
+           if (fileName == null)
+               throw new NullReferenceException("Name of file is null.");
+            
             //Create the path to destination (non existent folders are automatically created)
             System.IO.Directory.CreateDirectory(dst);
             
@@ -520,8 +524,10 @@ namespace VFS.VFS
             var fs = System.IO.File.Create(completePath);
             var writer = new BinaryWriter(fs);
             toExport.Read(writer);
-
+            
+            //Remove file from entries list of parent directory
             toExport.Parent.GetEntries().Remove(toExport);
+            
             //Close and dispose resources
             writer.Dispose();
             fs.Dispose();
