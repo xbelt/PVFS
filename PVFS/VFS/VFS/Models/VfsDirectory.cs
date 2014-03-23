@@ -104,7 +104,7 @@ namespace VFS.VFS.Models
         /// <returns>VfsEntry if one existed, otherwise null.</returns>
         public VfsEntry GetEntry(string name)
         {
-            return this.GetEntries().FirstOrDefault(entry => entry.Name == name);
+            return this.GetEntries().FirstOrDefault(entry => entry.Name.Equals(name));
         }
 
         /// <summary>
