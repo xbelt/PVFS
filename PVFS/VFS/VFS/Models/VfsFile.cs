@@ -6,14 +6,14 @@ using VFS.VFS.Extensions;
 
 namespace VFS.VFS.Models
 {
-    /*
-     * NextBlock 4
-     * StartBlock 4
-     * FileSize 4
-     * NoBlocks 4
-     * Directory 1
-     * NameSize 1
-     * Name 110
+    /*                  Range
+     * NextBlock 4      0-3
+     * StartBlock 4     4-7
+     * FileSize 4       8-11
+     * NoBlocks 4       12-15
+     * Directory 1      16
+     * NameSize 1       17
+     * Name 110         18-128
      * Data
      */
 
