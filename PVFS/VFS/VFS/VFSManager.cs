@@ -16,6 +16,7 @@ namespace VFS.VFS
         public static VfsDirectory workingDirectory;
         public static VfsDisk CurrentDisk;
         public static VfsConsole Console = new VfsConsole();
+        private static string[] idToSize = new[] {"byte", "kb", "mb", "gb", "tb"};
 
         /// <summary>
         /// Returns the disk with the corresponding name.
@@ -574,7 +575,7 @@ namespace VFS.VFS
 
         public static void RemoveByIdentifier(string ident, bool isDirectory)
         {
-            var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident);
+            var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
             if (isDirectory)
             {
@@ -607,15 +608,25 @@ namespace VFS.VFS
         #endregion
         public static void GetFreeSpace()
         {
+            var divisor = 1;
+            while (CurrentDisk.DiskProperties.NumberOfUsedBlocks*CurrentDisk.DiskProperties.BlockSize/divisor > 1024*1024)
+            {
+                divisor++;
+            }
             Console.Message((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
-                            CurrentDisk.DiskProperties.BlockSize/1024 + "KB free space available on " +
+                            CurrentDisk.DiskProperties.BlockSize/((int)Math.Pow(1024, divisor - 1)) + idToSize[divisor - 1] + " free space available on " +
                             CurrentDisk.DiskProperties.Name);
         }
 
         public static void GetOccupiedSpace()
         {
+            var divisor = 1;
+            while (CurrentDisk.DiskProperties.NumberOfUsedBlocks*CurrentDisk.DiskProperties.BlockSize/divisor > 1024*1024)
+            {
+                divisor++;
+            }
             Console.Message(CurrentDisk.DiskProperties.NumberOfUsedBlocks*
-                            CurrentDisk.DiskProperties.BlockSize/1024 + "KB space is occupied on " +
+                            CurrentDisk.DiskProperties.BlockSize/((int)Math.Pow(1024, divisor - 1)) + idToSize[divisor - 1] + " space is occupied on " +
                             CurrentDisk.DiskProperties.Name);
         }
 
