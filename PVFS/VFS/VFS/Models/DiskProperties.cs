@@ -38,13 +38,13 @@ namespace VFS.VFS.Models {
             var nameBuffer = new byte[nameLength];
             reader.Read(nameBuffer, 0, nameLength);
 
-            var diskName = Encoding.ASCII.GetString(nameBuffer);
-            var lastDot = diskName.LastIndexOf(".");
+            dp.Name = Encoding.ASCII.GetString(nameBuffer);
+            var lastDot = dp.Name.LastIndexOf(".");
             if (lastDot == -1)
             {
                 return dp;
             }
-            dp.Name = diskName.Remove(lastDot);
+            dp.Name = dp.Name.Remove(lastDot);
 
             return dp;
         }
