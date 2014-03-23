@@ -263,12 +263,12 @@ namespace VFS.VFS.Parser
 
         public override void EnterFree(ShellParser.FreeContext context)
         {
-            base.EnterFree(context);
+            VFSManager.GetFreeSpace();
         }
 
         public override void EnterOcc(ShellParser.OccContext context)
         {
-            base.EnterOcc(context);
+            VFSManager.GetOccupiedSpace();
         }
 
         public override void EnterExit(ShellParser.ExitContext context)
