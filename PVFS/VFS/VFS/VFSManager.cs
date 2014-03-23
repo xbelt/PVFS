@@ -514,17 +514,19 @@ namespace VFS.VFS
 
             //Check if file with same name already exists at that location
             if (System.IO.File.Exists(completePath))
-            {
                 throw new Exception("There's already a file with the same name in the host file system");
-            }
 
             //Start actual export
-            var reader = toExport.Disk.getReader();
-            var writer = toExport.Disk.getWriter();
+            var fs = System.IO.File.Create(completePath);
+            var writer = new BinaryWriter(fs);
+            toExport.Read(writer);
 
-            reader.Read();
-            writer.Write();
-            throw new NotImplementedException();
+            toExport.Parent.GetEntries().Remove(toExport);
+            //Close and dispose resources
+            writer.Dispose();
+            fs.Dispose();
+            writer.Close();
+            fs.Close();
         }
         
         /// <summary>
