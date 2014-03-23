@@ -629,5 +629,12 @@ namespace VFS.VFS
                             CurrentDisk.DiskProperties.Name);
         }
 
+        public static void Exit()
+        {
+            foreach (var vfsDisk in _disks)
+            {
+                UnloadDisk(vfsDisk.DiskProperties.Name);
+            }
+        }
     }
 }

@@ -273,6 +273,7 @@ namespace VFS.VFS.Parser
 
         public override void EnterExit(ShellParser.ExitContext context)
         {
+            VFSManager.Exit();
             Environment.Exit(0);
         }
     }
