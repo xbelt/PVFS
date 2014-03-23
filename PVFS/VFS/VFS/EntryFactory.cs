@@ -76,7 +76,7 @@ namespace VFS.VFS
                 var endIndex = path.IndexOf("/");
                 if (endIndex == -1)
                 {
-                    return OpenEntry(disk, currentParent.GetFile(path).Address,
+                    return OpenEntry(disk, currentParent.GetEntry(path).Address,
                         currentParent);
                 }
                 var entry = currentParent.GetDirectory(path.Substring(0, endIndex));
