@@ -136,6 +136,9 @@ namespace VFS.VFS.Models
         public void free(int address) 
         {
             SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
+            DiskProperties.NumberOfUsedBlocks--;
+            Writer.Seek(this, 0, 8);
+            Writer.Write(DiskProperties.NumberOfUsedBlocks);
         }
         #endregion
 
