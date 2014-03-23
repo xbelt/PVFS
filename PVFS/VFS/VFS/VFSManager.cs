@@ -490,7 +490,7 @@ namespace VFS.VFS
             var fileLength = Convert.ToInt32(fileInfo.Length);
             
             //128 for the header
-            var vFileSize = (int) 128 + fileLength;
+            var vFileSize = 128 + fileLength;
             var toImport = EntryFactory.createFile(disk, fileName, vFileSize, vfsParent);
             var buffer = new byte[vFileSize];
             //Don't read stuff in header part --> skip 0-127 and start at 128
@@ -499,17 +499,13 @@ namespace VFS.VFS
 
             //TODO: when and where to write header? What about address?
             toImport.Write(reader);
-            
-            
-            
-            throw new NotImplementedException();
         }
         
         /// <summary>
         /// Gets parent directory from a file path
         /// </summary>
         /// <param name="arg">The path to the file</param>
-        public static String GetParentStringFromPath(string arg) 
+        public static String GetParentNameFromPath(string arg) 
         {
             var startIndexFileName = arg.LastIndexOf('/') + 1;
             int i = startIndexFileName - 2; char tmp;
