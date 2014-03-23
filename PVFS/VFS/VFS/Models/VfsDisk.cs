@@ -12,11 +12,11 @@ namespace VFS.VFS.Models
             FileStream stream;
             if (path.EndsWith("\\"))
             {
-                stream = File.Open(path + properties.Name + ".vdi", FileMode.Create, FileAccess.ReadWrite);
+                stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             }
             else
             {
-                stream = File.Open(path + "\\" + properties.Name + ".vdi", FileMode.Create, FileAccess.ReadWrite);
+                stream = File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             }
 
             Writer = new BinaryWriter(stream, new ASCIIEncoding(), false);
