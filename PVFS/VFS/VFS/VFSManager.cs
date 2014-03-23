@@ -461,42 +461,35 @@ namespace VFS.VFS
             if (dst == null)
                 throw new ArgumentNullException("dst");
             
-            //Get disk:
-            var diskName = dst.TakeWhile(e => !e.Equals('/')).ToString();
-            var disk = DiskFactory.Load(diskName);
+            //Get disk and parent directory:
+            VfsDirectory parent;
+            IEnumerable<string> remaining;
+            getEntry(dst, out parent, out remaining);
+            var disk = parent.Disk;
             //Get reader & writer
             var reader = disk.getReader();
             var writer = disk.getWriter();
             
             //Get fileName
-            var startIndexFileName = src.LastIndexOf('/') + 1;
-            //Null meaning we're in 'root-directory' | -1 is return value if there was no '/'
-            var fileName = startIndexFileName == -1 ? null : dst.Substring(startIndexFileName, dst.Length -1);
-
-            //Get parent directory
-            var vfsParent = (VfsDirectory) getEntry(dst);
-            if (!vfsParent.IsDirectory) throw new ArgumentException(dst + "is not a path to a directory");
+            var file = (VfsFile) getEntry(dst);
+            var fileName = file.Name;
 
             //check if there's already a file with that name
-            //TODO: check also extension? currently included
-            if (vfsParent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
+            if (parent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
                 throw new ArgumentException("this directory already has a file with the name " + fileName);
+            //Check if file exists at src
+            if (!File.Exists(src))
+                throw new Exception("file does not exist at " + src);
 
             //Get FileLength
             var fileInfo = new FileInfo(src);
             //TODO: Might lose precision...
             var fileLength = Convert.ToInt32(fileInfo.Length);
-            
-            //128 for the header
-            var vFileSize = 128 + 4*fileLength; //convert to byte
-            var toImport = EntryFactory.createFile(disk, fileName, vFileSize, vfsParent);
-            var buffer = new byte[vFileSize];
-            //Don't read stuff in header part --> skip 0-127 and start at 128
-            reader.Read(buffer, 128, fileLength);
-            
-            //TODO: when and where to write header? What about address?
-            toImport.Write(reader);
-            //TODO: I need to add the file to the elements of parent directory somehow
+            //File in which to write
+            var importEntry = EntryFactory.createFile(disk, fileName, fileLength, parent);
+
+            importEntry.Write(new BinaryReader(fileInfo.OpenRead()));
+            parent.AddElement(importEntry);
         }
 
         /// <summary>
@@ -511,17 +504,26 @@ namespace VFS.VFS
             //Get the file to export and its name
             var toExport = (VfsFile) getEntry(src);
             var fileName = toExport.Name;
+           
             //Create the path to destination (non existent folders are automatically created)
             System.IO.Directory.CreateDirectory(dst);
+            
             //Get path including fileName
             //TODO: What about those extensions?
             var completePath = System.IO.Path.Combine(dst, fileName);
 
             //Check if file with same name already exists at that location
-            if (!System.IO.File.Exists(completePath))
+            if (System.IO.File.Exists(completePath))
             {
-                
+                throw new Exception("There's already a file with the same name in the host file system");
             }
+
+            //Start actual export
+            var reader = toExport.Disk.getReader();
+            var writer = toExport.Disk.getWriter();
+
+            reader.Read();
+            writer.Write();
             throw new NotImplementedException();
         }
         
