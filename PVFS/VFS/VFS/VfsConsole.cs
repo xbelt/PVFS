@@ -18,6 +18,14 @@ namespace VFS.VFS
         {
             Console.WriteLine(Message);
         }
+        
+        public virtual void Message(string Message, ConsoleColor textCol)
+        {
+            var oldColor = Console.ForegroundColor;
+            Console.ForegroundColor = textCol;
+            Console.WriteLine(Message);
+            Console.ForegroundColor = oldColor;
+        }
 
         public virtual int Query(string Message, params string[] options)
         {
