@@ -324,7 +324,7 @@ namespace VFS.VFS
 
                 Export(tmp, srcPath);
                 Import(tmp, dstPath);
-                RemoveByPath(srcPath, false);
+                RemoveByPath(srcPath);
                 File.Delete(tmp);
             }
             else
@@ -432,7 +432,6 @@ namespace VFS.VFS
             foreach (var unmountedDisk in unmountedDisks)
             {
                 unmountedDisk.getReader().Close();
-                unmountedDisk.getWriter().Flush();
                 unmountedDisk.getWriter().Close();
             }
         }
@@ -538,12 +537,12 @@ namespace VFS.VFS
             return arg.Substring(i + 2, startIndexFileName - 2); //-2 to be at last char before last slash
         }
 
-        public static void RemoveByPath(string path, bool isDirectory)
+        public static void RemoveByPath(string path)
         {
             var diskName = path.Substring(1);
             diskName = diskName.Substring(0, diskName.IndexOf("/"));
             var entry = getEntry(getDisk(diskName), path) as VfsFile;
-            if (isDirectory)
+            if (entry is VfsDirectory)
             {
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
@@ -553,18 +552,18 @@ namespace VFS.VFS
                 var directories = ((VfsDirectory)entry).GetDirectories();
                 foreach (var directory in directories)
                 {
-                    RemoveByPath(directory.GetAbsolutePath(), true);
+                    RemoveByPath(directory.GetAbsolutePath());
                 }
             }
             entry.Parent.RemoveElement(entry);
             entry.Free();
         }
 
-        public static void RemoveByIdentifier(string ident, bool isDirectory)
+        public static void RemoveByIdentifier(string ident)
         {
             var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
-            if (isDirectory)
+            if (entry is VfsDirectory)
             {
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
@@ -574,7 +573,7 @@ namespace VFS.VFS
                 var directories = ((VfsDirectory)entry).GetDirectories();
                 foreach (var directory in directories)
                 {
-                    RemoveByPath(directory.GetAbsolutePath(), true);
+                    RemoveByPath(directory.GetAbsolutePath());
                 }
             }
             entry.Parent.RemoveElement(entry);
@@ -624,6 +623,12 @@ namespace VFS.VFS
             {
                 UnloadDisk(vfsDisk.DiskProperties.Name);
             }
+        }
+
+        public static void Rename(string src, string newName)
+        {
+            var entry = getEntry(workingDirectory.GetAbsolutePath() + "/" + src) as VfsFile;
+            entry.Rename(newName);
         }
     }
 }
