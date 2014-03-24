@@ -193,14 +193,14 @@ namespace VFS.VFS.Models
             if (Inodes.Count != NoBlocks)
             {
                 NoBlocks = Inodes.Count;
-                writer.Seek(Disk, Address, Offset.NumberOfBlocks);
+                writer.Seek(Disk, Address, FileOffset.NumberOfBlocks);
                 writer.Write(NoBlocks);
             }
 
             if (totalSize != FileSize)
             {
                 FileSize = totalSize;
-                writer.Seek(Disk, Address, Offset.FileSize);
+                writer.Seek(Disk, Address, FileOffset.FileSize);
                 writer.Write(totalSize);
             }
             writer.Flush();
@@ -267,7 +267,7 @@ namespace VFS.VFS.Models
                 throw new ArgumentException("Name was too long.");
 
             BinaryWriter writer = Disk.getWriter();
-            writer.Seek(Disk, Address, Offset.NameLength);
+            writer.Seek(Disk, Address, FileOffset.NameLength);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
             writer.Flush();
