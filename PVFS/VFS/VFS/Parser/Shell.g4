@@ -64,7 +64,7 @@ String
 	;
 
  Identifier
-	: String ('.' String)*
+	: String ('.' String)* ('/' Identifier)*
 	;
 
 
