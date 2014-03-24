@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security;
 using VFS.VFS.Models;
 using VFS.VFS.Parser;
 
@@ -12,7 +10,7 @@ namespace VFS.VFS
 {
     class VFSManager
     {
-        private static List<VfsDisk> _disks = new List<VfsDisk>();
+        private readonly static List<VfsDisk> _disks = new List<VfsDisk>();
         public static VfsDirectory workingDirectory;
         public static VfsDisk CurrentDisk;
         public static VfsConsole Console = new VfsConsole();
