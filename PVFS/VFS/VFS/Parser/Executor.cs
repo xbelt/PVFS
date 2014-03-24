@@ -32,7 +32,7 @@ namespace VFS.VFS.Parser
         {
             if (context.path != null)
             {
-                VFSManager.cdPath(context.path.Text);
+                VFSManager.ChangeWorkingDirectory(context.path.Text);
                 return;
             }
             if (context.ident != null)
@@ -238,7 +238,7 @@ namespace VFS.VFS.Parser
         {
             if (context.trgt != null)
             {
-                VFSManager.RemoveByPath(context.trgt.Text);
+                VFSManager.Remove(context.trgt.Text);
             }
             if (context.id != null)
             {
@@ -248,12 +248,12 @@ namespace VFS.VFS.Parser
 
         public override void EnterMv(ShellParser.MvContext context)
         {
-            VFSManager.move(context.src.Text, context.dst.Text);
+            VFSManager.Move(context.src.Text, context.dst.Text);
         }
 
         public override void EnterRn(ShellParser.RnContext context)
         {
-            VFSManager.Rename(context.src.Text, context.dst.Text);
+            VFSManager.Rename(VFSManager.getAbsolutePath(context.src.Text), context.dst.Text);
         }
 
         public override void EnterIm(ShellParser.ImContext context)
