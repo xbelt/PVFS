@@ -51,6 +51,9 @@ namespace VFS.VFS
                 return new VfsFile(disk, address, name, parent, fileSize, noBlocks, nextBlock);
             }
         }
+
+        /* Errors with create!
+        
         public static VfsEntry OpenEntry(string path)
         {
             var diskName = path.Substring(1);
@@ -84,7 +87,7 @@ namespace VFS.VFS
                 currentParent = entry;
             }
             return currentParent;
-        }
+        }*/
 
         /// <summary>
         /// creates a file on the disk with the specified size, with random content.
