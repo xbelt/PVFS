@@ -46,7 +46,6 @@ namespace VFS.VFS
                     writer.Write(firstByte);
                 }
 
-                byte zero = 0;
                 byte one = 1;
 
                 writer.Flush();
@@ -59,11 +58,8 @@ namespace VFS.VFS
                 writer.Write(1); //NoBlocks
                 writer.Write(one); //Directory?
                 writer.Write((byte)disk.DiskProperties.Name.Length); //NameSize
-                writer.Write(disk.DiskProperties.Name);
-                for (var i = 0; i < disk.DiskProperties.BlockSize - 18 - disk.DiskProperties.Name.Length - 4; i++)
-                {
-                    writer.Write(zero); //Fill block with 0's TODO: (not needed)
-                }
+                writer.Write(disk.DiskProperties.Name.ToCharArray());
+                
                 writer.Flush();
                 disk.Init();
             }
