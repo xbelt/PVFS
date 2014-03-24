@@ -19,7 +19,7 @@ namespace VFS.VFS
             Console.WriteLine(Message);
         }
 
-        public virtual int Qurey(string Message, params string[] options)
+        public virtual int Query(string Message, params string[] options)
         {
             Console.WriteLine(Message);
             string answer;
