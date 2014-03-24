@@ -255,7 +255,7 @@ namespace VFS.VFS
             }
             if (files)
             {
-                Console.Message(dir.GetFiles().Aggregate("", (current, d) => current + " " + d.Name).TrimEnd(' '));
+                Console.Message(dir.GetFiles().Aggregate("", (current, d) => current + " " + d.Name).TrimEnd(' '), ConsoleColor.Blue);
             }
         }
 
