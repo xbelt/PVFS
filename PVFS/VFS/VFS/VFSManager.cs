@@ -544,39 +544,130 @@ namespace VFS.VFS
         /// 
         /// Throws an exception if you try to import the virtual disk itself!
         /// </summary>
-        /// <param name="src">The absolute path to the File that should be imported (Host file system).</param>
-        /// <param name="dst">The absolute path to the target Directory.</param>
-        public static void Import(string src, string dst)
+        /// <param name="src">The absolute path to the File (or Directory) that should be imported (Host file system).</param>
+        /// <param name ="disk">The disk in which the file is imported</param>
+        /// <param name="parent">the parent directory of the destination we're importing</param>
+        private static VfsEntry ImportEntry(string src, VfsDisk disk, VfsDirectory parent) //TODO: 'parent' is a a bit misleading to me. Might rename it
         {
-            //Get disk and parent directory:
-            VfsDirectory parent;
-            IEnumerable<string> remaining;
-            getEntry(dst, out parent, out remaining);
-            var disk = parent.Disk;
-            //Get reader & writer
-            var reader = disk.getReader();
-            var writer = disk.getWriter();
-            
-            //Get fileName
-            var file = (VfsFile) getEntry(dst);
-            var fileName = file.Name;
-
-            //check if there's already a file with that name
-            if (parent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
-                throw new ArgumentException("this directory already has a file with the name " + fileName);
-            //Check if file exists at src
-            if (!File.Exists(src))
-                throw new Exception("file does not exist at " + src);
+            //Check if file or directory exists at src TODO: probably redundant because of caller
+            if (!File.Exists(src) || !Directory.Exists(src))
+                throw new Exception("invalid path: file/directory does not exist at " + src);
 
             //Get FileLength
             var fileInfo = new FileInfo(src);
-            //TODO: Might lose precision...
-            var fileLength = Convert.ToInt32(fileInfo.Length);
-            //File in which to write
+            var fileLength = Convert.ToInt32(fileInfo.Length);  //TODO: Might lose precision...
+            
+            //Name of file to write
+            var fileName = fileInfo.Name;
+
+            //check if there's already a file with that name
+            if (parent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
+            {
+                //throw new ArgumentException("this directory already has a file with the name " + fileName);
+                int answer = Console.Query("There's already a file with the name:" + fileName + ". Do you want to overwrite it?",
+                    "Ok", "Cancel");
+                if (answer == 1)
+                { //Cancel
+                    Console.Message("Canceled import operation");
+                    return null; //Will make the 'Import' function return
+                }
+                else
+                {
+                    //Should work since we have a name duplicate
+                    var toRemove = parent.GetFile(fileName) ?? parent.GetDirectory(fileName);
+                    RemoveByPath(toRemove.GetAbsolutePath(), toRemove.IsDirectory);
+                }
+            }
+
+
+            //Create entry in which to write the file
             var importEntry = EntryFactory.createFile(disk, fileName, fileLength, parent);
 
-            importEntry.Write(new BinaryReader(fileInfo.OpenRead()));
+            //Start actual import
+            var reader = new BinaryReader(fileInfo.OpenRead());
+            var buffer = new byte[fileLength];
+            reader.Read(buffer, 0, fileLength);
+            importEntry.Write(reader);
             parent.AddElement(importEntry);
+            
+            //Dispose resources and close reader
+            reader.Dispose();
+            reader.Close();
+
+            return importEntry;
+        }
+        public static void Import(string src, string dst)
+        {
+            if (src == null)
+                throw new ArgumentNullException("src");
+            if (dst == null)
+                throw new ArgumentNullException("dst");
+
+            //Get disk and parent directory:
+            VfsDirectory dstDirectory;
+            IEnumerable<string> remaining;
+            getEntry(dst, out dstDirectory, out remaining);
+            var disk = dstDirectory.Disk;
+
+            //Check if dstDirectory is correct
+            if (!dstDirectory.Name.Equals(dst.Substring(dst.LastIndexOf('/') + 1, dst.Length - 1))) //TODO: check substring
+            {
+//                throw new ArgumentException(dst + " does not lead to a valid directory. Stuck here " + remaining);
+                int answer = Console.Query("Path leads to unexisting folders. Do you want to create them?" + remaining, "Ok", "Cancel");
+                if (answer == 0)
+                {
+                    //Create the path
+                    createDirectory(dst);
+                }
+                else
+                {
+                    System.Console.WriteLine("Canceled operation.");
+                    return;
+                }
+            }
+
+            //Check type of src
+            if (Directory.Exists(src))
+            {
+                //Get files and subfolders
+                var filePaths = Directory.GetFiles(src);
+                var dirPaths = Directory.GetDirectories(src);
+
+                //Import files
+                if (filePaths.Length != 0) 
+                {
+                    foreach (string path in filePaths) 
+                    {
+                        ImportEntry(path, disk, dstDirectory);
+                    } 
+                }
+                
+                //If there are no subfolders we're done
+                if (dirPaths.Length == 0) return;
+                
+                //Import Directories
+                foreach (var dirPath in dirPaths)
+                {
+                    //Will be parent for files in subfolders of src
+                    var newParDir = (VfsDirectory) ImportEntry(dirPath, disk, dstDirectory);
+                    
+                    if (newParDir == null) //Happens if import has been canceled
+                        return;
+                    
+                    if (!newParDir.IsDirectory)
+                        throw new Exception("imported a file as a directory - weird error");
+                    //Recursive call to import files in subfolder
+                    Import(dirPath, dst + '/' + newParDir.Name);
+                }
+            } 
+            else if (File.Exists(src))
+            {
+                ImportEntry(src, disk, dstDirectory);
+            }
+            else
+            {
+                throw new ArgumentException("the path:" + src + " does not lead to a file or directory.");
+            }
             writer.Flush();
         }
 
@@ -585,7 +676,8 @@ namespace VFS.VFS
         /// </summary>
         /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
         /// <param name="src">The absolute path to the File that should be exported.</param>
-        public static void Export(string dst, string src) {
+        public static void Export(string dst, string src) //TODO: finish this thing here
+        {
             if (dst == null) throw new ArgumentNullException("dst");
             if (src == null) throw new ArgumentNullException("src");
             
@@ -598,18 +690,18 @@ namespace VFS.VFS
                throw new NullReferenceException("Name of file is null.");
             
             //Create the path to destination (non existent folders are automatically created)
-            System.IO.Directory.CreateDirectory(dst);
+            Directory.CreateDirectory(dst);
             
             //Get path including fileName
             //TODO: What about those extensions?
-            var completePath = System.IO.Path.Combine(dst, fileName);
+            var completePath = Path.Combine(dst, fileName);
 
             //Check if file with same name already exists at that location
-            if (System.IO.File.Exists(completePath))
+            if (File.Exists(completePath))
                 throw new Exception("There's already a file with the same name in the host file system");
 
             //Start actual export
-            var fs = System.IO.File.Create(completePath);
+            var fs = File.Create(completePath);
             var writer = new BinaryWriter(fs);
             toExport.Read(writer);
             
