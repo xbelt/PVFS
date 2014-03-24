@@ -238,17 +238,22 @@ namespace VFS.VFS.Parser
         {
             if (context.trgt != null)
             {
-                VFSManager.RemoveByPath(context.trgt.Text, context.opt != null);
+                VFSManager.RemoveByPath(context.trgt.Text);
             }
             if (context.id != null)
             {
-                VFSManager.RemoveByIdentifier(context.id.Text, context.opt != null);
+                VFSManager.RemoveByIdentifier(context.id.Text);
             }
         }
 
         public override void EnterMv(ShellParser.MvContext context)
         {
-            base.EnterMv(context);
+            VFSManager.move(context.src.Text, context.dst.Text);
+        }
+
+        public override void EnterRn(ShellParser.RnContext context)
+        {
+            VFSManager.Rename(context.src.Text, context.dst.Text);
         }
 
         public override void EnterIm(ShellParser.ImContext context)
