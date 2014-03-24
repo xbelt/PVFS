@@ -134,6 +134,7 @@ namespace VFS.VFS
         /// <summary>
         /// Returns the absolute path for the supplied path/identifier.
         /// For identifier: workingDirectory/ident
+        /// Supports . and ..
         /// </summary>
         /// <param name="path">The path or identifier.</param>
         /// <returns>A valid absolute path.</returns>
@@ -144,6 +145,8 @@ namespace VFS.VFS
 
             if (path == "." || path == "")
                 return workingDirectory.GetAbsolutePath();
+            else if (path == "..")
+                return (workingDirectory.Parent ?? workingDirectory).GetAbsolutePath();
             else if (path.StartsWith("/"))
                 return path;
             else
