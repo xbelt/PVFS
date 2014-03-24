@@ -30,7 +30,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// Returns the corresponding VfsEntry
         /// </summary>
         /// <param name="path">An absolute path containing the disk name</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
@@ -42,7 +42,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// Returns the corresponding VfsEntry
         /// </summary>
         /// <param name="path">An absolute path containing the disk name</param>
         /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root. Null if disk was not found</param>
@@ -55,7 +55,13 @@ namespace VFS.VFS
 
             int i = path.IndexOf('/', 1);
             if (i == -1)
-                throw new ArgumentException("Path not valid.");
+            {
+                var diskRoot = getDisk(path.Substring(1));
+                last = diskRoot.root;
+                remaining = new List<string>();
+                return last;
+            }
+
             var disk = getDisk(path.Substring(1, i - 1));
             if (disk != null)
                 return getEntry(disk, path.Substring(i + 1), out last, out remaining);
@@ -381,6 +387,15 @@ namespace VFS.VFS
                 Console.Error("Can't move a directory into itself!");
                 return;
             }
+            if (!srcPath.StartsWith("/"))
+            {
+                srcPath = workingDirectory.GetAbsolutePath() + "/" + srcPath;
+            }
+
+            if (!dstPath.StartsWith("/"))
+            {
+                dstPath = workingDirectory.GetAbsolutePath() + "/" + dstPath;
+            }
 
             VfsEntry srcEntry = getEntry(srcPath);
             VfsEntry dstEntry = getEntry(dstPath);
@@ -420,7 +435,7 @@ namespace VFS.VFS
                 dst.AddElement(src);
             }
 
-            Console.Message("Moved  " + src + " to " + dstEntry + ".");
+            Console.Message("Moved  " + srcPath + " to " + dstPath + ".");
         }
         
         /// <summary>
