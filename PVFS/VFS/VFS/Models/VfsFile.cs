@@ -145,7 +145,8 @@ namespace VFS.VFS.Models
         /// </summary>
         public void Write(BinaryReader reader)
         {
-            //TODO: add extendability if file > vFile
+            if (this.IsDirectory)
+                throw new ArgumentException("Can't be called on a directory.");
 
             var writer = Disk.getWriter();
 
@@ -210,6 +211,9 @@ namespace VFS.VFS.Models
         /// </summary>
         public void Read(BinaryWriter writer)
         {
+            if (this.IsDirectory)
+                throw new ArgumentException("Can't be called on a directory.");
+
             var reader = Disk.getReader();
 
             if (!IsLoaded)
@@ -272,8 +276,8 @@ namespace VFS.VFS.Models
 
         /// <summary>
         /// Returns the absolute path to this file/directory.
-        /// File Format: /Rootname/DirectoryName/.../Filename.exe
-        /// Directory Format: /Rootname/DirectoryName/.../DirectoryName
+        /// File Format: /DiskName/DirectoryName/.../Filename.exe
+        /// Directory Format: /DiskName/DirectoryName/.../DirectoryName
         /// </summary>
         /// <returns>Returns the absolute path to this file/directory.</returns>
         public string GetAbsolutePath()
@@ -282,7 +286,7 @@ namespace VFS.VFS.Models
             {
                 return Parent.GetAbsolutePath() + "/" + Name;
             }
-            return "/" + Name;
+            return "/" + this.Disk.DiskProperties.Name;
         }
 
         /// <summary>
