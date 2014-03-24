@@ -11,7 +11,8 @@ namespace VFS.VFS.Parser
     {
         public override void EnterLs(ShellParser.LsContext context)
         {
-            VFSManager.ListEntries("", context.files == null ? false : true, context.dirs == null ? false : true);
+            string path = ""; // context.path.Text;
+            VFSManager.ListEntries(VFSManager.getAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
         }
 
         public override void EnterCd(ShellParser.CdContext context)
@@ -192,7 +193,7 @@ namespace VFS.VFS.Parser
             }
             foreach (var file in files)
             {
-                Console.WriteLine(file);
+                VFSManager.Console.Message(file);
             }
         }
 
@@ -200,11 +201,11 @@ namespace VFS.VFS.Parser
         {
             if (context.id != null)
             {
-                EntryFactory.createDirectory(VFSManager.CurrentDisk, context.id.Text, VFSManager.workingDirectory);
+                VFSManager.CreateDirectory(VFSManager.getAbsolutePath(context.id.Text), false);
             }
             else
             {
-                throw new NotImplementedException();
+                VFSManager.Console.Error("Format: mkdir <DirectoryName>");
             }
         }
 
@@ -212,11 +213,11 @@ namespace VFS.VFS.Parser
         {
             if (context.id != null)
             {
-                EntryFactory.createFile(VFSManager.CurrentDisk, context.id.Text, 0, VFSManager.workingDirectory);
+                VFSManager.CreateFile(VFSManager.getAbsolutePath(context.id.Text));
             }
             else
             {
-                throw new NotImplementedException();
+                VFSManager.Console.Error("Format: mk <FileName>");
             }
         }
 

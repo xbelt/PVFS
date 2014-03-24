@@ -158,6 +158,8 @@ namespace VFS.VFS
             _disks.Add(disk);
             CurrentDisk = disk;
             workingDirectory = disk.root;
+
+            Console.Message("Opened disk " + disk.DiskProperties.Name + ".");
         }
         
         public static void UnloadDisk(string name)
@@ -167,6 +169,8 @@ namespace VFS.VFS
             {
                 unmountedDisk.getReader().Close();
                 unmountedDisk.getWriter().Close();
+
+                Console.Message("Closed disk " + unmountedDisk.DiskProperties.Name + ".");
             }
         }
 
@@ -210,6 +214,12 @@ namespace VFS.VFS
 
         //----------------------Directory and File----------------------
 
+        /// <summary>
+        /// Writes the names of all subfiles and subdirectories of a given directory into the console.
+        /// </summary>
+        /// <param name="path">Target directory.</param>
+        /// <param name="files">Display files.</param>
+        /// <param name="dirs">Display directories.</param>
         public static void ListEntries(string path, bool files, bool dirs)
         {
             VfsEntry entry = getEntry(path);
@@ -242,8 +252,9 @@ namespace VFS.VFS
         /// Creates directories such that the whole path given exists. If the path contains a file this does nothing.
         /// </summary>
         /// <param name="path">The path to create.</param>
+        /// <param name="silent">Indicates whether there should be an output into the console if the operation was successful.</param>
         /// <returns>Returns true if the operation succeded, otherwise false.</returns>
-        public static bool CreateDirectory(string path)
+        public static bool CreateDirectory(string path, bool silent)
         {
             VfsDirectory last;
             IEnumerable<string> remainingPath;
@@ -290,6 +301,8 @@ namespace VFS.VFS
                         return false;
                     }
                 }
+                if (!silent)
+                    Console.Message("Created the path " + path + ".");
                 return true;
             }
             else
@@ -338,6 +351,8 @@ namespace VFS.VFS
 
             VfsFile file = EntryFactory.createFile(last.Disk, fileNames[0], 0, last);
             last.AddElement(file);
+
+            Console.Message("File successfully created.");
         }
 
         /// <summary>
@@ -381,12 +396,6 @@ namespace VFS.VFS
 
             if (src.Disk != dst.Disk)
             {
-                if (src.IsDirectory)
-                {
-                    Console.Error("Can't move a directory to another disk.");
-                    return;
-                }
-
                 string tmp = getTempFilePath();
 
                 Export(tmp, srcPath);
@@ -399,7 +408,8 @@ namespace VFS.VFS
                 src.Parent.RemoveElement(src);
                 dst.AddElement(src);
             }
-            Console.Message("copy " + src + " to " + dstEntry);
+
+            Console.Message("Moved  " + src + " to " + dstEntry + ".");
         }
         
         /// <summary>
@@ -437,6 +447,8 @@ namespace VFS.VFS
             }
 
             ((VfsFile)entry).Rename(newName);
+
+            Console.Message("Renamed file to " + newName + ".");
         }
 
         /// <summary>
@@ -469,7 +481,7 @@ namespace VFS.VFS
             if (dstEntry == null)
             {
                 // Create dst using last.
-                if (!CreateDirectory(dstPath))
+                if (!CreateDirectory(dstPath, true))
                 {
                     Console.Error("Copying was canceled.");
                     return;
@@ -484,7 +496,7 @@ namespace VFS.VFS
                 return;
             }
 
-            Console.Message("copy " + srcPath + " to " + dstPath);
+            Console.Message("Copied " + srcPath + " to " + dstPath + ".");
         }
 
         /// <summary>
@@ -705,6 +717,7 @@ namespace VFS.VFS
             {
                 UnloadDisk(vfsDisk.DiskProperties.Name);
             }
+            Console.Message("Bye");
         }
 
     }
