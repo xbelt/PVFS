@@ -14,7 +14,7 @@ namespace VFS.VFS
         public static VfsDirectory workingDirectory;
         public static VfsDisk CurrentDisk;
         public static VfsConsole Console = new VfsConsole();
-        private static string[] idToSize = new[] {"byte", "kb", "mb", "gb", "tb"};
+        private readonly static string[] idToSize = { "bytes", "kb", "mb", "gb", "tb" };
 
         #region Private Methods
 
@@ -155,8 +155,8 @@ namespace VFS.VFS
 
         public static void AddAndOpenDisk(VfsDisk disk)
         {
-            CurrentDisk = disk;
             _disks.Add(disk);
+            CurrentDisk = disk;
             workingDirectory = disk.root;
         }
         
@@ -210,17 +210,32 @@ namespace VFS.VFS
 
         //----------------------Directory and File----------------------
 
-        public static IEnumerable<VfsEntry> ListEntries(bool files, bool dirs)
+        public static void ListEntries(string path, bool files, bool dirs)
         {
-            if (dirs && !files)
+            VfsEntry entry = getEntry(path);
+
+            if (entry == null)
             {
-                return workingDirectory.GetDirectories();
+                Console.Error("Directory not found.");
+                return;
             }
-            if (!dirs && files)
+
+            if (!entry.IsDirectory)
             {
-                return workingDirectory.GetFiles();
+                Console.Error("This is not a directory.");
+                return;
             }
-            return workingDirectory.GetEntries();
+
+            VfsDirectory dir = (VfsDirectory) entry;
+
+            if (dirs)
+            {
+                Console.Message(dir.GetDirectories().Aggregate("",(current, d)=>current + " " + d.Name).TrimEnd(' '));
+            }
+            if (files)
+            {
+                Console.Message(dir.GetFiles().Aggregate("", (current, d) => current + " " + d.Name).TrimEnd(' '));
+            }
         }
 
         /// <summary>

@@ -11,21 +11,7 @@ namespace VFS.VFS.Parser
     {
         public override void EnterLs(ShellParser.LsContext context)
         {
-            var entries = VFSManager.ListEntries(context.files == null ? false : true, context.dirs == null ? false : true);
-            var oldColor = Console.ForegroundColor;
-            foreach (var entry in entries.OrderBy(x => x.IsDirectory))
-            {
-                if (entry.IsDirectory)
-                {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                }
-                Console.WriteLine(entry.Name);
-            }
-            Console.ForegroundColor = oldColor;
+            VFSManager.ListEntries("", context.files == null ? false : true, context.dirs == null ? false : true);
         }
 
         public override void EnterCd(ShellParser.CdContext context)
