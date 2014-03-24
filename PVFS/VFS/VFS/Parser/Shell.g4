@@ -26,10 +26,11 @@ compileUnit
 	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
 	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir
 	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
-	| ('remove' | 'rm') opt=R? (trgt=Path | id=Identifier) compileUnit														#Rm
-	| ('move' | 'mv') opt=R? src=Path dst=Path compileUnit													#Mv
+	| ('remove' | 'rm') (trgt=Path | id=Identifier) compileUnit												#Rm
+	| ('move' | 'mv') src=Path dst=Path compileUnit															#Mv
 	| ('import' | 'im') ext=SysPath inte=Path compileUnit													#Im
 	| ('export' | 'ex') inte=Path ext=SysPath compileUnit													#Ex
+	| ('rename' | 'rn') src=Identifier dst=Identifier compileUnit								#Rn
 	| 'free'																								#Free
 	| 'occ'																									#Occ
 	| ('exit' | 'quit')																						#Exit
@@ -66,7 +67,6 @@ String
  Identifier
 	: String ('.' String)* ('/' Identifier)*
 	;
-
 
 Path
 	: ('/' String)+ ('/')? ('/' Identifier)?
