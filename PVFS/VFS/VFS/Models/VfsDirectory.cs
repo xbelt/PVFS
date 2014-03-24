@@ -153,6 +153,7 @@ namespace VFS.VFS.Models
                     doneEntriesInCurrentBlock = 0;
                 }
             }
+            writer.Flush();
         }
 
         /// <summary>
@@ -295,6 +296,7 @@ namespace VFS.VFS.Models
                 this.NoBlocks = this.Inodes.Count;
                 writer.Write(this.NoBlocks);
             }
+            writer.Flush();
             return true;
         }
 
@@ -363,6 +365,7 @@ namespace VFS.VFS.Models
                 this.NoBlocks = this.Inodes.Count;
                 writer.Write(this.NoBlocks);
             }
+            writer.Flush();
             return true;
         }
     }

@@ -202,6 +202,7 @@ namespace VFS.VFS.Models
                 writer.Seek(Disk, Address, 8);
                 writer.Write(totalSize);
             }
+            writer.Flush();
         }
 
         /// <summary>
@@ -265,6 +266,7 @@ namespace VFS.VFS.Models
             writer.Seek(Disk, Address, 14);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
+            writer.Flush();
             Name = name;
         }
 
@@ -319,7 +321,7 @@ namespace VFS.VFS.Models
 
                 head = SmallHeaderSize;
             }
-
+            writer.Flush();
             return copy;
         }
 

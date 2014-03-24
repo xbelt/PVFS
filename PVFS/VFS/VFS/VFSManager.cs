@@ -428,6 +428,7 @@ namespace VFS.VFS
             foreach (var unmountedDisk in unmountedDisks)
             {
                 unmountedDisk.getReader().Close();
+                unmountedDisk.getWriter().Flush();
                 unmountedDisk.getWriter().Close();
             }
         }
@@ -472,6 +473,7 @@ namespace VFS.VFS
 
             importEntry.Write(new BinaryReader(fileInfo.OpenRead()));
             parent.AddElement(importEntry);
+            writer.Flush();
         }
 
         /// <summary>
@@ -534,7 +536,9 @@ namespace VFS.VFS
 
         public static void RemoveByPath(string path, bool isDirectory)
         {
-            var entry = EntryFactory.OpenEntry(path) as VfsFile;
+            var diskName = path.Substring(1);
+            diskName = diskName.Substring(0, diskName.IndexOf("/"));
+            var entry = getEntry(getDisk(diskName), path) as VfsFile;
             if (isDirectory)
             {
                 var files = ((VfsDirectory)entry).GetFiles();
@@ -548,10 +552,8 @@ namespace VFS.VFS
                     RemoveByPath(directory.GetAbsolutePath(), true);
                 }
             }
-            else
-            {
-                entry.Free();
-            }
+            entry.Parent.RemoveElement(entry);
+            entry.Free();
         }
 
         public static void RemoveByIdentifier(string ident, bool isDirectory)
@@ -570,13 +572,9 @@ namespace VFS.VFS
                 {
                     RemoveByPath(directory.GetAbsolutePath(), true);
                 }
-                // TODO free entry
             }
-            else
-            {
-                entry.Parent.RemoveElement(entry);
-                entry.Free();
-            }
+            entry.Parent.RemoveElement(entry);
+            entry.Free();
         }
 
         public static VfsDisk GetDisk(string diskName)

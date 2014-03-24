@@ -163,6 +163,7 @@ namespace VFS.VFS
             writer.Write(true);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
+            writer.Flush();
 
             var vfsDirectory = new VfsDirectory(disk, address, name, parent, 0, 1, 0);
             parent.AddElement(vfsDirectory);
