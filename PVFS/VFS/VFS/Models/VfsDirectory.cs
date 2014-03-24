@@ -122,7 +122,7 @@ namespace VFS.VFS.Models
             int doneEntriesInCurrentBlock = 0, totalEntries = 0, blockNumber = 0, currentBlockAddress = Address;
             writer.Seek(Disk, Address, HeaderSize);
             FileSize = elements.Count;
-            writer.Seek(Disk, Address, 8);
+            writer.Seek(Disk, Address, Offset.FileSize);
             writer.Write(FileSize);
             while (totalEntries < FileSize)
             {
@@ -140,7 +140,7 @@ namespace VFS.VFS.Models
                         Disk.allocate(out next);
                         writer.Seek(Disk, currentBlockAddress);
                         writer.Write(next);
-                        writer.Seek(Disk, Address, 12);
+                        writer.Seek(Disk, Address, Offset.NumberOfBlocks);
                         writer.Write(++NoBlocks);
                         writer.Seek(Disk, next, SmallHeaderSize);
                     }
@@ -289,7 +289,7 @@ namespace VFS.VFS.Models
             this.elements.Add(element);
             element.Parent = this;
             this.noEntries = this.elements.Count;
-            writer.Seek(this.Disk, this.Address, 8);// Update noEntries
+            writer.Seek(this.Disk, this.Address, Offset.FileSize);// Update noEntries
             writer.Write(this.noEntries);
             if (this.Inodes.Count != this.NoBlocks) // Update noBlocks
             {
@@ -358,7 +358,7 @@ namespace VFS.VFS.Models
 
             this.elements.Remove(element);
             this.noEntries = this.elements.Count;
-            writer.Seek(this.Disk, this.Address, 8);// Update noEntries
+            writer.Seek(this.Disk, this.Address, Offset.FileSize);// Update noEntries
             writer.Write(this.noEntries);
             if (this.Inodes.Count != this.NoBlocks) // Update noBlocks
             {
