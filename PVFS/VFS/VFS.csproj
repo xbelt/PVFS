@@ -54,7 +54,7 @@
     <Compile Include="VFS\Factory.cs" />
     <Compile Include="VFS\Models\Block.cs" />
     <Compile Include="VFS\Models\DiskProperties.cs" />
-    <Compile Include="VFS\Models\Offsets.cs" />
+    <Compile Include="VFS\Models\FileOffset.cs" />
     <Compile Include="VFS\Models\VfsDirectory.cs" />
     <Compile Include="VFS\Models\VfsDisk.cs" />
     <Compile Include="VFS\Models\VfsEntry.cs" />
