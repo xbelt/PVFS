@@ -134,7 +134,7 @@ namespace VFS.VFS
         {
             CurrentDisk = disk;
             _disks.Add(disk);
-            workingDirectory = (VfsDirectory)EntryFactory.OpenEntry(disk, disk.root.Address, null);
+            workingDirectory = disk.root;
         }
 
         public static IEnumerable<VfsEntry> ListEntries(bool files, bool dirs)
