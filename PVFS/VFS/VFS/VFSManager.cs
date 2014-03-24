@@ -16,6 +16,9 @@ namespace VFS.VFS
         public static VfsConsole Console = new VfsConsole();
         private static string[] idToSize = new[] {"byte", "kb", "mb", "gb", "tb"};
 
+        #region Private Methods
+
+
         /// <summary>
         /// Returns the disk with the corresponding name.
         /// </summary>
@@ -94,7 +97,7 @@ namespace VFS.VFS
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
                 throw new ArgumentException("Path not valid. Root can't be accessed this way.");
-            for (int i = 1; i < names.Length - 1; i++)
+            for (int i = 0; i < names.Length - 1; i++)
             {
                 last = current;
                 current = current.GetDirectory(names[i]);
@@ -124,9 +127,31 @@ namespace VFS.VFS
             return path;
         }
 
+        #endregion
 
-        #region Public Interface Methods
+        //----------------------Helper----------------------
 
+        /// <summary>
+        /// Returns the absolute path for the supplied path/identifier.
+        /// For identifier: workingDirectory/ident
+        /// </summary>
+        /// <param name="path">The path or identifier.</param>
+        /// <returns>A valid absolute path.</returns>
+        public static string getAbsolutePath(string path)
+        {
+            if (path == null)
+                throw new ArgumentException("path");
+
+            if (path == "." || path == "")
+                return workingDirectory.GetAbsolutePath();
+            else if (path.StartsWith("/"))
+                return path;
+            else
+                return workingDirectory.GetAbsolutePath() + "/" + path;
+        }
+
+
+        //----------------------Disk----------------------
 
         public static void AddAndOpenDisk(VfsDisk disk)
         {
@@ -134,6 +159,56 @@ namespace VFS.VFS
             _disks.Add(disk);
             workingDirectory = disk.root;
         }
+        
+        public static void UnloadDisk(string name)
+        {
+            var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name);
+            foreach (var unmountedDisk in unmountedDisks)
+            {
+                unmountedDisk.getReader().Close();
+                unmountedDisk.getWriter().Close();
+            }
+        }
+
+
+        //----------------------Working Directory----------------------
+
+        /// <summary>
+        /// Changes the working directory to a new one by path.
+        /// </summary>
+        /// <param name="path">The path to the new working directory.</param>
+        public static void ChangeWorkingDirectory(string path)
+        {
+            VfsEntry entry = getEntry(path);
+
+            if (entry == null || !entry.IsDirectory)
+            {
+                Console.Error("This path does not exist.");
+                return;
+            }
+
+            workingDirectory = (VfsDirectory) entry;
+            CurrentDisk = workingDirectory.Disk;
+
+            Console.Message("New working directory: " + path);
+        }
+
+        // copy
+        public static void ChangeDirectoryByIdentifier(string name)
+        {
+            workingDirectory = workingDirectory.GetDirectory(name) ?? workingDirectory;
+            Console.Message("New working directory: " + name);
+        }
+
+        public static void navigateUp()
+        {
+            if (workingDirectory.Parent != null)
+                workingDirectory = workingDirectory.Parent;
+
+            Console.Message("New working directory: " + workingDirectory.GetAbsolutePath());
+        }
+
+        //----------------------Directory and File----------------------
 
         public static IEnumerable<VfsEntry> ListEntries(bool files, bool dirs)
         {
@@ -148,67 +223,12 @@ namespace VFS.VFS
             return workingDirectory.GetEntries();
         }
 
-        public static void ChangeDirectoryByIdentifier(string name)
-        {
-            workingDirectory = workingDirectory.GetDirectory(name) ?? workingDirectory;
-            Console.Message("New working directory: " + name);
-        }
-
-        public static void cdPath(string path)
-        {
-            try
-            {
-                var pathElements = path.Substring(1).Split('/');
-                CurrentDisk = GetDisk(pathElements[0]);
-                workingDirectory = EntryFactory.OpenEntry(path) as VfsDirectory;
-            }
-            catch (InvalidCastException exception)
-            {
-                Console.Error("cd requires a path to a folder not a file");
-                return;
-            }
-            Console.Message("New working directory: " + path);
-        }
-
-        /// <summary>
-        /// Creates an empty file at the indicated location. Returns early if the target directory doesn't exist.
-        /// </summary>
-        /// <param name="path">The path to the new file.</param>
-        public static void CreateFile(string path)
-        {
-            VfsDirectory last;
-            IEnumerable<string> remaining;
-            VfsEntry entry = getEntry(path, out last, out remaining);
-
-            if (entry != null)
-            {
-                Console.Error("There already existed a file or directory with the same path.");
-                return;
-            }
-
-            if (last == null)
-            {
-                Console.Error("The disk was not found.");
-                return;
-            }
-
-            List<string> fileNames =  remaining.ToList();
-            if (fileNames.Count > 1)
-            {
-                Console.Error("Target directory was not found.");
-                return;
-            }
-
-            VfsFile file = EntryFactory.createFile(last.Disk, fileNames[0], 0, last);
-            last.AddElement(file);
-        }
-
         /// <summary>
         /// Creates directories such that the whole path given exists. If the path contains a file this does nothing.
         /// </summary>
         /// <param name="path">The path to create.</param>
         /// <returns>Returns true if the operation succeded, otherwise false.</returns>
-        public static bool createDirectory(string path)
+        public static bool CreateDirectory(string path)
         {
             VfsDirectory last;
             IEnumerable<string> remainingPath;
@@ -272,13 +292,45 @@ namespace VFS.VFS
             }
         }
 
+        /// <summary>
+        /// Creates an empty file at the indicated location. Returns early if the target directory doesn't exist.
+        /// </summary>
+        /// <param name="path">The path to the new file.</param>
+        public static void CreateFile(string path)
+        {
+            VfsDirectory last;
+            IEnumerable<string> remaining;
+            VfsEntry entry = getEntry(path, out last, out remaining);
+
+            if (entry != null)
+            {
+                Console.Error("There already existed a file or directory with the same path.");
+                return;
+            }
+
+            if (last == null)
+            {
+                Console.Error("The disk was not found.");
+                return;
+            }
+
+            List<string> fileNames =  remaining.ToList();
+            if (fileNames.Count > 1)
+            {
+                Console.Error("Target directory was not found.");
+                return;
+            }
+
+            VfsFile file = EntryFactory.createFile(last.Disk, fileNames[0], 0, last);
+            last.AddElement(file);
+        }
 
         /// <summary>
         /// Moves a File or Directory to a new location. A directory is moved recursively.
         /// </summary>
         /// <param name="srcPath">The absolute path to the File/Directory that should be moved.</param>
         /// <param name="dstPath">The absolute path to the target Directory.</param>
-        public static void move(string srcPath, string dstPath)
+        public static void Move(string srcPath, string dstPath)
         {
             if (srcPath == null || dstPath == null)
                 throw new ArgumentNullException("", "Argument null.");
@@ -324,7 +376,7 @@ namespace VFS.VFS
 
                 Export(tmp, srcPath);
                 Import(tmp, dstPath);
-                RemoveByPath(srcPath);
+                Remove(srcPath);
                 File.Delete(tmp);
             }
             else
@@ -333,6 +385,43 @@ namespace VFS.VFS
                 dst.AddElement(src);
             }
             Console.Message("copy " + src + " to " + dstEntry);
+        }
+        
+        /// <summary>
+        /// Renames a file or directory.
+        /// </summary>
+        /// <param name="src">The path to the file/directory.</param>
+        /// <param name="newName">The new name.</param>
+        public static void Rename(string src, string newName)
+        {
+            if (src == null) throw new ArgumentNullException("src");
+            if (newName == null) throw new ArgumentNullException("newName");
+
+            VfsDirectory last;
+            IEnumerable<string> remaining;
+            VfsEntry entry = getEntry(src, out last, out remaining);
+
+            if (newName.Length > VfsFile.MaxNameLength)
+            {
+                Console.Error("This name is too long.");
+                return;
+            }
+
+            if (entry == null)
+            {
+                Console.Error("This file does not exist.");
+                return;
+            }
+
+            var parent = last.Parent;
+
+            if (parent.GetEntry(entry.Name) != null)
+            {
+                Console.Error("There already exists a file or directory with this name.");
+                return;
+            }
+
+            ((VfsFile)entry).Rename(newName);
         }
 
         /// <summary>
@@ -365,7 +454,7 @@ namespace VFS.VFS
             if (dstEntry == null)
             {
                 // Create dst using last.
-                if (!createDirectory(dstPath))
+                if (!CreateDirectory(dstPath))
                 {
                     Console.Error("Copying was canceled.");
                     return;
@@ -415,24 +504,6 @@ namespace VFS.VFS
                 VfsFile file = (VfsFile)src;
                 file.Duplicate(dst, newName);
                 return true;
-            }
-        }
-
-        public static void navigateUp()
-        {
-            
-            if (workingDirectory.Parent != null)
-                workingDirectory = workingDirectory.Parent;
-            
-        }
-
-        public static void UnloadDisk(string name)
-        {
-            var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name);
-            foreach (var unmountedDisk in unmountedDisks)
-            {
-                unmountedDisk.getReader().Close();
-                unmountedDisk.getWriter().Close();
             }
         }
 
@@ -521,28 +592,22 @@ namespace VFS.VFS
             writer.Close();
             fs.Close();
         }
-        
-        /// <summary>
-        /// Gets parent directory from a file path
-        /// </summary>
-        /// <param name="arg">The path to the file</param>
-        public static String GetParentNameFromPath(string arg) 
-        {
-            var startIndexFileName = arg.LastIndexOf('/') + 1;
-            int i = startIndexFileName - 2; char tmp;
-            do {
-                tmp = arg[i];
-                i--; //will be one position before secondLastSlash --> +2 for first char of parent
-            } while (!tmp.Equals('/'));
-            return arg.Substring(i + 2, startIndexFileName - 2); //-2 to be at last char before last slash
-        }
 
-        public static void RemoveByPath(string path)
+        /// <summary>
+        /// Deletes a file or directory from the disk.
+        /// </summary>
+        /// <param name="path">THe path to the file/directory.</param>
+        public static void Remove(string path)
         {
-            var diskName = path.Substring(1);
-            diskName = diskName.Substring(0, diskName.IndexOf("/"));
-            var entry = getEntry(getDisk(diskName), path) as VfsFile;
-            if (entry is VfsDirectory)
+            var entry = getEntry(path) as VfsFile;
+
+            if (entry == null)
+            {
+                Console.Error("This file does not exist.");
+                return;
+            }
+
+            if (entry.IsDirectory)
             {
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
@@ -552,18 +617,27 @@ namespace VFS.VFS
                 var directories = ((VfsDirectory)entry).GetDirectories();
                 foreach (var directory in directories)
                 {
-                    RemoveByPath(directory.GetAbsolutePath());
+                    Remove(directory.GetAbsolutePath());
                 }
             }
             entry.Parent.RemoveElement(entry);
             entry.Free();
+
+            Console.Message("Successfully removed " + entry.Name + ".");
         }
 
+        // copy
         public static void RemoveByIdentifier(string ident)
         {
             var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
-            if (entry is VfsDirectory)
+            if (entry == null)
+            {
+                Console.Error("This file does not exist.");
+                return;
+            }
+
+            if (entry.IsDirectory)
             {
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
@@ -573,23 +647,16 @@ namespace VFS.VFS
                 var directories = ((VfsDirectory)entry).GetDirectories();
                 foreach (var directory in directories)
                 {
-                    RemoveByPath(directory.GetAbsolutePath());
+                    Remove(directory.GetAbsolutePath());
                 }
             }
             entry.Parent.RemoveElement(entry);
             entry.Free();
+
+            Console.Message("Successfully removed " + entry.Name + ".");
         }
 
-        public static VfsDisk GetDisk(string diskName)
-        {
-            if (_disks.Any(x => x.DiskProperties.Name == diskName))
-            {
-                return _disks.Single(x => x.DiskProperties.Name == diskName);
-            }
-            throw new DiskNotFoundException();
-        }
-        
-        #endregion
+        //----------------------Disk Properties----------------------
 
         public static void GetFreeSpace()
         {
@@ -625,10 +692,5 @@ namespace VFS.VFS
             }
         }
 
-        public static void Rename(string src, string newName)
-        {
-            var entry = getEntry(workingDirectory.GetAbsolutePath() + "/" + src) as VfsFile;
-            entry.Rename(newName);
-        }
     }
 }
