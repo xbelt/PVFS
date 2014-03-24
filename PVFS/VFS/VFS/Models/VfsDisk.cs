@@ -90,7 +90,7 @@ namespace VFS.VFS.Models
             bitMap[address] = true;
             SetBit(true, address%8, DiskProperties.BitMapOffset + address/8, 0);
             DiskProperties.NumberOfUsedBlocks++;
-            Writer.Seek(this, 0, 8);
+            Writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
             Writer.Write(DiskProperties.NumberOfUsedBlocks);
             return true;
         }
@@ -138,7 +138,7 @@ namespace VFS.VFS.Models
         {
             SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
             DiskProperties.NumberOfUsedBlocks--;
-            Writer.Seek(this, 0, 8);
+            Writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
             Writer.Write(DiskProperties.NumberOfUsedBlocks);
         }
         #endregion
