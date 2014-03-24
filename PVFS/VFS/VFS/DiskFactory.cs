@@ -58,7 +58,7 @@ namespace VFS.VFS
                 writer.Write(0); //NrOfChildren
                 writer.Write(1); //NoBlocks
                 writer.Write(one); //Directory?
-                writer.Write(disk.DiskProperties.Name.Length); //NameSize
+                writer.Write((byte)disk.DiskProperties.Name.Length); //NameSize
                 writer.Write(disk.DiskProperties.Name);
                 for (var i = 0; i < disk.DiskProperties.BlockSize - 18 - disk.DiskProperties.Name.Length - 4; i++)
                 {
