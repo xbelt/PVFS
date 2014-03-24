@@ -306,6 +306,12 @@ namespace VFS.VFS
             VfsFile src = (VfsFile)srcEntry;
             VfsDirectory dst = (VfsDirectory)dstEntry;
 
+            if (dst.GetEntry(src.Name) != null)
+            {
+                Console.Error("There is already a file with that name in the target directory.");
+                return;
+            }
+
             if (src.Disk != dst.Disk)
             {
                 if (src.IsDirectory)
@@ -583,7 +589,9 @@ namespace VFS.VFS
             }
             throw new DiskNotFoundException();
         }
+        
         #endregion
+
         public static void GetFreeSpace()
         {
             var divisor = 1;
