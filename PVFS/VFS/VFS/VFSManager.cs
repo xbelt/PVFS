@@ -96,7 +96,7 @@ namespace VFS.VFS
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
                 throw new ArgumentException("Path not valid. Root can't be accessed this way.");
-            for (int i = 0; i < names.Length - 1; i++)
+            for (int i = 1; i < names.Length - 1; i++)
             {
                 last = current;
                 current = current.GetDirectory(names[i]);
@@ -574,6 +574,7 @@ namespace VFS.VFS
             }
             else
             {
+                entry.Parent.RemoveElement(entry);
                 entry.Free();
             }
         }
