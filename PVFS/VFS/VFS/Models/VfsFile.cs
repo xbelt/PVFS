@@ -263,7 +263,7 @@ namespace VFS.VFS.Models
                 throw new ArgumentException("Name was too long.");
 
             BinaryWriter writer = Disk.getWriter();
-            writer.Seek(Disk, Address, 14);
+            writer.Seek(Disk, Address, 17);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
             writer.Flush();
