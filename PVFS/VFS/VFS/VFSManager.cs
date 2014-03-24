@@ -225,7 +225,15 @@ namespace VFS.VFS
         /// <param name="dirs">Display directories.</param>
         public static void ListEntries(string path, bool files, bool dirs)
         {
-            VfsEntry entry = getEntry(path);
+            VfsEntry entry;
+            if (path.IndexOf("/", 1) == -1)
+            {
+                entry = CurrentDisk.root;
+            }
+            else
+            {
+                entry = getEntry(path);
+            }
 
             if (entry == null)
             {
@@ -575,7 +583,7 @@ namespace VFS.VFS
                 {
                     //Should work since we have a name duplicate
                     var toRemove = parent.GetFile(fileName) ?? parent.GetDirectory(fileName);
-                    RemoveByPath(toRemove.GetAbsolutePath(), toRemove.IsDirectory);
+                    Remove(toRemove.GetAbsolutePath());
                 }
             }
 
@@ -617,7 +625,7 @@ namespace VFS.VFS
                 if (answer == 0)
                 {
                     //Create the path
-                    createDirectory(dst);
+                    CreateDirectory(dst, true);
                 }
                 else
                 {
@@ -668,7 +676,6 @@ namespace VFS.VFS
             {
                 throw new ArgumentException("the path:" + src + " does not lead to a file or directory.");
             }
-            writer.Flush();
         }
 
         /// <summary>

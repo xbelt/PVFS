@@ -12,6 +12,11 @@ namespace VFS.VFS.Parser
         public override void EnterLs(ShellParser.LsContext context)
         {
             string path = ""; // context.path.Text;
+            if (context.files == null && context.dirs == null)
+            {
+                VFSManager.ListEntries(VFSManager.getAbsolutePath(path), true, true);
+                return;
+            }
             VFSManager.ListEntries(VFSManager.getAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
         }
 
