@@ -464,9 +464,7 @@ namespace VFS.VFS
                 return;
             }
 
-            var parent = last.Parent;
-
-            if (parent.GetEntry(entry.Name) != null)
+            if (last.GetEntry(entry.Name) != null)
             {
                 Console.Error("There already exists a file or directory with this name.");
                 return;
