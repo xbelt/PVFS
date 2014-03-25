@@ -631,6 +631,9 @@ namespace VFS.VFS
         }
         public static void Import(string src, string dst)
         {
+            //TODO: check file names to be compatible with naming conventions
+            //TODO: prevent import of currently opened disk
+            //TODO: don't throw exceptions. Log stuff to console instead
             if (src == null)
                 throw new ArgumentNullException("src");
             if (dst == null)
@@ -640,6 +643,15 @@ namespace VFS.VFS
             VfsDirectory dstDirectory;
             IEnumerable<string> remaining;
             getEntry(dst, out dstDirectory, out remaining);
+            if (dstDirectory == null)
+                throw new Exception("the entry you want to access was null: " + dstDirectory.Name);
+
+            if (dstDirectory.Disk == null)
+            {
+                Console.Message("Your destination path was invalid: " + dst);
+                Console.Message("Aborting import operation.");
+                return;
+            }
             var disk = dstDirectory.Disk;
 
             //Check if dstDirectory is correct
@@ -707,7 +719,37 @@ namespace VFS.VFS
         /// Writes a VfsFile to the location indicated by dst in the host-file from src
         /// </summary>
         /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
-        /// <param name="toExport">The File that should be exported.</param>
+        /// <param name="src">The absolute path to the target Entry that should be exported.</param>
+        public static void Export(string src, string dst)
+        {   //TODO: Bug -> Has Export Duplicates somehow
+            if (dst == null) throw new ArgumentNullException("dst");
+            if (src == null) throw new ArgumentNullException("src");
+            if (!Directory.Exists(dst))
+                throw new ArgumentException("Destination does not lead to a directory: " + dst);
+
+            //Check if src is rootdirectory
+            if (src.LastIndexOf('/') == 0)
+            {
+                var disk = getDisk(src.Substring(1, src.Length -1));
+                if (disk == null) { Console.Message("disk is null");}
+                ExportDirectory(dst, disk.root, true);
+                return;
+            }
+            //get entry to export
+            var toExport = getEntry(src);
+            if (toExport == null)
+                throw new ArgumentException("Invalid path to source entry: " + src);              
+
+            if (toExport.IsDirectory)
+            {
+                ExportDirectory(dst, (VfsDirectory) toExport, false);
+            }
+            else
+            {
+                ExportFile(dst, (VfsFile) toExport);
+            }
+        }
+
         private static void ExportFile(string dst, VfsFile toExport) //TODO: finish this thing here
         {
             //Get the entry to export and its name
@@ -732,9 +774,6 @@ namespace VFS.VFS
             var fs = File.Create(completePath);
             var writer = new BinaryWriter(fs);
             toExport.Read(writer);
-
-            //Remove file from entries list of parent directory
-            toExport.Parent.GetEntries().Remove(toExport);
             
             //Close and dispose resources
             writer.Dispose();
@@ -743,42 +782,24 @@ namespace VFS.VFS
             fs.Close();
         }
 
-        public static void Export(string dst, string src) 
+        private static void ExportDirectory(string dst, VfsDirectory toExport, bool isRoot) 
         {
-            if (dst == null) throw new ArgumentNullException("dst");
-            if (src == null) throw new ArgumentNullException("src");
-            if (!Directory.Exists(dst))
-                throw new ArgumentException("Destination does not lead to a directory: " + dst);
-
-
-            var toExport = getEntry(src);
-            if (toExport == null)
-                throw new ArgumentException("Invalid path to source entry: " + src);
-
-            if (toExport.IsDirectory)
-            {
-                ExportDirectory(dst, (VfsDirectory) toExport);
-            }
-            else
-            {
-                ExportFile(dst, (VfsFile) toExport);
-            }
-        }
-
-        private static void ExportDirectory(string dst, VfsDirectory toExport) 
-        {
-            var filesInDir = toExport.GetFiles();
-            var subDirs = toExport.GetDirectories();
+            var filesInDir = toExport.GetFiles().ToList();
+            var subDirs = toExport.GetDirectories().ToList();
             //Export directory
-            var newPath = dst + '/' + toExport.Name;
-            Directory.CreateDirectory(newPath);
+            var path = dst;
+            if (isRoot)
+            {
+                path = dst + '/' + toExport.Name;
+                Directory.CreateDirectory(path);
+            }
 
             //Export the files in 'toExport'
             if (filesInDir.Any())
             {
                 foreach (var file in filesInDir)
                 {
-                    ExportFile(newPath, file);
+                    ExportFile(path, file);
                 }               
             }
             //If there are no subfolders in toExport: we're done
@@ -788,7 +809,7 @@ namespace VFS.VFS
             foreach (var subDir in subDirs)
             {
                 var newPath2 = dst + '/' + toExport.Name + '/' + subDir.Name;
-                ExportDirectory(newPath2, subDir);
+                ExportDirectory(newPath2, subDir, false);
             }
         }
 
