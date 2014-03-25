@@ -298,6 +298,8 @@ namespace VFS.VFS.Models
         /// <returns>Returns the newly created file which is a copy of this.</returns>
         public VfsFile Duplicate(VfsDirectory destination, string copyName)
         {
+            if (!IsLoaded)
+                Load();
             if (destination == null)
                 throw new ArgumentNullException("destination");
             if (copyName == null)
