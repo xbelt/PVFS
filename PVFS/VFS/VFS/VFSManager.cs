@@ -74,7 +74,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. 
+        /// Returns the corresponding VfsEntry. Does not return the root directory.
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -87,7 +87,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry.
+        /// Returns the corresponding VfsEntry. Does not return the root directory.
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -102,8 +102,8 @@ namespace VFS.VFS
             VfsDirectory current = disk.root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
-                throw new ArgumentException("Path not valid.");
-            for (int i = 1; i < names.Length - 1; i++)
+                throw new ArgumentException("Path not valid. Root can't be accessed this way.");
+            for (int i = 0; i < names.Length - 1; i++)
             {
                 last = current;
                 current = current.GetDirectory(names[i]);
@@ -721,11 +721,14 @@ namespace VFS.VFS
         /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
         /// <param name="src">The absolute path to the target Entry that should be exported.</param>
         public static void Export(string src, string dst)
-        {   //TODO: Bug -> Has Export Duplicates somehow
+        {   
             if (dst == null) throw new ArgumentNullException("dst");
             if (src == null) throw new ArgumentNullException("src");
             if (!Directory.Exists(dst))
-                throw new ArgumentException("Destination does not lead to a directory: " + dst);
+            {
+                Console.Message("Destination does not lead to a directory: " + dst);
+                return;
+            }
 
             //Check if src is rootdirectory
             if (src.LastIndexOf('/') == 0)
@@ -738,11 +741,14 @@ namespace VFS.VFS
             //get entry to export
             var toExport = getEntry(src);
             if (toExport == null)
-                throw new ArgumentException("Invalid path to source entry: " + src);              
+            {
+                Console.Message("Invalid path to source entry: " + src);
+                return;
+            }              
 
             if (toExport.IsDirectory)
             {
-                ExportDirectory(dst, (VfsDirectory) toExport, false);
+                ExportDirectory(dst, (VfsDirectory) toExport, true);
             }
             else
             {
@@ -768,8 +774,14 @@ namespace VFS.VFS
 
             //Check if file with same name already exists at that location
             if (File.Exists(completePath))
-                throw new Exception("There's already a file with the same name in the host file system");
+            {
+                Console.Message("There's already a file with the same name in the host file system");
+                return;
+            }
 
+            //TODO: might be more efficient to pass these 
+            //as argument or have them as fields instead of making
+            //them for each file
             //Start actual export
             var fs = File.Create(completePath);
             var writer = new BinaryWriter(fs);
@@ -782,20 +794,20 @@ namespace VFS.VFS
             fs.Close();
         }
 
-        private static void ExportDirectory(string dst, VfsDirectory toExport, bool isRoot) 
+        private static void ExportDirectory(string dst, VfsDirectory toExport, bool isFirstRecursion) 
         {
             var filesInDir = toExport.GetFiles().ToList();
             var subDirs = toExport.GetDirectories().ToList();
-            //Export directory
             var path = dst;
-            if (isRoot)
-            {
-                path = dst + '/' + toExport.Name;
-                Directory.CreateDirectory(path);
-            }
+            //Export directory
+            //TODO: check for correctness
+            if (isFirstRecursion) 
+                path += '/' + toExport.Name;
+
+            Directory.CreateDirectory(path);
 
             //Export the files in 'toExport'
-            if (filesInDir.Any())
+            if (filesInDir.Count != 0)
             {
                 foreach (var file in filesInDir)
                 {
@@ -803,13 +815,14 @@ namespace VFS.VFS
                 }               
             }
             //If there are no subfolders in toExport: we're done
-            if (!subDirs.Any()) return;
+            if (subDirs.Count == 0) return;
             
             //If there are subfolders in toExport: export them
             foreach (var subDir in subDirs)
             {
-                var newPath2 = dst + '/' + toExport.Name + '/' + subDir.Name;
-                ExportDirectory(newPath2, subDir, false);
+                path += '/' + subDir.Name;
+                Console.Message(path);
+                ExportDirectory(path, subDir, false);
             }
         }
 
@@ -819,9 +832,6 @@ namespace VFS.VFS
         /// <param name="path">THe path to the file/directory.</param>
         public static void Remove(string path)
         {
-            if (!path.StartsWith("/")) {
-                path = workingDirectory.GetAbsolutePath() + "/" + path;
-            }
             var entry = getEntry(path) as VfsFile;
 
             if (entry == null)
