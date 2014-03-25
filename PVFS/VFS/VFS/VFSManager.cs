@@ -26,7 +26,7 @@ namespace VFS.VFS
         /// <returns>Returns a VfsDisk if it was found, otherwise null.</returns>
         private static VfsDisk getDisk(string name)
         {
-            return _disks.FirstOrDefault(d => d.DiskProperties.Name == name);
+            return _disks.FirstOrDefault(d => d.DiskProperties.Name.Equals(name));
         }
 
         /// <summary>
@@ -322,19 +322,13 @@ namespace VFS.VFS
                     Console.Message("Created the path " + path + ".");
                 return true;
             }
-            else
+            if (entry.IsDirectory)
             {
-                if (entry.IsDirectory)
-                {
-                    Console.Message("This Directory already existed.");
-                    return true;
-                }
-                else
-                {
-                    Console.Error("A file with the same name already existed.");
-                    return false;
-                }
+                Console.Message("This Directory already existed.");
+                return true;
             }
+            Console.Error("A file with the same name already existed.");
+            return false;
         }
 
         /// <summary>
@@ -578,14 +572,18 @@ namespace VFS.VFS
         /// <param name="src">The absolute path to the File (or Directory) that should be imported (Host file system).</param>
         /// <param name ="disk">The disk in which the file is imported</param>
         /// <param name="parent">the parent directory of the destination we're importing</param>
-        private static VfsEntry ImportEntry(string src, VfsDisk disk, VfsDirectory parent) //TODO: 'parent' is a a bit misleading to me. Might rename it
+        private static VfsFile ImportFile(string src, VfsDisk disk, VfsDirectory parent) //TODO: 'parent' is a a bit misleading to me. Might rename it
         {
             //Check if file or directory exists at src TODO: probably redundant because of caller
-            if (!File.Exists(src) && !Directory.Exists(src))
-                throw new Exception("invalid path: file/directory does not exist at " + src);
+            if (!File.Exists(src))
+            {
+                Console.Message("invalid path: file does not exist at " + src);
+                return null;
+            }
 
             //Get FileLength
             var fileInfo = new FileInfo(src);
+            //Console.Message("Trying to import:" + fileInfo.Name);
             var fileLength = Convert.ToInt32(fileInfo.Length);  //TODO: Might lose precision...
             
             //Name of file to write
@@ -602,22 +600,17 @@ namespace VFS.VFS
                     Console.Message("Canceled import operation");
                     return null; //Will make the 'Import' function return
                 }
-                else
-                {
-                    //Should work since we have a name duplicate
-                    var toRemove = parent.GetFile(fileName) ?? parent.GetDirectory(fileName);
-                    Remove(toRemove.GetAbsolutePath());
-                }
+                //Remove the already existing file
+                var toRemove = parent.GetFile(fileName);
+                Remove(toRemove.GetAbsolutePath());
             }
 
 
             //Create entry in which to write the file
-            var importEntry = EntryFactory.createFile(disk, fileName, fileLength, parent);
+            var importEntry = (VfsFile) EntryFactory.createFile(disk, fileName, fileLength, parent);
 
             //Start actual import
             var reader = new BinaryReader(fileInfo.OpenRead());
-            var buffer = new byte[fileLength];
-            reader.Read(buffer, 0, fileLength);
             importEntry.Write(reader);
             parent.AddElement(importEntry);
             
@@ -631,18 +624,15 @@ namespace VFS.VFS
         {
             //TODO: check file names to be compatible with naming conventions
             //TODO: prevent import of currently opened disk
-            //TODO: don't throw exceptions. Log stuff to console instead
-            if (src == null)
-                throw new ArgumentNullException("src");
-            if (dst == null)
-                throw new ArgumentNullException("dst");
+            if (src == null) throw new ArgumentNullException("src");
+            if (dst == null) throw new ArgumentNullException("dst");
 
             //Get disk and parent directory:
             VfsDirectory dstDirectory;
             IEnumerable<string> remaining;
             getEntry(dst, out dstDirectory, out remaining);
             if (dstDirectory == null)
-                throw new Exception("the entry you want to access was null: " + dstDirectory.Name);
+                throw new Exception("the entry you want to access was null.");
 
             if (dstDirectory.Disk == null)
             {
@@ -653,10 +643,10 @@ namespace VFS.VFS
             var disk = dstDirectory.Disk;
 
             //Check if dstDirectory is correct
-            if (!dstDirectory.Name.Equals(dst.Substring(dst.LastIndexOf('/') + 1, dst.Length - 1))) //TODO: check substring
+            if (!dstDirectory.Name.Equals(dst.Substring(dst.LastIndexOf('\\') + 1, dst.Length - 1))) //TODO: check substring
             {
-//                throw new ArgumentException(dst + " does not lead to a valid directory. Stuck here " + remaining);
-                int answer = Console.Query("Path leads to unexisting folders. Do you want to create them?" + remaining, "Ok", "Cancel");
+                var remainingPath = remaining.Aggregate("", (current, item) => current + (item + '/'));
+                int answer = Console.Query("Path leads to unexisting folders. Do you want to create them? " + remainingPath, "Ok", "Cancel");
                 if (answer == 0)
                 {
                     //Create the path
@@ -674,14 +664,14 @@ namespace VFS.VFS
             {
                 //Get files and subfolders
                 var filePaths = Directory.GetFiles(src);
-                var dirPaths = Directory.GetDirectories(src);
+                var dirPaths  = Directory.GetDirectories(src);
 
                 //Import files
                 if (filePaths.Length != 0) 
                 {
                     foreach (string path in filePaths) 
                     {
-                        ImportEntry(path, disk, dstDirectory);
+                        ImportFile(path, disk, dstDirectory);
                     } 
                 }
                 
@@ -692,7 +682,7 @@ namespace VFS.VFS
                 foreach (var dirPath in dirPaths)
                 {
                     //Will be parent for files in subfolders of src
-                    var newParDir = (VfsDirectory) ImportEntry(dirPath, disk, dstDirectory);
+                    var newParDir = ImportDirectory(dirPath, disk, dstDirectory);
                     
                     if (newParDir == null) //Happens if import has been canceled
                         return;
@@ -705,12 +695,49 @@ namespace VFS.VFS
             } 
             else if (File.Exists(src))
             {
-                ImportEntry(src, disk, dstDirectory);
+                ImportFile(src, disk, dstDirectory);
             }
             else
             {
                 throw new ArgumentException("the path:" + src + " does not lead to a file or directory.");
             }
+        }
+
+        private static VfsDirectory ImportDirectory(string src, VfsDisk disk, VfsDirectory parent)
+        {
+            //Check if directory exists at src TODO: probably redundant because of caller
+            if (!Directory.Exists(src))
+            {
+                Console.Message("invalid path: directory does not exist at " + src);
+                return null;
+            }
+
+            //Get FileLength
+            var dirInfo = new DirectoryInfo(src);
+
+            //Name of file to write
+            var dirName = dirInfo.Name;
+
+            //check if there's already a directory with that name
+            if (parent.GetFiles().SkipWhile(e => !e.Name.Equals(dirName)).Count() != 0)
+            {
+                var answer = Console.Query("There's already a directory with the name:" + dirName + ". Do you want to overwrite it and it's content?",
+                    "Ok", "Cancel");
+                if (answer == 1)
+                { //Cancel
+                    Console.Message("Canceled import operation");
+                    return null; //Will make the 'Import' function return
+                }
+                //Remove the already existing file
+                var toRemove = parent.GetDirectory(dirName);
+                Remove(toRemove.GetAbsolutePath());
+            }
+
+
+            //Create directory
+            CreateDirectory(parent.GetAbsolutePath() + '/' + dirName, false);
+
+            return parent.GetDirectory(dirName);            
         }
 
         /// <summary>
