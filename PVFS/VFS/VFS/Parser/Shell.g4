@@ -19,7 +19,7 @@ compileUnit
 	:	EOF																									#Eof
 	| 'ls' files=F? dirs=D? compileUnit																		#Ls
 	| 'cd' path=Path? ident=Identifier? dots='..'? compileUnit												#Cd
-	| ('copy' | 'cp') opt=R? src=Path dst=Path compileUnit													#Cp
+	| ('copy' | 'cp') src=(Path | Identifier) dst=(Path | Identifier) compileUnit													#Cp
 	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
 	| ('removedisk' | 'rmdisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit						#Rmdisk
 	| ('loaddisk' | 'ldisk') ('-p' sys=SysPath | '-n' name=Identifier)+ compileUnit							#Ldisk
@@ -27,7 +27,7 @@ compileUnit
 	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir
 	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
 	| ('remove' | 'rm') (trgt=Path | id=Identifier) compileUnit												#Rm
-	| ('move' | 'mv') src=Identifier dst=(Path | Identifier) compileUnit															#Mv
+	| ('move' | 'mv') src=(Path | Identifier) dst=(Path | Identifier) compileUnit															#Mv
 	| ('import' | 'im') ext=SysPath inte=Path compileUnit													#Im
 	| ('export' | 'ex') inte=Path ext=SysPath compileUnit													#Ex
 	| ('rename' | 'rn') src=Identifier dst=Identifier compileUnit								#Rn
