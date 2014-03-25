@@ -583,7 +583,7 @@ namespace VFS.VFS
         private static VfsEntry ImportEntry(string src, VfsDisk disk, VfsDirectory parent) //TODO: 'parent' is a a bit misleading to me. Might rename it
         {
             //Check if file or directory exists at src TODO: probably redundant because of caller
-            if (!File.Exists(src) || !Directory.Exists(src))
+            if (!File.Exists(src) && !Directory.Exists(src))
                 throw new Exception("invalid path: file/directory does not exist at " + src);
 
             //Get FileLength
@@ -597,7 +597,7 @@ namespace VFS.VFS
             if (parent.GetFiles().SkipWhile(e => !e.Name.Equals(fileName)).Count() != 0)
             {
                 //throw new ArgumentException("this directory already has a file with the name " + fileName);
-                int answer = Console.Query("There's already a file with the name:" + fileName + ". Do you want to overwrite it?",
+                var answer = Console.Query("There's already a file with the name:" + fileName + ". Do you want to overwrite it?",
                     "Ok", "Cancel");
                 if (answer == 1)
                 { //Cancel
@@ -626,7 +626,7 @@ namespace VFS.VFS
             //Dispose resources and close reader
             reader.Dispose();
             reader.Close();
-
+            
             return importEntry;
         }
         public static void Import(string src, string dst)
@@ -650,11 +650,11 @@ namespace VFS.VFS
                 if (answer == 0)
                 {
                     //Create the path
-                    CreateDirectory(dst, true);
+                    CreateDirectory(dst, false);
                 }
                 else
                 {
-                    System.Console.WriteLine("Canceled operation.");
+                    Console.Message("Canceled operation.");
                     return;
                 }
             }
@@ -678,7 +678,7 @@ namespace VFS.VFS
                 //If there are no subfolders we're done
                 if (dirPaths.Length == 0) return;
                 
-                //Import Directories
+                //Import SubDirectories
                 foreach (var dirPath in dirPaths)
                 {
                     //Will be parent for files in subfolders of src
@@ -707,18 +707,14 @@ namespace VFS.VFS
         /// Writes a VfsFile to the location indicated by dst in the host-file from src
         /// </summary>
         /// <param name="dst">The absolute path to the target Directory (Host file system).</param>
-        /// <param name="src">The absolute path to the File that should be exported.</param>
-        public static void Export(string dst, string src) //TODO: finish this thing here
+        /// <param name="toExport">The File that should be exported.</param>
+        private static void ExportFile(string dst, VfsFile toExport) //TODO: finish this thing here
         {
-            if (dst == null) throw new ArgumentNullException("dst");
-            if (src == null) throw new ArgumentNullException("src");
-            
-            //Get the file to export and its name
-            var toExport = (VfsFile) getEntry(src);
+            //Get the entry to export and its name
             if (toExport == null) 
                 throw new NullReferenceException("The file to export is null.");
-            var fileName = toExport.Name;
-           if (fileName == null)
+            var entryName = toExport.Name;
+            if (entryName == null) //TODO: probably useless check
                throw new NullReferenceException("Name of file is null.");
             
             //Create the path to destination (non existent folders are automatically created)
@@ -726,7 +722,7 @@ namespace VFS.VFS
             
             //Get path including fileName
             //TODO: What about those extensions?
-            var completePath = Path.Combine(dst, fileName);
+            var completePath = Path.Combine(dst, entryName);
 
             //Check if file with same name already exists at that location
             if (File.Exists(completePath))
@@ -736,7 +732,7 @@ namespace VFS.VFS
             var fs = File.Create(completePath);
             var writer = new BinaryWriter(fs);
             toExport.Read(writer);
-            
+
             //Remove file from entries list of parent directory
             toExport.Parent.GetEntries().Remove(toExport);
             
@@ -745,6 +741,55 @@ namespace VFS.VFS
             fs.Dispose();
             writer.Close();
             fs.Close();
+        }
+
+        public static void Export(string dst, string src) 
+        {
+            if (dst == null) throw new ArgumentNullException("dst");
+            if (src == null) throw new ArgumentNullException("src");
+            if (!Directory.Exists(dst))
+                throw new ArgumentException("Destination does not lead to a directory: " + dst);
+
+
+            var toExport = getEntry(src);
+            if (toExport == null)
+                throw new ArgumentException("Invalid path to source entry: " + src);
+
+            if (toExport.IsDirectory)
+            {
+                ExportDirectory(dst, (VfsDirectory) toExport);
+            }
+            else
+            {
+                ExportFile(dst, (VfsFile) toExport);
+            }
+        }
+
+        private static void ExportDirectory(string dst, VfsDirectory toExport) 
+        {
+            var filesInDir = toExport.GetFiles();
+            var subDirs = toExport.GetDirectories();
+            //Export directory
+            var newPath = dst + '/' + toExport.Name;
+            Directory.CreateDirectory(newPath);
+
+            //Export the files in 'toExport'
+            if (filesInDir.Any())
+            {
+                foreach (var file in filesInDir)
+                {
+                    ExportFile(newPath, file);
+                }               
+            }
+            //If there are no subfolders in toExport: we're done
+            if (!subDirs.Any()) return;
+            
+            //If there are subfolders in toExport: export them
+            foreach (var subDir in subDirs)
+            {
+                var newPath2 = dst + '/' + toExport.Name + '/' + subDir.Name;
+                ExportDirectory(newPath2, subDir);
+            }
         }
 
         /// <summary>
