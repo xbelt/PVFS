@@ -42,7 +42,7 @@ namespace VFS.VFS.Parser
 
         public override void EnterCp(ShellParser.CpContext context)
         {
-            VFSManager.Copy(context.src.Text, context.dst.Text);//TODO: , context.opt == null? false : true);
+            VFSManager.Copy(context.src.Text, context.dst.Text);
         }
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
