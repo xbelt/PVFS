@@ -74,7 +74,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// Returns the corresponding VfsEntry. 
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -87,7 +87,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// Returns the corresponding VfsEntry.
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -102,8 +102,8 @@ namespace VFS.VFS
             VfsDirectory current = disk.root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
-                throw new ArgumentException("Path not valid. Root can't be accessed this way.");
-            for (int i = 0; i < names.Length - 1; i++)
+                throw new ArgumentException("Path not valid.");
+            for (int i = 1; i < names.Length - 1; i++)
             {
                 last = current;
                 current = current.GetDirectory(names[i]);
@@ -798,6 +798,9 @@ namespace VFS.VFS
         /// <param name="path">THe path to the file/directory.</param>
         public static void Remove(string path)
         {
+            if (!path.StartsWith("/")) {
+                path = workingDirectory.GetAbsolutePath() + "/" + path;
+            }
             var entry = getEntry(path) as VfsFile;
 
             if (entry == null)
