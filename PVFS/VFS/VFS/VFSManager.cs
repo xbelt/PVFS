@@ -488,6 +488,16 @@ namespace VFS.VFS
             if (srcPath == null || dstPath == null)
                 throw new ArgumentNullException("", "Argument null.");
 
+            if (!srcPath.StartsWith("/"))
+            {
+                srcPath = workingDirectory.GetAbsolutePath() + "/" + srcPath;
+            }
+
+            if (!dstPath.StartsWith("/"))
+            {
+                dstPath = workingDirectory.GetAbsolutePath() + "/" + dstPath;
+            }
+
             VfsEntry srcEntry = getEntry(srcPath);
             VfsDirectory last;
             IEnumerable<string> remainingPath;
