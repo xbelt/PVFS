@@ -976,17 +976,31 @@ namespace VFS.VFS
                 }
             }
             int[] addresses;
-            CurrentDisk.Allocate(addresses, numberOfUnusedBlocks);
+            CurrentDisk.Allocate(out addresses, numberOfUnusedBlocks);
 
             numberOfUnusedBlocks--;
 
-            for (var i = CurrentDisk.bitMap.Count - 1; i >= 0; i--)
+            for (var i = lastUsedBlockAddress; i >= 0; i--)
             {
+                if (numberOfUnusedBlocks < 0)
+                {
+                    break;
+                }
                 if (CurrentDisk.bitMap[i])
                 {
                     CurrentDisk.Move(i, addresses[numberOfUnusedBlocks--]);
                 }
             }
+
+            for (var i = 0; i < CurrentDisk.bitMap.Count; i++)
+            {
+                if (CurrentDisk.bitMap[i])
+                {
+                    lastUsedBlockAddress = i;
+                }
+            }
+
+            CurrentDisk.Stream.SetLength((lastUsedBlockAddress + 1)*(long) CurrentDisk.DiskProperties.BlockSize);
         }
     }
 }
