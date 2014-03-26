@@ -32,62 +32,16 @@ namespace VFS.VFS
             reader.Seek(disk, address);
 
             var nextBlock = reader.ReadInt32();
-            var startBlock = reader.ReadInt32();
-            if (startBlock != address)
-                throw new ArgumentException("Address is not a startblock of a file or directory!");
 
             var fileSize = reader.ReadInt32();//fileSize doubles as noEntries for a directory!
             var noBlocks = reader.ReadInt32();
             var directory = reader.ReadBoolean();
+            reader.ReadInt32();
             var nameSize = reader.ReadByte();
             var name = new string(reader.ReadChars(nameSize));
 
-            if (directory)
-            {
-                return new VfsDirectory(disk, address, name, parent, fileSize, noBlocks, nextBlock);
-            }
-            else
-            {
-                return new VfsFile(disk, address, name, parent, fileSize, noBlocks, nextBlock);
-            }
+            return directory ? new VfsDirectory(disk, address, name, parent, fileSize, noBlocks, nextBlock) : new VfsFile(disk, address, name, parent, fileSize, noBlocks, nextBlock);
         }
-
-        /* Errors with create!
-        
-        public static VfsEntry OpenEntry(string path)
-        {
-            var diskName = path.Substring(1);
-            if (diskName.IndexOf("/") > -1)
-            {
-                diskName = diskName.Substring(0, diskName.IndexOf("/"));
-            }
-            var disk = VFSManager.GetDisk(diskName);
-
-            var currentParent = disk.root;
-            path = path.Substring(1);
-            if (path.IndexOf("/") == -1)
-            {
-                path = "";
-            }
-            else
-            {
-                path = path.Substring(path.IndexOf("/") + 1);
-            }
-
-            while (path != "")
-            {
-                var endIndex = path.IndexOf("/");
-                if (endIndex == -1)
-                {
-                    return OpenEntry(disk, currentParent.GetEntry(path).Address,
-                        currentParent);
-                }
-                var entry = currentParent.GetDirectory(path.Substring(0, endIndex));
-                path = path.Substring(endIndex + 1);
-                currentParent = entry;
-            }
-            return currentParent;
-        }*/
 
         /// <summary>
         /// creates a file on the disk with the specified size, with random content.
@@ -114,7 +68,6 @@ namespace VFS.VFS
             // Write File Header
             writer.Seek(disk, addresses[0]);
             writer.Write(addresses.Length == 1 ? 0 : addresses[1]);
-            writer.Write(addresses[0]);
             writer.Write(size);
             writer.Write(addresses.Length);
             writer.Write(false);
@@ -129,7 +82,6 @@ namespace VFS.VFS
                 // Write block header
                 writer.Seek(disk, addresses[i]);
                 writer.Write(i == addresses.Length - 1 ? 0 : addresses[i + 1]);
-                writer.Write(addresses[0]);
 
                 blocks.Add(new Block(addresses[i], blocks.Last()));
             }
