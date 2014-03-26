@@ -9,7 +9,7 @@ using VFS.VFS.Parser;
 
 namespace VFS.VFS
 {
-    class DiskFactory : Factory
+    public class DiskFactory : Factory
     {
         //TODO: L store readers/writers in disk
         public static VfsDisk Create(DiskInfo info)
@@ -110,7 +110,7 @@ namespace VFS.VFS
         }
     }
 
-    internal class DiskInfo {
+    public class DiskInfo {
         private String _path;
         private String _name;
         private double _size;
