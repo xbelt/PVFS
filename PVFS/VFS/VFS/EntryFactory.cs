@@ -118,6 +118,7 @@ namespace VFS.VFS
             writer.Write(size);
             writer.Write(addresses.Length);
             writer.Write(false);
+            writer.Write(parent.Address);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
 
@@ -164,6 +165,7 @@ namespace VFS.VFS
             writer.Write(0);
             writer.Write(1);
             writer.Write(true);
+            writer.Write(parent.Address);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
             writer.Flush();
