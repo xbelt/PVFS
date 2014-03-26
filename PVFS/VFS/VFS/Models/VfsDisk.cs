@@ -8,19 +8,19 @@ namespace VFS.VFS.Models
 {
     public class VfsDisk {
 
+        public FileStream Stream { get; set; }
         public VfsDisk(string path, DiskProperties properties) {
-            FileStream stream;
             if (path.EndsWith("\\"))
             {
-                stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                Stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             }
             else
             {
-                stream = File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                Stream = File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
             }
 
-            Writer = new BinaryWriter(stream, new ASCIIEncoding(), false);
-            Reader = new BinaryReader(stream, new ASCIIEncoding(), false);
+            Writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
+            Reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
             Path = path;
             DiskProperties = properties;
             bitMap = new BitArray(properties.NumberOfBlocks, true);
@@ -110,7 +110,6 @@ namespace VFS.VFS.Models
         private void SetBit(bool value, int bitIndex, int byteIndex, int address)
         {
             Reader.Seek(this, address, byteIndex);
-            Writer.Seek(this, address, byteIndex);
 
             var buffer = new byte[1];
             Reader.Read(buffer, 0, 1);
@@ -124,6 +123,7 @@ namespace VFS.VFS.Models
             {
                 existingValue &= (byte)(255 - (byte) Math.Pow(2, 7 - bitIndex));
             }
+            Writer.Seek(this, address, byteIndex);
             Writer.Write(existingValue);
 
         }
@@ -142,6 +142,7 @@ namespace VFS.VFS.Models
         public void Free(int address) 
         {
             SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
+            bitMap[address] = false;
             DiskProperties.NumberOfUsedBlocks--;
             Writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
             Writer.Write(DiskProperties.NumberOfUsedBlocks);
@@ -149,6 +150,7 @@ namespace VFS.VFS.Models
 
         public void Move(int srcAddress, int dstAddress)
         {
+            Free(srcAddress);
             Reader.Seek(this, srcAddress, FileOffset.ParentAddress);
             var parentId = Reader.ReadInt32();
             Reader.Seek(this, parentId, FileOffset.Header);
