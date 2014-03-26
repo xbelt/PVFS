@@ -269,6 +269,11 @@ namespace VFS.VFS.Parser
             VFSManager.GetOccupiedSpace();
         }
 
+        public override void EnterDefrag(ShellParser.DefragContext context)
+        {
+            VFSManager.Defrag();
+        }
+
         public override void EnterExit(ShellParser.ExitContext context)
         {
             VFSManager.Exit();
