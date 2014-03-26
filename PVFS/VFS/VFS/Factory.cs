@@ -1,6 +1,6 @@
 ﻿namespace VFS.VFS
 {
-    class Factory
+    public class Factory
     {
     }
 }
