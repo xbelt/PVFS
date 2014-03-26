@@ -12,8 +12,9 @@ namespace VFS.VFS.Models
      * FileSize 4       8-11
      * NoBlocks 4       12-15
      * Directory 1      16
-     * NameSize 1       17
-     * Name 110         18-128
+     * ParentAddress 4  17
+     * NameSize 1       21
+     * Name 106         22-128
      * Data
      */
 
@@ -24,7 +25,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Block-Header size of a startblock of a file/directory
         /// </summary>
-        public const int HeaderSize = 128;
+        public const int HeaderSize = FileOffset.Header;
 
         /// <summary>
         /// Block-Header size of a non-startblock of a file/directory
