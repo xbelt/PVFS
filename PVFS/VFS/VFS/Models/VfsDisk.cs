@@ -72,6 +72,11 @@ namespace VFS.VFS.Models
 
         public VfsDirectory root;
         #region Block
+        /// <summary>
+        /// This method will seek the first free block and allocate it.
+        /// </summary>
+        /// <param name="address">the address of the allocated block</param>
+        /// <returns></returns>
         public bool allocate(out int address)
         {
             address = 0;
@@ -140,6 +145,31 @@ namespace VFS.VFS.Models
             DiskProperties.NumberOfUsedBlocks--;
             Writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
             Writer.Write(DiskProperties.NumberOfUsedBlocks);
+        }
+
+        public void move(int srcAddress, int dstAddress)
+        {
+            Reader.Seek(this, srcAddress, FileOffset.ParentAddress);
+            var parentId = Reader.ReadInt32();
+            Reader.Seek(this, parentId, FileOffset.Header);
+            var offset = FileOffset.Header / 4;
+            while (Reader.ReadInt32() != srcAddress)
+            {
+                offset++;
+                if (offset*4 > DiskProperties.BlockSize)
+                {
+                    break;
+                    //TODO: implement block switch
+                }
+            }
+            Writer.Seek(this, parentId, offset*4);
+            Writer.Write(dstAddress);
+
+            var buffer = new byte[DiskProperties.BlockSize];
+            Reader.Seek(this, srcAddress);
+            Reader.Read(buffer, 0, DiskProperties.BlockSize);
+            Writer.Seek(this, dstAddress);
+            Writer.Write(buffer);
         }
         #endregion
 
