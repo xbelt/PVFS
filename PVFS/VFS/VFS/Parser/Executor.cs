@@ -103,6 +103,7 @@ namespace VFS.VFS.Parser
                 size = getSizeInBytes(intSize, context.Size().Symbol.Text.Substring(context.Size().Symbol.Text.Length - 2));
             }
 
+            //TODO: move call to VFSManager and check for existing disk
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize));
             VFSManager.AddAndOpenDisk(disk);
         }
