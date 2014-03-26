@@ -958,6 +958,7 @@ namespace VFS.VFS
 
         public static void Defrag()
         {
+            //TODO: this is not optimal in case: 1110000001 -> 1110000010
             var numberOfUnusedBlocks = 0;
             var lastUsedBlockAddress = 0;
             for (var i = 0; i < CurrentDisk.bitMap.Count; i++)

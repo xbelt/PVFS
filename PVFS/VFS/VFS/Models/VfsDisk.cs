@@ -158,8 +158,15 @@ namespace VFS.VFS.Models
                 offset++;
                 if (offset*4 > DiskProperties.BlockSize)
                 {
+                    Reader.Seek(this, parentId, FileOffset.NextBlock);
+                    parentId = Reader.ReadInt32();
+                    if (parentId == 0)
+                    {
+                        throw new DirectoryNotFoundException("parent did not contain desired file");
+                    }
+                    Reader.Seek(this, parentId, FileOffset.SmallHeader);
+                    offset = FileOffset.SmallHeader/4;
                     break;
-                    //TODO: implement block switch
                 }
             }
             Writer.Seek(this, parentId, offset*4);
