@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using VFS.VFS.Models;
-using VFS.VFS.Parser;
 
 namespace VFS.VFS
 {
@@ -36,6 +34,7 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         private static VfsEntry getEntry(string path)
         {
+            //TODO: add support for relative paths
             VfsDirectory last;
             IEnumerable<string> remaining;
             return getEntry(path, out last, out remaining);
@@ -58,6 +57,7 @@ namespace VFS.VFS
             {
                 var diskRoot = getDisk(path.Substring(1));
                 last = diskRoot.root;
+                //TODO: return null if disk null
                 remaining = new List<string>();
                 return last;
             }
@@ -373,6 +373,7 @@ namespace VFS.VFS
         /// <param name="dstPath">The absolute path to the target Directory.</param>
         public static void Move(string srcPath, string dstPath)
         {
+            //TODO: prevent from deleting root
             if (srcPath == null || dstPath == null)
                 throw new ArgumentNullException("", "Argument null.");
 
@@ -439,6 +440,7 @@ namespace VFS.VFS
         /// <param name="newName">The new name.</param>
         public static void Rename(string src, string newName)
         {
+            //TODO: prevent from deleting root
             if (src == null) throw new ArgumentNullException("src");
             if (newName == null) throw new ArgumentNullException("newName");
 
@@ -624,6 +626,7 @@ namespace VFS.VFS
         {
             //TODO: check file names to be compatible with naming conventions
             //TODO: prevent import of currently opened disk
+            //TODO: add compression and encryption
             if (src == null) throw new ArgumentNullException("src");
             if (dst == null) throw new ArgumentNullException("dst");
 
@@ -857,6 +860,7 @@ namespace VFS.VFS
         /// <param name="path">THe path to the file/directory.</param>
         public static void Remove(string path)
         {
+            //TODO: prevent from deleting root
             var entry = getEntry(path) as VfsFile;
 
             if (entry == null)
@@ -887,6 +891,7 @@ namespace VFS.VFS
         // copy
         public static void RemoveByIdentifier(string ident)
         {
+            //TODO: prevent from deleting root
             var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
             if (entry == null)
@@ -925,7 +930,7 @@ namespace VFS.VFS
                 divisor++;
             }
             Console.Message(((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
-                            CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1))).ToString("#.##") + idToSize[divisor - 1] + " free space available on " +
+                            CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1))).ToString("0.##") + idToSize[divisor - 1] + " free space available on " +
                             CurrentDisk.DiskProperties.Name);
         }
 
