@@ -77,7 +77,7 @@ namespace VFS.VFS.Models
         /// </summary>
         /// <param name="address">the address of the allocated block</param>
         /// <returns></returns>
-        public bool allocate(out int address)
+        public bool Allocate(out int address)
         {
             address = 0;
             for (var i = 0; i < bitMap.Length; i++)
@@ -128,18 +128,18 @@ namespace VFS.VFS.Models
 
         }
 
-        public bool allocate(out int[] address, int numberOfBlocks)
+        public bool Allocate(out int[] address, int numberOfBlocks)
         {
             address = new int[numberOfBlocks];
             var returnValue = true;
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                returnValue = returnValue && allocate(out address[i]);
+                returnValue = returnValue && Allocate(out address[i]);
             }
             return returnValue;
         }
 
-        public void free(int address) 
+        public void Free(int address) 
         {
             SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
             DiskProperties.NumberOfUsedBlocks--;
@@ -147,7 +147,7 @@ namespace VFS.VFS.Models
             Writer.Write(DiskProperties.NumberOfUsedBlocks);
         }
 
-        public void move(int srcAddress, int dstAddress)
+        public void Move(int srcAddress, int dstAddress)
         {
             Reader.Seek(this, srcAddress, FileOffset.ParentAddress);
             var parentId = Reader.ReadInt32();
