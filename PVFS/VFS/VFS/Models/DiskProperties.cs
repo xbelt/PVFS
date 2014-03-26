@@ -15,7 +15,7 @@ namespace VFS.VFS.Models {
         {
             get
             {
-                return NumberOfBlocks / 8 + (4 + 4 + 4 + 8 + 4 + 4 + 4*128);
+                return (4 + 4 + 4 + 8 + 4 + 4 + 4*128);
             }
         }
 
