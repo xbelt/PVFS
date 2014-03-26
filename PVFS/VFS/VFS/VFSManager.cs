@@ -975,7 +975,7 @@ namespace VFS.VFS
                 }
             }
             int[] addresses;
-            CurrentDisk.allocate(addresses, numberOfUnusedBlocks);
+            CurrentDisk.Allocate(addresses, numberOfUnusedBlocks);
 
             numberOfUnusedBlocks--;
 
@@ -983,7 +983,7 @@ namespace VFS.VFS
             {
                 if (CurrentDisk.bitMap[i])
                 {
-                    CurrentDisk.move(i, addresses[numberOfUnusedBlocks--]);
+                    CurrentDisk.Move(i, addresses[numberOfUnusedBlocks--]);
                 }
             }
         }

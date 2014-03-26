@@ -42,7 +42,7 @@ namespace VFS.VFS.Models
         {
             if (this.noEntries == 0)
             {
-                this.Inodes = new List<Block> { new Block(this.Address, this.Address, null) };
+                this.Inodes = new List<Block> { new Block(this.Address, null) };
                 this.elements = new List<VfsEntry>();
                 this.IsLoaded = true;
                 return;
@@ -50,7 +50,7 @@ namespace VFS.VFS.Models
 
 
             BinaryReader reader = Disk.getReader();
-            this.Inodes = new List<Block> { new Block(this.Address, this.Address, null) };
+            this.Inodes = new List<Block> { new Block(this.Address, null) };
             List<int> elementAddresses = new List<int>();
             int head = HeaderSize, doneEntriesInCurrentBlock = 0, totalEntries = 0;
             int nextBlock = this.NextBlock;
@@ -65,7 +65,7 @@ namespace VFS.VFS.Models
                 // Current Block exhausted?
                 if (doneEntriesInCurrentBlock >= (Disk.BlockSize - head) / 4 && totalEntries != this.noEntries)
                 {
-                    Block next = new Block(nextBlock, this.Address, null);
+                    Block next = new Block(nextBlock, null);
                     this.Inodes.Last().NextBlock = next;
                     this.Inodes.Add(next);
 
@@ -137,7 +137,7 @@ namespace VFS.VFS.Models
                     if (blockNumber > NoBlocks)
                     {
                         int next;
-                        Disk.allocate(out next);
+                        Disk.Allocate(out next);
                         writer.Seek(Disk, currentBlockAddress);
                         writer.Write(next);
                         writer.Seek(Disk, Address, FileOffset.NumberOfBlocks);
@@ -257,9 +257,9 @@ namespace VFS.VFS.Models
             if (GetNoBlocks(this.Disk, 4 * this.noEntries + 4) > this.NoBlocks)
             {// add a new block
                 int address;
-                if (!Disk.allocate(out address))
+                if (!Disk.Allocate(out address))
                     throw new ArgumentException("There is not enough space on this disk to add a new File to this directory!");
-                Block block = new Block(address, this.Address, null), last = this.Inodes.Last();
+                Block block = new Block(address, null), last = this.Inodes.Last();
                 last.NextBlock = block;
                 this.Inodes.Add(block);
 
@@ -320,7 +320,7 @@ namespace VFS.VFS.Models
             if (GetNoBlocks(this.Disk, 4 * this.noEntries - 4) < this.NoBlocks)
             {
                 // remove last block
-                this.Disk.free(this.Inodes.Last().Address);
+                this.Disk.Free(this.Inodes.Last().Address);
                 this.Inodes.RemoveAt(this.Inodes.Count - 1);
                 this.Inodes.Last().NextBlock = null;
 

@@ -106,7 +106,7 @@ namespace VFS.VFS
             if (parent == null)
                 throw new ArgumentNullException("parent");
             int[] addresses;
-            if (!disk.allocate(out addresses, VfsFile.GetNoBlocks(disk, size)))
+            if (!disk.Allocate(out addresses, VfsFile.GetNoBlocks(disk, size)))
                 throw new ArgumentException("There is not enough space on this disk!");
             var blocks = new List<Block>();
             var writer = disk.getWriter();
@@ -122,7 +122,7 @@ namespace VFS.VFS
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
 
-            blocks.Add(new Block(addresses[0], addresses[0], null));
+            blocks.Add(new Block(addresses[0], null));
 
             for (var i = 1; i < addresses.Length; i++)
             {
@@ -131,7 +131,7 @@ namespace VFS.VFS
                 writer.Write(i == addresses.Length - 1 ? 0 : addresses[i + 1]);
                 writer.Write(addresses[0]);
 
-                blocks.Add(new Block(addresses[i], addresses[0], blocks.Last()));
+                blocks.Add(new Block(addresses[i], blocks.Last()));
             }
             writer.Flush();
             var vfsFile = new VfsFile(disk, addresses[0], name, parent, size, blocks);
@@ -151,7 +151,7 @@ namespace VFS.VFS
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The directory-name can't be longer than " + VfsFile.MaxNameLength + ".");
             int address;
-            if (!disk.allocate(out address))
+            if (!disk.Allocate(out address))
                 throw new ArgumentException("There is not enough place on this disk!");
             if (parent == null)
                 throw new ArgumentNullException("parent");

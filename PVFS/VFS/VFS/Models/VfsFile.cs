@@ -30,7 +30,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Block-Header size of a non-startblock of a file/directory
         /// </summary>
-        public const int SmallHeaderSize = 8;
+        public const int SmallHeaderSize = FileOffset.SmallHeader;
 
         /// <summary>
         /// Maximal File size
@@ -120,19 +120,17 @@ namespace VFS.VFS.Models
         private void Load()
         {
             var reader = Disk.getReader();
-            Inodes = new List<Block> { new Block(Address, Address, null) };
+            Inodes = new List<Block> { new Block(Address,  null) };
             var nextAddress = NextBlock;
 
             for (var i = 0; i < NoBlocks - 1; i++)
             {
-                var next = new Block(nextAddress, Address, null);
+                var next = new Block(nextAddress, null);
                 Inodes.Last().NextBlock = next;
                 Inodes.Add(next);
 
                 reader.Seek(Disk, nextAddress);
                 nextAddress = reader.ReadInt32();
-                if (reader.ReadInt32() != Address)
-                    throw new IOException("The startBlock Address of block " + Inodes.Last().Address + " was inconsistent.");
             }
             if (nextAddress != 0)
                 throw new IOException("The nextBlock Address of block " + Inodes.Last().Address + " is not 0 (it's the last block).");
@@ -174,13 +172,13 @@ namespace VFS.VFS.Models
             while ((count = reader.Read(buffer, 0, Disk.BlockSize - SmallHeaderSize)) > 0)
             {
                 int address;
-                if (!Disk.allocate(out address))
+                if (!Disk.Allocate(out address))
                     throw new ArgumentException("There is not enough space on this disk!");
 
                 var last = Inodes.Last(); // This is inefficient (the write head jumps back and forth to fill nextBlock-address)
                 writer.Seek(Disk, last.Address);
                 writer.Write(address);
-                last.NextBlock = new Block(address, Address, null);
+                last.NextBlock = new Block(address, null);
                 Inodes.Add(last.NextBlock);
 
                 writer.Seek(Disk, address);
@@ -249,7 +247,7 @@ namespace VFS.VFS.Models
 
             foreach (var inode in Inodes)
             {
-                Disk.free(inode.Address);
+                Disk.Free(inode.Address);
             }
 
             Inodes = null;
