@@ -74,7 +74,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// Returns the corresponding VfsEntry. 
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -87,7 +87,7 @@ namespace VFS.VFS
         }
 
         /// <summary>
-        /// Returns the corresponding VfsEntry. Does not return the root directory.
+        /// Returns the corresponding VfsEntry.
         /// </summary>
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
@@ -103,7 +103,7 @@ namespace VFS.VFS
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
                 throw new ArgumentException("Path not valid. Root can't be accessed this way.");
-            for (int i = 0; i < names.Length - 1; i++)
+            for (int i = 1; i < names.Length - 1; i++)
             {
                 last = current;
                 current = current.GetDirectory(names[i]);
@@ -956,5 +956,36 @@ namespace VFS.VFS
             Console.Message("Bye");
         }
 
+        public static void Defrag()
+        {
+            var numberOfUnusedBlocks = 0;
+            var lastUsedBlockAddress = 0;
+            for (var i = 0; i < CurrentDisk.bitMap.Count; i++)
+            {
+                if (CurrentDisk.bitMap[i])
+                {
+                    lastUsedBlockAddress = i;
+                }
+            }
+            for (var i = 0; i < lastUsedBlockAddress; i++)
+            {
+                if (!CurrentDisk.bitMap[i])
+                {
+                    numberOfUnusedBlocks++;
+                }
+            }
+            int[] addresses;
+            CurrentDisk.allocate(addresses, numberOfUnusedBlocks);
+
+            numberOfUnusedBlocks--;
+
+            for (var i = CurrentDisk.bitMap.Count - 1; i >= 0; i--)
+            {
+                if (CurrentDisk.bitMap[i])
+                {
+                    CurrentDisk.move(i, addresses[numberOfUnusedBlocks--]);
+                }
+            }
+        }
     }
 }
