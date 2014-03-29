@@ -50,8 +50,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="DiskFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VFSManagerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VFS\VFS.csproj">
