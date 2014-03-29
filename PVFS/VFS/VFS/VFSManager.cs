@@ -8,7 +8,7 @@ using VFS.VFS.Models;
 
 namespace VFS.VFS
 {
-    class VFSManager
+    public class VFSManager
     {
         private readonly static List<VfsDisk> _disks = new List<VfsDisk>();
         public static VfsDirectory workingDirectory;

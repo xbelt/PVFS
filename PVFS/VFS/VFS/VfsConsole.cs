@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VFS.VFS
 {
-    class VfsConsole
+    public class VfsConsole
     {
 
         public virtual void Error(string Message)
