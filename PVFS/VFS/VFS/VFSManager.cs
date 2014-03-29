@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using VFS.VFS.Models;
 
 namespace VFS.VFS
@@ -103,7 +105,7 @@ namespace VFS.VFS
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
                 throw new ArgumentException("Path not valid. Root can't be accessed this way.");
-            for (int i = 1; i < names.Length - 1; i++)
+            for (int i = 0; i < names.Length - 1; i++)
             {
                 last = current;
                 current = current.GetDirectory(names[i]);
