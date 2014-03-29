@@ -565,6 +565,30 @@ namespace VFS.VFS
             }
         }
 
+        //TODO: finish this thing here.
+        public bool IsStringValid(string str ) {
+            //out corrected
+            //TODO: what about white spaces?
+            var valid = str.All(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.');
+            var corrected = str;
+            var changed = false;
+            while (str.Contains("..") || str.Contains('\\') || str.Contains("//"))
+            {
+                changed = true;
+                corrected = str.Replace("..", ".");
+                corrected = str.Replace('\\', '/');
+                corrected = str.Replace("//", "/");
+            }
+
+            if (valid && changed)
+            {
+                Console.Message("Your path was not valid. The characters have to be in:");
+                Console.Message("[a-z , A-Z , 0-9 , - , _ , / , . ] where no / or . can follow a / or . respectively.");
+                Console.Query("Do you agree with this suggestion: " + corrected, "Ok", "Cancel");
+            }
+            return false;
+        }
+
         /// <summary>
         /// Imports a File from the host Filesystem to a directory inside the virtual Filesystem. (are we supporting importing whole directories too?)
         /// Overwrites already existing files with the same name.
