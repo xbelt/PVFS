@@ -639,7 +639,6 @@ namespace VFS.VFS
 
             //Get FileLength
             var fileInfo = new FileInfo(src);
-            //Console.Message("Trying to import:" + fileInfo.Name);
             var fileLength = Convert.ToInt32(fileInfo.Length);
 
             //Name of file to write (includes extension)
@@ -650,7 +649,6 @@ namespace VFS.VFS
             var fileWithSamename = dstDir.GetFile(fileName);
             if (fileWithSamename != null)
             {
-                //throw new ArgumentException("this directory already has a file with the name " + fileName);
                 Console.Message("There is already a file with the name: " + fileName + ".");
                 var answer = Console.Query("Do you want to overwrite it? Write 'Ok' or 'Cancel'. ", "Ok", "Cancel");
                 if (answer == 1)
@@ -663,7 +661,6 @@ namespace VFS.VFS
                 Remove(fileWithSamename.GetAbsolutePath()); //Works because of duplicate name.
             }
 
-
             //Create entry in which to write the file
             var importEntry = EntryFactory.createFile(dstDir.Disk, fileName, fileLength, dstDir);
 
@@ -674,23 +671,7 @@ namespace VFS.VFS
             //Dispose resources and close reader
             reader.Dispose();
             reader.Close();
-            
-            return importEntry;
         }
-        public static void Import(string src, string dst)
-        {
-            //TODO: check file names to be compatible with naming conventions
-            //TODO: prevent import of currently opened disk
-            //TODO: add compression and encryption
-            if (src == null) throw new ArgumentNullException("src");
-            if (dst == null) throw new ArgumentNullException("dst");
-
-            //Get disk and parent directory:
-            VfsDirectory dstDirectory;
-            IEnumerable<string> remaining;
-            getEntry(dst, out dstDirectory, out remaining);
-            if (dstDirectory == null)
-                throw new Exception("the entry you want to access was null.");
 
         private static void ImportDirectory(string src, VfsDirectory dstDir) 
         {
@@ -707,11 +688,6 @@ namespace VFS.VFS
                     "Do you want to overwrite it and its content? Write 'Ok' or 'Cancel'. ", "Ok","Cancel");
                 if (answer == 1)
                 {
-                    //Create the path
-                    CreateDirectory(dst, false);
-                }
-                else
-                {
                     Console.Message("Directory has not been imported.");
                     return;
                 }
@@ -727,7 +703,6 @@ namespace VFS.VFS
             var subFiles = Directory.GetFiles(src).ToList();
             var subDirs  = Directory.GetDirectories(src).ToList();
 
-                //Import files
             if (subFiles.Count > 0)
             {
                 foreach (var subFile in subFiles)
@@ -759,7 +734,6 @@ namespace VFS.VFS
                 Console.Message("Please enter a valid path. Operation is aborted.");
                 return null;
             }
-
             //Destination was invalid
             Console.Message("Invalid destination. Do you want to create the path: " + dst);
             var answer = Console.Query("Write 'Ok' or 'Cancel'.", "Ok", "Cancel");
@@ -772,13 +746,6 @@ namespace VFS.VFS
             }
             Console.Message("Aborted operation.");
             return null;
-        }
-
-
-            //Create directory
-            CreateDirectory(parent.GetAbsolutePath() + '/' + dirName, false);
-
-            return parent.GetDirectory(dirName);            
         }
 
         /// <summary>
