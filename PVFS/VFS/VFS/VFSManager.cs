@@ -211,8 +211,7 @@ namespace VFS.VFS
         // copy
         public static void ChangeDirectoryByIdentifier(string name)
         {
-            workingDirectory = workingDirectory.GetDirectory(name) ?? workingDirectory;
-            Console.Message("New working directory: " + name);
+            ChangeWorkingDirectory(workingDirectory.GetAbsolutePath() + "/" + name);
         }
 
         public static void navigateUp()
