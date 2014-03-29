@@ -189,7 +189,7 @@ namespace VFS.VFS.Models
         /// Finds a file with a given name.
         /// </summary>
         /// <param name="name">The Name.</param>
-        /// <returns>Returns the VfsFile, if there exists one with the given name, othewise null.</returns>
+        /// <returns>Returns the VfsFile, if there exists one with the given name, otherwise null.</returns>
         public VfsFile GetFile(string name)
         {
             VfsEntry e = this.GetEntries().FirstOrDefault(entry => entry.Name == name);
