@@ -630,6 +630,8 @@ namespace VFS.VFS
             if (File.Exists(src))
             {
                 //Check that it's not the disk we've opened
+
+                //TODO: this is not entirely correct but I haven't found a better method...
                 var lastName = src.Substring(src.LastIndexOf('\\') + 1);
                 if ((dstDir.Disk.root.Name + ".vdi").Equals(lastName))
                 {
