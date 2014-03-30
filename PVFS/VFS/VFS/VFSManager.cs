@@ -563,6 +563,12 @@ namespace VFS.VFS
             }
         }
 
+        private static string ConvertToValidString(string arg)
+        {
+            var hasBeenModified = false;
+            var isValid = false;
+            ConvertToValidString(arg, out hasBeenModified, out isValid);
+        }
         public static string ConvertToValidString(string str, out bool hasBeenConverted, out bool isValid ) 
         {
             if (str == null) throw new ArgumentNullException("str");
@@ -659,6 +665,7 @@ namespace VFS.VFS
 
             //Name of file to write (includes extension)
             var fileName = fileInfo.Name;
+            fileName = ConvertToValidString(fileName);
             Console.Message("Importing " + fileName + " in " + dstDir.GetAbsolutePath());
 
             //Check for duplicates
@@ -688,6 +695,7 @@ namespace VFS.VFS
             reader.Dispose();
             reader.Close();
         }
+
 
         private static void ImportDirectory(string src, VfsDirectory dstDir) 
         {
