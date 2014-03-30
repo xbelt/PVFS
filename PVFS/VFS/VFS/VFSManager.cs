@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using VFS.VFS.Models;
 
@@ -563,6 +564,21 @@ namespace VFS.VFS
             }
         }
 
+    /*    private static string MakeStringValid(string str) 
+        {
+            var corrected = str.Where(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.').ToString();
+
+
+            while (corrected.Contains("..") || corrected.Contains("\\") || corrected.Contains("//"))
+            {
+                corrected = corrected.Replace("..", ".");
+                corrected = corrected.Replace('\\', '/');
+                corrected = corrected.Replace("//", "/");
+            }
+            Console.Message(corrected);
+            return corrected;
+        }
+
         private static string ConvertToValidString(string arg)
         {
             var hasBeenModified = false;
@@ -573,15 +589,8 @@ namespace VFS.VFS
         {
             if (str == null) throw new ArgumentNullException("str");
 
-            var corrected = str.Where(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.').ToString();
-            
-
-            while (corrected.Contains("..") || corrected.Contains("\\") || corrected.Contains("//"))
-            {
-                corrected = corrected.Replace("..", ".");
-                corrected = corrected.Replace('\\', '/');
-                corrected = corrected.Replace("//", "/");
-            }
+            var corrected = MakeStringValid(str);
+            Console.Message(corrected);
             //Check if we did modify anything
             isValid = corrected.Equals(str);
 
@@ -598,11 +607,49 @@ namespace VFS.VFS
                 } 
             }
             var report = isValid ? "String was valid" : "String was not valid";
-            Console.Message("String has not been converted because" + report);
+            Console.Message("String has not been converted because " + report);
             hasBeenConverted = false;
             return str; //TODO: maybe better to make this null so that no invalid strings can be used.
+        } */
+
+        private static string Compress(FileInfo fileToCompress) {
+            String returnPath;
+            using (FileStream originalFileStream = fileToCompress.OpenRead())
+            {
+                if (( File.GetAttributes(fileToCompress.FullName) & FileAttributes.Hidden ) == FileAttributes.Hidden & fileToCompress.Extension != ".gz") 
+                    return fileToCompress.FullName; //Was an additional condition: 
+
+             //   var fileToCompressName = fileToCompress.FullName.Substring(0,fileToCompress.FullName.LastIndexOf('.')) + ".gz";
+                using (FileStream compressedFileStream = File.Create(fileToCompress.FullName + ".gz"))
+                {
+                    returnPath = fileToCompress.FullName + ".gz";
+                    using (GZipStream compressionStream = new GZipStream(compressedFileStream, CompressionMode.Compress))
+                    {
+                        originalFileStream.CopyTo(compressionStream);
+                        Console.Message("Compressed " + fileToCompress.Name + " from " + fileToCompress.Length.ToString() + " to " + compressedFileStream.Length.ToString() + " bytes.");
+                    }
+                }
+            }
+            return returnPath;
         }
 
+        public static void Decompress(FileInfo fileToDecompress, string type)
+        {
+            using (FileStream originalFileStream = fileToDecompress.OpenRead())
+            {
+                string currentFileName = fileToDecompress.FullName;
+                string newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
+                
+                using (FileStream decompressedFileStream = File.Create(newFileName))
+                {
+                    using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                    {
+                        decompressionStream.CopyTo(decompressedFileStream);
+                        Console.Message("Decompressed: " + fileToDecompress.Name);
+                    }
+                }
+            }
+        }
         /// <summary>
         /// Imports a File from the host Filesystem to a directory inside the virtual Filesystem. (are we supporting importing whole directories too?)
         /// Overwrites already existing files with the same name.
@@ -614,14 +661,14 @@ namespace VFS.VFS
         /// <param name="dst">The absolute path to the directory where we import.</param>
         public static void Import(string src, string dst) 
         {
-            //TODO: prevent import of currently opened disk
+            //TODO: correct prevention of import of currently opened disk
             //TODO: add compression and encryption
             if (src == null) throw new ArgumentNullException("src");
             if (dst == null) throw new ArgumentNullException("dst");
 
             //Check if destination exists, create it on request and get the entry:
-            var dstDir = (VfsDirectory) GetEntryIfPathValid(dst);
-
+            //var dstDir = (VfsDirectory) GetEntryIfPathValid(dst);
+            var dstDir = (VfsDirectory) getEntry(dst);
             //Check if User aborted operation
             if (dstDir == null) return;
 
@@ -636,7 +683,6 @@ namespace VFS.VFS
             if (File.Exists(src))
             {
                 //Check that it's not the disk we've opened
-
                 //TODO: this is not entirely correct but I haven't found a better method...
                 var lastName = src.Substring(src.LastIndexOf('\\') + 1);
                 if ((dstDir.Disk.root.Name + ".vdi").Equals(lastName))
@@ -659,13 +705,17 @@ namespace VFS.VFS
         private static void ImportFile(string src, VfsDirectory dstDir) 
         {
 
-            //Get FileLength
-            var fileInfo = new FileInfo(src);
-            var fileLength = Convert.ToInt32(fileInfo.Length);
+            //Get FileInfo
+            var toCompress = new FileInfo(src);
+            
+            //Compress the file before importing
+            var compressedSrc = Compress(toCompress);
 
-            //Name of file to write (includes extension)
+            //get the compressed file
+            var fileInfo = new FileInfo(compressedSrc);
             var fileName = fileInfo.Name;
-            fileName = ConvertToValidString(fileName);
+
+        //    fileName = MakeStringValid(fileName); //TODO: is it okay to just change it without asking?
             Console.Message("Importing " + fileName + " in " + dstDir.GetAbsolutePath());
 
             //Check for duplicates
@@ -684,17 +734,24 @@ namespace VFS.VFS
                 Remove(fileWithSamename.GetAbsolutePath()); //Works because of duplicate name.
             }
 
+            //Get fileLength
+            var fileLength = Convert.ToInt32(fileInfo.Length);
+
             //Create entry in which to write the file
             var importEntry = EntryFactory.createFile(dstDir.Disk, fileName, fileLength, dstDir);
 
             //Start actual import
             var reader = new BinaryReader(fileInfo.OpenRead());
             importEntry.Write(reader);
-                            
+
             //Dispose resources and close reader
             reader.Dispose();
             reader.Close();
+
+            //Delete the compressed file in host system (what kind of compression would it be to have the same file twice? :P)
+            File.Delete(compressedSrc);
         }
+
 
 
         private static void ImportDirectory(string src, VfsDirectory dstDir) 
@@ -702,7 +759,7 @@ namespace VFS.VFS
             //Name of directory to write
             var dirInfo = new DirectoryInfo(src);
             var dirName = dirInfo.Name;
-
+          //  dirName = MakeStringValid(dirName); //TODO: is it okay to just change it without asking?
             //Check for duplicates
             var dirWithSameName = dstDir.GetDirectory(dirName);
             if (dirWithSameName != null)
@@ -750,7 +807,7 @@ namespace VFS.VFS
             //Check if path is valid and correct it if not.
             bool dstHasBeenChanged;
             bool isValid;
-            var correctedDst = ConvertToValidString(dst, out dstHasBeenChanged, out isValid);
+        /*    var correctedDst = ConvertToValidString(dst, out dstHasBeenChanged, out isValid);
             VfsEntry dstDir;
             if (isValid)
             {
@@ -767,9 +824,9 @@ namespace VFS.VFS
                     Console.Message("You're not allowed to use invalid names. Aborted operation.");
                     return null;
                 }
-            }
+            } */
 
-            
+            var dstDir = getEntry(dst); 
             if (dstDir != null)
             {
                 Console.Message(dstDir.Name + "is the destination Directory.");
@@ -848,7 +905,6 @@ namespace VFS.VFS
             Directory.CreateDirectory(dst);
             
             //Get path including fileName
-            //TODO: What about those extensions?
             var completePath = Path.Combine(dst, entryName);
 
             //Check if file with same name already exists at that location
@@ -871,6 +927,18 @@ namespace VFS.VFS
             fs.Dispose();
             writer.Close();
             fs.Close();
+
+            //If I don't have to decompress we're done
+            if (!toExport.Type.Equals("gz")) return;
+           
+            //Decompress file
+            var toDecompress = new FileInfo(completePath);
+            var typeExtension = toExport.Type;
+            Decompress(toDecompress, typeExtension);
+
+            //Delete compressed file
+            File.Delete(toDecompress.FullName);
+          
         }
 
         private static void ExportDirectory(string dst, VfsDirectory toExport, bool isFirstRecursion) 
@@ -900,7 +968,6 @@ namespace VFS.VFS
             foreach (var subDir in subDirs)
             {
                 path += '/' + subDir.Name;
-                Console.Message(path);
                 ExportDirectory(path, subDir, false);
             }
         }
@@ -935,6 +1002,7 @@ namespace VFS.VFS
                 var directories = ((VfsDirectory)entry).GetDirectories();
                 foreach (var directory in directories)
                 {
+                    Console.Message("Removing " + directory.GetAbsolutePath());
                     Remove(directory.GetAbsolutePath());
                 }
             }
