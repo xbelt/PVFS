@@ -567,7 +567,7 @@ namespace VFS.VFS
         {
             var hasBeenModified = false;
             var isValid = false;
-            ConvertToValidString(arg, out hasBeenModified, out isValid);
+            return ConvertToValidString(arg, out hasBeenModified, out isValid);
         }
         public static string ConvertToValidString(string str, out bool hasBeenConverted, out bool isValid ) 
         {
