@@ -563,30 +563,36 @@ namespace VFS.VFS
             }
         }
 
-        public string ConvertToValidString(string str, out bool hasBeenConverted ) 
+        public static string ConvertToValidString(string str, out bool hasBeenConverted, out bool isValid ) 
         {
             if (str == null) throw new ArgumentNullException("str");
 
             var corrected = str.Where(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.').ToString();
+            
 
-
-            while (corrected.Contains("..") || corrected.Contains("\\") || corrected.Contains("//") || corrected.Contains(" "))
+            while (corrected.Contains("..") || corrected.Contains("\\") || corrected.Contains("//"))
             {
                 corrected = corrected.Replace("..", ".");
                 corrected = corrected.Replace('\\', '/');
                 corrected = corrected.Replace("//", "/");
             }
+            //Check if we did modify anything
+            isValid = corrected.Equals(str);
 
-            Console.Message("Your path was not valid. The characters have to be in:");
-            Console.Message("[a-z , A-Z , 0-9 , - , _ , / , . ] where no / or . can follow a / or . respectively.");
-            Console.Message("Do you agree with this new suggestion:\n" + corrected);
-            var answer = Console.Query("Write 'Ok' or 'Cancel'.", "Ok", "Cancel");
-            if (answer == 0)
+            if (!isValid)
             {
-                hasBeenConverted = true;
-                return corrected;
+                Console.Message("Your path was not valid. The characters have to be in:");
+                Console.Message("[a-z , A-Z , 0-9 , - , _ , / , . ] where no / or . can follow a / or . respectively.");
+                Console.Message("Do you agree with this new suggestion:\n" + corrected + " ?" );
+                var answer = Console.Query("Write 'Ok' or 'Cancel'.", "Ok", "Cancel");
+                if (answer == 0)
+                {
+                    hasBeenConverted = true;
+                    return corrected;
+                } 
             }
-            Console.Message("String has not been converted.");
+            var report = isValid ? "String was valid" : "String was not valid";
+            Console.Message("String has not been converted because" + report);
             hasBeenConverted = false;
             return str; //TODO: maybe better to make this null so that no invalid strings can be used.
         }
@@ -602,7 +608,6 @@ namespace VFS.VFS
         /// <param name="dst">The absolute path to the directory where we import.</param>
         public static void Import(string src, string dst) 
         {
-            //TODO: check file names to be compatible with naming conventions
             //TODO: prevent import of currently opened disk
             //TODO: add compression and encryption
             if (src == null) throw new ArgumentNullException("src");
@@ -624,6 +629,13 @@ namespace VFS.VFS
             //Check if source is valid: TODO: also check file and dir names
             if (File.Exists(src))
             {
+                //Check that it's not the disk we've opened
+                var lastName = src.Substring(src.LastIndexOf('\\') + 1);
+                if ((dstDir.Disk.root.Name + ".vdi").Equals(lastName))
+                {
+                    Console.Message("You're not allowed to import the currently opened disk. Aborted import.");
+                    return;
+                }
                 ImportFile(src, dstDir);
             }
             else if (Directory.Exists(src))
@@ -725,14 +737,36 @@ namespace VFS.VFS
         {
             if (dst == null) throw new ArgumentNullException("dst");
 
-            var dstDir = getEntry(dst);
+            //Check if path is valid and correct it if not.
+            bool dstHasBeenChanged;
+            bool isValid;
+            var correctedDst = ConvertToValidString(dst, out dstHasBeenChanged, out isValid);
+            VfsEntry dstDir;
+            if (isValid)
+            {
+                dstDir = getEntry(dst); //Could also be correctedDst, doesn't matter in this case.
+            }
+            else
+            {
+                if (dstHasBeenChanged)
+                {
+                    dstDir = getEntry(correctedDst);
+                }
+                else
+                {
+                    Console.Message("You're not allowed to use invalid names. Aborted operation.");
+                    return null;
+                }
+            }
+
+            
             if (dstDir != null)
             {
-                Console.Message("DstDir is currently: " + dstDir.Name);
+                Console.Message(dstDir.Name + "is the destination Directory.");
                 if (dstDir.IsDirectory)
                     return dstDir;
                 //Destination is not a directory
-                Console.Message("Your destination does not lead to a directory: " + dst);
+                Console.Message("Your destination does not lead to a directory:\n" + dst);
                 Console.Message("Please enter a valid path. Operation is aborted.");
                 return null;
             }
