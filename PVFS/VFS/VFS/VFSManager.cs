@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using VFS.VFS.Models;
 
 namespace VFS.VFS
@@ -565,28 +563,32 @@ namespace VFS.VFS
             }
         }
 
-        //TODO: finish this thing here.
-        public bool IsStringValid(string str ) {
-            //out corrected
-            //TODO: what about white spaces?
-            var valid = str.All(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.');
-            var corrected = str;
-            var changed = false;
-            while (str.Contains("..") || str.Contains('\\') || str.Contains("//"))
+        public string ConvertToValidString(string str, out bool hasBeenConverted ) 
+        {
+            if (str == null) throw new ArgumentNullException("str");
+
+            var corrected = str.Where(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.').ToString();
+
+
+            while (corrected.Contains("..") || corrected.Contains("\\") || corrected.Contains("//") || corrected.Contains(" "))
             {
-                changed = true;
-                corrected = str.Replace("..", ".");
-                corrected = str.Replace('\\', '/');
-                corrected = str.Replace("//", "/");
+                corrected = corrected.Replace("..", ".");
+                corrected = corrected.Replace('\\', '/');
+                corrected = corrected.Replace("//", "/");
             }
 
-            if (valid && changed)
+            Console.Message("Your path was not valid. The characters have to be in:");
+            Console.Message("[a-z , A-Z , 0-9 , - , _ , / , . ] where no / or . can follow a / or . respectively.");
+            Console.Message("Do you agree with this new suggestion:\n" + corrected);
+            var answer = Console.Query("Write 'Ok' or 'Cancel'.", "Ok", "Cancel");
+            if (answer == 0)
             {
-                Console.Message("Your path was not valid. The characters have to be in:");
-                Console.Message("[a-z , A-Z , 0-9 , - , _ , / , . ] where no / or . can follow a / or . respectively.");
-                Console.Query("Do you agree with this suggestion: " + corrected, "Ok", "Cancel");
+                hasBeenConverted = true;
+                return corrected;
             }
-            return false;
+            Console.Message("String has not been converted.");
+            hasBeenConverted = false;
+            return str; //TODO: maybe better to make this null so that no invalid strings can be used.
         }
 
         /// <summary>
