@@ -867,7 +867,7 @@ namespace VFS.VFS
         /// <param name="path">THe path to the file/directory.</param>
         public static void Remove(string path)
         {
-            //TODO: prevent from deleting root
+            //TODO: prevent from deleting root --> Done, see if statement
             var entry = getEntry(path) as VfsFile;
 
             if (entry == null)
@@ -878,6 +878,11 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
+                if (entry == entry.Disk.root)
+                {
+                    Console.Message("You're not allowed to delete the root directory.");
+                    return;
+                }
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
                 {
@@ -898,7 +903,7 @@ namespace VFS.VFS
         // copy
         public static void RemoveByIdentifier(string ident)
         {
-            //TODO: prevent from deleting root
+            //TODO: prevent from deleting root --> Done, see if-statement
             var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
             if (entry == null)
@@ -909,6 +914,11 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
+                if (entry == entry.Disk.root)
+                {
+                    Console.Message("You're not allowed to delete the root directory.");
+                    return;
+                }
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
                 {
