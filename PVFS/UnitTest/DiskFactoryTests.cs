@@ -14,7 +14,7 @@ namespace UnitTest
         public void TestDiskFactoryPathWithSlash()
         {
             Directory.CreateDirectory("C:\\Test");
-            var disk = DiskFactory.Create(new DiskInfo("C:\\Test\\", "a.vdi", 4096, 1024));
+            var disk = DiskFactory.Create(new DiskInfo("C:\\Test\\", "a.vdi", 4096, 1024), "");
             Debug.Assert(File.Exists("C:\\Test\\a.vdi"));
             Debug.Assert(disk.DiskProperties.BlockSize == 1024);
             Debug.Assert(disk.DiskProperties.MaximumSize == 4096);
@@ -28,7 +28,7 @@ namespace UnitTest
         public void TestDiskFactoryPathWithoutSlash()
         {
             Directory.CreateDirectory("C:\\Test");
-            var disk = DiskFactory.Create(new DiskInfo("C:\\Test", "b.vdi", 4096, 1024));
+            var disk = DiskFactory.Create(new DiskInfo("C:\\Test", "b.vdi", 4096, 1024), "");
             Debug.Assert(File.Exists("C:\\Test\\b.vdi"));
             Debug.Assert(disk.DiskProperties.BlockSize == 1024);
             Debug.Assert(disk.DiskProperties.MaximumSize == 4096);
@@ -48,7 +48,7 @@ namespace UnitTest
             }
             diskName += ".vdi";
             Directory.CreateDirectory("C:\\Test");
-            var disk = DiskFactory.Create(new DiskInfo("C:\\Test", diskName, 4096, 1024));
+            var disk = DiskFactory.Create(new DiskInfo("C:\\Test", diskName, 4096, 1024), "");
             Debug.Assert(File.Exists("C:\\Test\\" + diskName.Substring(0, 128) + ".vdi"));
             Debug.Assert(disk.DiskProperties.BlockSize == 1024);
             Debug.Assert(disk.DiskProperties.MaximumSize == 4096);
@@ -65,7 +65,7 @@ namespace UnitTest
             string path;
             var createdDisk = createTestDisk(out path);
             createdDisk.Stream.Close();
-            var disk = DiskFactory.Load(path);
+            var disk = DiskFactory.Load(path, "");
             Debug.Assert(createdDisk.DiskProperties.BitMapOffset == disk.DiskProperties.BitMapOffset);
             Debug.Assert(createdDisk.DiskProperties.BlockSize == disk.DiskProperties.BlockSize);
             Debug.Assert(createdDisk.DiskProperties.MaximumSize == disk.DiskProperties.MaximumSize);
@@ -79,7 +79,7 @@ namespace UnitTest
         {
             Directory.CreateDirectory("C:\\Test");
             path = "C:\\Test\\b.vdi";
-            return DiskFactory.Create(new DiskInfo("C:\\Test", "b.vdi", 4096, 1024));
+            return DiskFactory.Create(new DiskInfo("C:\\Test", "b.vdi", 4096, 1024), "");
         }
     }
 }
