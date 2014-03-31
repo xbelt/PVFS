@@ -10,9 +10,9 @@ namespace VFS.VFS
     public class DiskFactory : Factory
     {
         //TODO: L store readers/writers in disk
-        public static VfsDisk Create(DiskInfo info)
+        public static VfsDisk Create(DiskInfo info, string pw)
         {
-            var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1});
+            var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1}, pw);
             if (Directory.Exists(info.Path))
             {
                 var writer = disk.getWriter();
@@ -68,7 +68,7 @@ namespace VFS.VFS
             return disk;
         }
 
-        public static VfsDisk Load(string path)
+        public static VfsDisk Load(string path, string pw)
         {
             if (File.Exists(path))
             {
@@ -80,7 +80,7 @@ namespace VFS.VFS
                 {
                     path = path.Remove(path.LastIndexOf("\\"));
                 }
-                var vfsDisk = new VfsDisk(path, dp);
+                var vfsDisk = new VfsDisk(path, dp, pw);
                 vfsDisk.Init();
                 return vfsDisk;
             }
