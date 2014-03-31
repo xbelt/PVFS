@@ -174,13 +174,14 @@ namespace VFS.VFS
         
         public static void UnloadDisk(string name)
         {
-            var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name);
+            var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name).ToList();
             foreach (var unmountedDisk in unmountedDisks)
             {
                 unmountedDisk.getReader().Close();
                 unmountedDisk.getWriter().Close();
 
                 Console.Message("Closed disk " + unmountedDisk.DiskProperties.Name + ".");
+                _disks.Remove(unmountedDisk);
             }
         }
 
