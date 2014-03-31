@@ -7,9 +7,9 @@ using VFS.VFS.Extensions;
 namespace VFS.VFS.Models
 {
     public class VfsDisk {
-
+        public string Password { get; set; }
         public FileStream Stream { get; set; }
-        public VfsDisk(string path, DiskProperties properties) {
+        public VfsDisk(string path, DiskProperties properties, string pw) {
             if (path.EndsWith("\\"))
             {
                 Stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -22,9 +22,11 @@ namespace VFS.VFS.Models
             Writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
             Reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
             Path = path;
+            Password = pw;
             DiskProperties = properties;
             bitMap = new BitArray(properties.NumberOfBlocks, true);
         }
+
 
         public void Init()
         {
