@@ -22,6 +22,7 @@ namespace UnitTest
             Debug.Assert(disk.DiskProperties.NumberOfBlocks == 4);
             Debug.Assert(disk.DiskProperties.NumberOfUsedBlocks == 2);
             Debug.Assert(disk.DiskProperties.RootAddress == 1);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -36,6 +37,7 @@ namespace UnitTest
             Debug.Assert(disk.DiskProperties.NumberOfBlocks == 4);
             Debug.Assert(disk.DiskProperties.NumberOfUsedBlocks == 2);
             Debug.Assert(disk.DiskProperties.RootAddress == 1);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -49,6 +51,7 @@ namespace UnitTest
             diskName += ".vdi";
             Directory.CreateDirectory("C:\\Test");
             var disk = DiskFactory.Create(new DiskInfo("C:\\Test", diskName, 4096, 1024), null);
+            disk.Stream.Close();
             Debug.Assert(File.Exists("C:\\Test\\" + diskName.Substring(0, 128) + ".vdi"));
             Debug.Assert(disk.DiskProperties.BlockSize == 1024);
             Debug.Assert(disk.DiskProperties.MaximumSize == 4096);
