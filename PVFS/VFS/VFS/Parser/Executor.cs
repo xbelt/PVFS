@@ -49,6 +49,7 @@ namespace VFS.VFS.Parser
         {
             var path = Directory.GetCurrentDirectory();
             var name = "disk" + DateTime.Now + ".vdi";
+            string pw = null;
             name = name.Replace(':', '_');
             name = name.Replace(' ', '_');
             var blockSize = 2048;
@@ -70,6 +71,10 @@ namespace VFS.VFS.Parser
                 {
                     blockSize = Convert.ToInt32(context.par1.block.Text);
                 }
+                if (context.par1.pw != null)
+                {
+                    pw = context.par1.pw.Text;
+                }
             }
             if (context.par2 != null)
             {
@@ -89,6 +94,10 @@ namespace VFS.VFS.Parser
                 {
                     blockSize = Convert.ToInt32(context.par2.block.Text);
                 }
+                if (context.par2.pw != null)
+                {
+                    pw = context.par2.pw.Text;
+                }
             }
 
             var size = 0d;
@@ -104,7 +113,7 @@ namespace VFS.VFS.Parser
             }
 
             //TODO: move call to VFSManager and check for existing disk
-            var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize));
+            var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
             VFSManager.AddAndOpenDisk(disk);
         }
 
@@ -162,9 +171,14 @@ namespace VFS.VFS.Parser
         public override void EnterLdisk(ShellParser.LdiskContext context)
         {
             VfsDisk disk = null;
+            string pw = null;
+            if (context.pw != null)
+            {
+                pw = context.pw.Text;
+            }
             if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
             {
-                disk = DiskFactory.Load(context.sys.Text);
+                disk = DiskFactory.Load(context.sys.Text, pw);
             }
             if (context.name != null)
             {
@@ -176,7 +190,7 @@ namespace VFS.VFS.Parser
                 string name = context.name.Text;
                 if (!context.name.Text.EndsWith(".vdi"))
                     name += ".vdi";
-                disk = DiskFactory.Load(path + name);
+                disk = DiskFactory.Load(path + name, pw);
             }
             if (disk != null)
             {
