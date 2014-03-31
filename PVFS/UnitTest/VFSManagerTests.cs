@@ -74,5 +74,18 @@ namespace UnitTest
             Debug.Assert(VFSManager.getAbsolutePath("a") == "/b/a");
             disk.Stream.Close();
         }
+
+        [TestMethod]
+        public void TestUnloadDisk()
+        {
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+
+            var accessor = new PrivateType(typeof(VFSManager));
+            accessor.InvokeStatic("AddAndOpenDisk", new[] { disk });
+            accessor.InvokeStatic("UnloadDisk", new[] { "b" });
+            var result = accessor.InvokeStatic("getDisk", new[] { "b" });
+            Debug.Assert(result == null);
+        }
     }
 }
