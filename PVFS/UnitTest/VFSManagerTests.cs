@@ -20,6 +20,7 @@ namespace UnitTest
             VFSManager.AddAndOpenDisk(disk);
             Debug.Assert(VFSManager.CurrentDisk == disk);
             Debug.Assert(VFSManager.workingDirectory == disk.root);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -32,6 +33,46 @@ namespace UnitTest
             accessor.InvokeStatic("AddAndOpenDisk", new [] {disk});
             var result = accessor.InvokeStatic("getDisk", new[] {"b"});
             Debug.Assert(result == disk);
+            disk.Stream.Close();
+        }
+
+        [TestMethod]
+        public void TestGetEntryPathOnlineFile()
+        {
+            
+        }
+
+        [TestMethod]
+        public void TestGetEntryPathOnlineFolder()
+        {
+            
+        }
+
+        [TestMethod]
+        public void TestGetEntryPathOfflineFile()
+        {
+
+        }
+
+        [TestMethod]
+        public void TestGetEntryPathOfflineFolder()
+        {
+
+        }
+
+        [TestMethod]
+        public void TestGetAbsolutePath()
+        {
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+            VFSManager.AddAndOpenDisk(disk);
+            Debug.Assert(VFSManager.getAbsolutePath("") == "/b");
+            Debug.Assert(VFSManager.getAbsolutePath(".") == "/b");
+            Debug.Assert(VFSManager.getAbsolutePath("..") == "/b");
+            Debug.Assert(VFSManager.getAbsolutePath("/b") == "/b");
+            VFSManager.CreateDirectory("/b/a", true);
+            Debug.Assert(VFSManager.getAbsolutePath("a") == "/b/a");
+            disk.Stream.Close();
         }
     }
 }
