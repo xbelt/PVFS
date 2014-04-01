@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
+using VFS.VFS.Models;
 
 namespace UnitTest
 {
@@ -35,6 +36,23 @@ namespace UnitTest
             Debug.Assert(result == disk);
             disk.Stream.Close();
         }
+
+        //----------------------Working Directory----------------------
+
+        [TestMethod]
+        public void TestChangeWorkingDirectory()
+        { //TODO: get this to work
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/a/b/c", true);
+            VFSManager.ChangeWorkingDirectory("/a/b/c");
+            Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/a/b/c");
+        }
+
+
+        //--------------------------------------------------------------
+
 
         [TestMethod]
         public void TestGetEntryPathOnlineFile()
