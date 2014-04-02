@@ -59,6 +59,15 @@ namespace VFS.VFS.Models
             set { if (value == null) throw new ArgumentNullException("value"); }
         }
 
+        /// <summary>
+        /// Calculates the number of free bytes of the disk
+        /// </summary>
+        /// <returns>Number of free bytes remaining on this disk</returns>
+        public double GetFreeSpace()
+        {
+            return (DiskProperties.NumberOfBlocks - DiskProperties.NumberOfUsedBlocks) *DiskProperties.BlockSize;
+        }
+
         public BinaryReader GetReader() 
         {
             return _reader;
