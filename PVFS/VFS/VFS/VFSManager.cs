@@ -33,7 +33,7 @@ namespace VFS.VFS
         /// </summary>
         /// <param name="path">An absolute path containing the disk name</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
-        private static VfsEntry getEntry(string path)
+        public static VfsEntry getEntry(string path)
         {
             //TODO: add support for relative paths
             VfsDirectory last;
@@ -80,7 +80,7 @@ namespace VFS.VFS
         /// <param name="disk">The disk to start on.</param>
         /// <param name="path">An absolute path, not containing the disk name</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
-        private static VfsEntry getEntry(VfsDisk disk, string path)
+        public static VfsEntry getEntry(VfsDisk disk, string path)
         {
             VfsDirectory last;
             IEnumerable<string> remaining;
@@ -95,7 +95,7 @@ namespace VFS.VFS
         /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root.</param>
         /// <param name="remaining">Returns the remaining path, if the result was null.</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
-        private static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last, out IEnumerable<string> remaining)
+        public static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -336,7 +336,7 @@ namespace VFS.VFS
         /// Creates an empty file at the indicated location. Returns early if the target directory doesn't exist.
         /// </summary>
         /// <param name="path">The path to the new file.</param>
-        public static void CreateFile(string path)
+        public static VfsFile CreateFile(string path)
         {
             VfsDirectory last;
             IEnumerable<string> remaining;
@@ -345,26 +345,28 @@ namespace VFS.VFS
             if (entry != null)
             {
                 Console.Error("There already existed a file or directory with the same path.");
-                return;
+                return null;
             }
 
             if (last == null)
             {
                 Console.Error("The disk was not found.");
-                return;
+                return null;
             }
 
             List<string> fileNames =  remaining.ToList();
             if (fileNames.Count > 1)
             {
                 Console.Error("Target directory was not found.");
-                return;
+                return null;
             }
 
             VfsFile file = EntryFactory.createFile(last.Disk, fileNames[0], 0, last);
             last.AddElement(file);
 
             Console.Message("File successfully created.");
+
+            return file;
         }
 
         /// <summary>
