@@ -4,6 +4,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
 using VFS.VFS.Models;
+using VFS.VFS.Parser;
 
 namespace UnitTest
 {
@@ -91,7 +92,7 @@ namespace UnitTest
             path += "\\" + name + ".vdi";
             return disk;
         }
-        public static VfsDisk createTestDisk(out string path, out string name, int size, int blocksize)
+        public static VfsDisk createTestDisk(out string path, out string name, double size, int blocksize)
         {
             path = Environment.CurrentDirectory;
             name = "b";
@@ -103,6 +104,41 @@ namespace UnitTest
             VfsDisk disk = DiskFactory.Create(new DiskInfo(path, name + ".vdi", size, blocksize), null);
             path += "\\" + name + ".vdi";
             return disk;
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidPathException))]
+        public void TestLoadException()
+        {
+            DiskFactory.Load("X::\\Test.vdi", "");
+        }
+
+        [TestMethod]
+        public void TestCreateHugeDisk() {
+            string path;
+            string name;
+            createTestDisk(out path, out name, 100000*200, 200);
+        }
+
+        [TestMethod]
+        public void TestRemoveDiskSuccess()
+        {
+            string path;
+            string name;
+            var disk = createTestDisk(out path, out name, 100000 * 200, 200);
+            disk.Stream.Close();
+            DiskFactory.Remove(path);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DiskNotFoundException))]
+        public void TestRemoveDiskFailure()
+        {
+            string path;
+            string name;
+            var disk = createTestDisk(out path, out name, 100000 * 200, 200);
+            disk.Stream.Close();
+            DiskFactory.Remove(path + ".v");
         }
     }
 }
