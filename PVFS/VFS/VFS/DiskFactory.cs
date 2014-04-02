@@ -13,58 +13,51 @@ namespace VFS.VFS
         public static VfsDisk Create(DiskInfo info, string pw)
         {
             var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1}, pw);
-            if (Directory.Exists(info.Path))
-            {
-                var writer = disk.getWriter();
+            var writer = disk.getWriter();
 
-                //blocksForPreamble + RootAddress + #Block + #UsedBlocks + Size + BlockSize + NameLength + Name + BitMap
-                var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + (4 + 4 + 4 + 8 + 4 + 4 + 4*128) * 8;
-                var blocksUsedForPreamble = (int)Math.Ceiling((double)numberOfUsedBitsInPreamble / (disk.DiskProperties.BlockSize*8));
-                //Write disk info
-                //writes the address of root
-                writer.Write(blocksUsedForPreamble);
-                disk.DiskProperties.RootAddress = blocksUsedForPreamble;
+            //blocksForPreamble + RootAddress + #Block + #UsedBlocks + Size + BlockSize + NameLength + Name + BitMap
+            var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + (4 + 4 + 4 + 8 + 4 + 4 + 4*128) * 8;
+            var blocksUsedForPreamble = (int)Math.Ceiling((double)numberOfUsedBitsInPreamble / (disk.DiskProperties.BlockSize*8));
+            //Write disk info
+            //writes the address of root
+            writer.Write(blocksUsedForPreamble);
+            disk.DiskProperties.RootAddress = blocksUsedForPreamble;
 
-                disk.DiskProperties.NumberOfUsedBlocks = blocksUsedForPreamble + 1;
+            disk.DiskProperties.NumberOfUsedBlocks = blocksUsedForPreamble + 1;
                 
-                DiskProperties.Write(writer, disk.DiskProperties);
-                writer.Seek(disk, 0, disk.DiskProperties.BitMapOffset);
-                //write bitMap
-                for (var i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
+            DiskProperties.Write(writer, disk.DiskProperties);
+            writer.Seek(disk, 0, disk.DiskProperties.BitMapOffset);
+            //write bitMap
+            for (var i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
+            {
+                byte firstByte = 0;
+                for (var j = 0; j < (blocksUsedForPreamble + 1) - 8*i; j++)
                 {
-                    byte firstByte = 0;
-                    for (var j = 0; j < (blocksUsedForPreamble + 1) - 8*i; j++)
+                    firstByte += (byte)Math.Pow(2, 7 - j);
+                    if (j == 7)
                     {
-                        firstByte += (byte)Math.Pow(2, 7 - j);
-                        if (j == 7)
-                        {
-                            break;
-                        }
+                        break;
                     }
-                    writer.Write(firstByte);
                 }
+                writer.Write(firstByte);
+            }
 
-                byte one = 1;
+            byte one = 1;
 
-                writer.Flush();
+            writer.Flush();
 
-                //Write root folder manually
-                writer.Seek(disk, blocksUsedForPreamble);
-                writer.Write(0); //NextBlock
-                writer.Write(0); //NrOfChildren
-                writer.Write(1); //NoBlocks
-                writer.Write(one); //Directory?
-                writer.Write(blocksUsedForPreamble);
-                writer.Write((byte)disk.DiskProperties.Name.Length); //NameSize
-                writer.Write(disk.DiskProperties.Name.ToCharArray());
+            //Write root folder manually
+            writer.Seek(disk, blocksUsedForPreamble);
+            writer.Write(0); //NextBlock
+            writer.Write(0); //NrOfChildren
+            writer.Write(1); //NoBlocks
+            writer.Write(one); //Directory?
+            writer.Write(blocksUsedForPreamble);
+            writer.Write((byte)disk.DiskProperties.Name.Length); //NameSize
+            writer.Write(disk.DiskProperties.Name.ToCharArray());
                 
-                writer.Flush();
-                disk.Init();
-            }
-            else
-            {
-                throw new InvalidPathException(info + " is not a valid path");
-            }
+            writer.Flush();
+            disk.Init();
             return disk;
         }
 
@@ -100,11 +93,11 @@ namespace VFS.VFS
         }
     }
 
-    internal class InvalidPathException : Exception
+    public class InvalidPathException : Exception
     {
         public InvalidPathException(string s)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(s);
         }
     }
 
