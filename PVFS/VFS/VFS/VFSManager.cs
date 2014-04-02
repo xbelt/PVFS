@@ -605,54 +605,6 @@ namespace VFS.VFS
             }
         }
 
-    /*    private static string MakeStringValid(string str) 
-        {
-            var corrected = str.Where(c => Char.IsLetterOrDigit(c) || c == '-' || c == '/' || c == '_' || c == '.').ToString();
-
-
-            while (corrected.Contains("..") || corrected.Contains("\\") || corrected.Contains("//"))
-            {
-                corrected = corrected.Replace("..", ".");
-                corrected = corrected.Replace('\\', '/');
-                corrected = corrected.Replace("//", "/");
-            }
-            Console.Message(corrected);
-            return corrected;
-        }
-
-        private static string ConvertToValidString(string arg)
-        {
-            var hasBeenModified = false;
-            var isValid = false;
-            return ConvertToValidString(arg, out hasBeenModified, out isValid);
-        }
-        public static string ConvertToValidString(string str, out bool hasBeenConverted, out bool isValid ) 
-        {
-            if (str == null) throw new ArgumentNullException("str");
-
-            var corrected = MakeStringValid(str);
-            Console.Message(corrected);
-            //Check if we did modify anything
-            isValid = corrected.Equals(str);
-
-            if (!isValid)
-            {
-                Console.Message("Your path was not valid. The characters have to be in:");
-                Console.Message("[a-z , A-Z , 0-9 , - , _ , / , . ] where no / or . can follow a / or . respectively.");
-                Console.Message("Do you agree with this new suggestion:\n" + corrected + " ?" );
-                var answer = Console.Query("Write 'Ok' or 'Cancel'.", "Ok", "Cancel");
-                if (answer == 0)
-                {
-                    hasBeenConverted = true;
-                    return corrected;
-                } 
-            }
-            var report = isValid ? "String was valid" : "String was not valid";
-            Console.Message("String has not been converted because " + report);
-            hasBeenConverted = false;
-            return str; //TODO: maybe better to make this null so that no invalid strings can be used.
-        } */
-
         private static string Compress(FileInfo fileToCompress) {
             String returnPath;
             using (FileStream originalFileStream = fileToCompress.OpenRead())
