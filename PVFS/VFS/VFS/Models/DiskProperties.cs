@@ -39,13 +39,7 @@ namespace VFS.VFS.Models {
             reader.Read(nameBuffer, 0, nameLength);
 
             dp.Name = Encoding.ASCII.GetString(nameBuffer);
-            var lastDot = dp.Name.LastIndexOf(".");
-            if (lastDot == -1)
-            {
-                return dp;
-            }
-            dp.Name = dp.Name.Remove(lastDot);
-
+            
             return dp;
         }
 
