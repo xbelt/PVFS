@@ -48,7 +48,7 @@ namespace VFS.VFS
         /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root. Null if disk was not found</param>
         /// <param name="remaining">Returns the remaining path, if the result was null.</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
-        private static VfsEntry getEntry(string path, out VfsDirectory last, out IEnumerable<string> remaining)
+        public static VfsEntry getEntry(string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
