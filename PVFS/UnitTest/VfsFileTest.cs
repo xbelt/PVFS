@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
 using VFS.VFS.Models;
@@ -42,10 +43,36 @@ namespace UnitTest
         }
 
         [TestMethod]
+        public void TestWrite()
+        {
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            Assert.AreNotSame(null, disk);
+            VFSManager.AddAndOpenDisk(disk);
+            var file = VFSManager.CreateFile("/" + name + "/fs.txt");
+            Assert.AreNotSame(null, file);
+            var fileSize1 = disk.DiskProperties.NumberOfUsedBlocks;
+            Assert.AreNotSame(null, fileSize1);
+            var fileInfo = new FileInfo("C:\\Test\\myText.txt");
+            Assert.AreNotSame(null, fileInfo);
+            var reader = new BinaryReader(fileInfo.OpenRead());
+            Assert.AreNotSame(null, reader);
+            file.Write(reader);
+
+            var fileSize2 = disk.DiskProperties.NumberOfUsedBlocks;
+            Assert.AreNotSame(null, fileSize2);
+            reader.Dispose();
+            reader.Close();
+            Assert.AreNotEqual(fileSize1, fileSize2);
+        }
+
+        [TestMethod]
         public void TestgetType()
         {   //You have to have a local disk with name b and a file fs.txt in root directory
-            const string path = "C:\\Test\\b.vdi";
-            var disk = DiskFactory.Load(path, "a");
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VFSManager.AddAndOpenDisk(disk);
+            var file = VFSManager.CreateFile("/" + name + "/fs.txt");
             Assert.AreNotSame(null, disk);
             Assert.AreNotSame(null, disk.root);
             Assert.AreNotSame(null, disk.root.GetFile("fs.txt"));
@@ -69,11 +96,7 @@ namespace UnitTest
         {
             string name;
             VfsDisk disk = setup(out name);
-
             VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
-
-
-
             end(name);
         }
         [TestMethod]
@@ -81,11 +104,7 @@ namespace UnitTest
         {
             string name;
             VfsDisk disk = setup(out name);
-
             VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
-
-
-
             end(name);
         }
         [TestMethod]
@@ -93,11 +112,7 @@ namespace UnitTest
         {
             string name;
             VfsDisk disk = setup(out name);
-
             VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
-
-
-
             end(name);
         }
     }
