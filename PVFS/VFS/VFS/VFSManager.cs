@@ -1048,7 +1048,7 @@ namespace VFS.VFS
         // copy
         public static void RemoveByIdentifier(string ident)
         {
-            //TODO: prevent from deleting root --> Done, see if-statement
+            //TODO: prevent from deleting root --> Done, see if-statement (overthink this again...)
             var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
             if (entry == null)
@@ -1059,8 +1059,10 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
-                if (entry == entry.Disk.root)
+                if (entry == entry.Disk.root) 
                 {
+                    //TODO: Maybe this is not such a good idea. Now Remove of disks does not work anymore :/
+                    //TODO: Maybe it's best to make a query here
                     Console.Message("You're not allowed to delete the root directory.");
                     return;
                 }
