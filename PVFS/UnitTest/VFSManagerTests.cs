@@ -260,5 +260,20 @@ namespace UnitTest
             VFSManager.AddAndOpenDisk(disk);
             VFSManager.Exit();
         }
+
+        [TestMethod]
+        public void TestMove()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 6000, 300);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            VFSManager.CreateFile("/" + name + "/a");
+            VFSManager.Move("/" + name + "/a", "/" + name + "/testFolder");
+            var directory = VFSManager.getEntry("/" + name + "/testFolder") as VfsDirectory;
+            var file = VFSManager.getEntry("/" + name + "/testFolder/a") as VfsFile;
+            Debug.Assert(file.Parent.Address == directory.Address);
+        }
     }
 }
