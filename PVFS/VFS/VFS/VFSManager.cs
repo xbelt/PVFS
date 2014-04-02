@@ -103,7 +103,7 @@ namespace VFS.VFS
             VfsDirectory current = disk.root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
-                throw new ArgumentException("Path not valid. Root can't be accessed this way.");
+                throw new ArgumentException("Path not valid");
             for (int i = 0; i < names.Length - 1; i++)
             {
                 last = current;
