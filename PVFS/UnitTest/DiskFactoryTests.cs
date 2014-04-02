@@ -52,7 +52,7 @@ namespace UnitTest
             Directory.CreateDirectory("C:\\Test");
             var disk = DiskFactory.Create(new DiskInfo("C:\\Test", diskName, 4096, 1024), null);
             disk.Stream.Close();
-            Debug.Assert(File.Exists("C:\\Test\\" + diskName.Substring(0, 128) + ".vdi"));
+            Debug.Assert(File.Exists("C:\\Test\\aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.vdi"));
             Debug.Assert(disk.DiskProperties.BlockSize == 1024);
             Debug.Assert(disk.DiskProperties.MaximumSize == 4096);
             Debug.Assert(disk.DiskProperties.Name == diskName.Substring(0, 128));
