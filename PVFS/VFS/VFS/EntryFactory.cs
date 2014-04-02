@@ -59,7 +59,7 @@ namespace VFS.VFS
                 throw new ArgumentNullException("name");
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The filename can't be longer than " + VfsFile.MaxNameLength + ".");
-            if (size < 0 || size > VfsFile.MaxSize)
+            if (size < 0)
                 throw new ArgumentException("Can't create files larger than 1 Gb.");
             if (parent == null)
                 throw new ArgumentNullException("parent");

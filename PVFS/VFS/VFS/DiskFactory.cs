@@ -9,7 +9,6 @@ namespace VFS.VFS
 {
     public class DiskFactory : Factory
     {
-        //TODO: L store readers/writers in disk
         public static VfsDisk Create(DiskInfo info, string pw)
         {
             if (info == null)

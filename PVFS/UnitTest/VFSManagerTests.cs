@@ -37,7 +37,7 @@ namespace UnitTest
 
         [TestMethod]
         public void TestChangeWorkingDirectory()
-        { //TODO: get this to work
+        {
             string path, name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);

@@ -58,8 +58,9 @@ namespace VFS.VFS
             if (i == -1)
             {
                 var diskRoot = getDisk(path.Substring(1));
+                if (diskRoot == null)
+                    return null;
                 last = diskRoot.Root;
-                //TODO: return null if disk null
                 remaining = new List<string>();
                 return last;
             }
@@ -930,7 +931,6 @@ namespace VFS.VFS
         /// <param name="path">THe path to the file/directory.</param>
         public static void Remove(string path)
         {
-            //TODO: prevent from deleting root --> Done, see if statement
             var entry = getEntry(path) as VfsFile;
 
             if (entry == null)
