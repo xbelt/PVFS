@@ -35,6 +35,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Maximal File size
         /// </summary>
+        // TODO: correctly determine maxSize with blockSize
         public const int MaxSize = 1024 * 1024 * 1024; // 1Gb
 
         /// <summary>
