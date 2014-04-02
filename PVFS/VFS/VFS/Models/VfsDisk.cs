@@ -10,14 +10,17 @@ namespace VFS.VFS.Models
         private string Password { get; set; }
         public FileStream Stream { get; private set; }
         public VfsDisk(string path, DiskProperties properties, string pw) {
-            Stream = path.EndsWith("\\") ? File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite) : File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            if (properties != null)
+            {
+                Stream = path != null && path.EndsWith("\\") ? File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite) : File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-            _writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
-            _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
-            Path = path;
-            Password = pw;
-            DiskProperties = properties;
-            BitMap = new BitArray(properties.NumberOfBlocks, true);
+                _writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
+                _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
+                Path = path;
+                Password = pw;
+                DiskProperties = properties;
+                BitMap = new BitArray(properties.NumberOfBlocks, true);
+            }
         }
 
 
@@ -48,7 +51,7 @@ namespace VFS.VFS.Models
 
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
-        public readonly BitArray BitMap;
+        public BitArray BitMap { get; set; }
         public DiskProperties DiskProperties { get; private set; }
 
         private static string Path

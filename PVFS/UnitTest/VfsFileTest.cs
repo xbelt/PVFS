@@ -76,7 +76,7 @@ namespace UnitTest
             Assert.AreNotSame(null, disk);
             Assert.AreNotSame(null, disk.Root);
             Assert.AreNotSame(null, disk.Root.GetFile("fs.txt"));
-            Assert.AreEqual("txt", disk.Root.GetFile("fs.txt").Type);
+            Assert.AreEqual("txt", disk.Root.GetFile("fs.txt").FileType);
         }
     
         [TestMethod]

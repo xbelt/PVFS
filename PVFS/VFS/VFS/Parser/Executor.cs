@@ -138,7 +138,7 @@ namespace VFS.VFS.Parser
                 case "TB":
                     return 1024d * 1024 * 1024 * 1024 * intSize;
             }
-            throw new UnsupportedFileSizeType("only kb, mb, gb and tb are allowed as units");
+            throw new ArgumentException("only kb, mb, gb and tb are allowed as units", "type");
         }
 
         public override void EnterRmdisk(ShellParser.RmdiskContext context)
@@ -205,7 +205,6 @@ namespace VFS.VFS.Parser
                 VFSManager.AddAndOpenDisk(disk);
                 return;
             }
-            throw new Exception("disk not found");
         }
 
         public override void EnterLdisks(ShellParser.LdisksContext context)
@@ -325,14 +324,6 @@ namespace VFS.VFS.Parser
                 return;
             VFSManager.Exit();
             Environment.Exit(0);
-        }
-    }
-
-    internal class UnsupportedFileSizeType : Exception
-    {
-        public UnsupportedFileSizeType(string msg)
-        {
-            Console.WriteLine(msg);
         }
     }
 }

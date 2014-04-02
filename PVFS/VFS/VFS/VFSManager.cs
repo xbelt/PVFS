@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -97,6 +98,7 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         public static VfsEntry getEntry(VfsDisk disk, string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
+            if (disk == null) throw new ArgumentNullException("disk");
             if (path == null)
                 throw new ArgumentNullException("path");
 
@@ -150,7 +152,7 @@ namespace VFS.VFS
             if (path == null)
                 throw new ArgumentNullException("path");
 
-            if (path == "." || path == "")
+            if (path == "." || String.IsNullOrEmpty(path))
                 return workingDirectory.GetAbsolutePath();
             else if (path == "..")
                 return (workingDirectory.Parent ?? workingDirectory).GetAbsolutePath();
@@ -173,6 +175,7 @@ namespace VFS.VFS
 
         public static void AddAndOpenDisk(VfsDisk disk)
         {
+            if (disk == null) throw new ArgumentNullException("disk");
             _disks.Add(disk);
             CurrentDisk = disk;
             workingDirectory = disk.Root;
@@ -195,6 +198,9 @@ namespace VFS.VFS
 
         public static void CreateDisk(string path, string name, double size, int blockSize, string pw)
         {
+            if (path == null) throw new ArgumentNullException("path");
+            if (name == null) throw new ArgumentNullException("name");
+            if (pw == null) throw new ArgumentNullException("pw");
             if (!path.EndsWith("\\"))
             {
                 path += "\\";
@@ -270,6 +276,7 @@ namespace VFS.VFS
         /// <param name="dirs">Display directories.</param>
         public static void ListEntries(string path, bool files, bool dirs)
         {
+            if (path == null) throw new ArgumentNullException("path");
             VfsEntry entry;
             if (path.IndexOf("/", 1) == -1)
             {
@@ -525,7 +532,7 @@ namespace VFS.VFS
         public static void Copy(string srcPath, string dstPath)
         {
             if (srcPath == null || dstPath == null)
-                throw new ArgumentNullException("", "Argument null.");
+                throw new ArgumentNullException("srcPath", "src or dst was null");
 
             if (!srcPath.StartsWith("/"))
             {
@@ -598,7 +605,7 @@ namespace VFS.VFS
                 // dir: create, recursive calls
                 VfsDirectory newDir = EntryFactory.createDirectory(dst.Disk, newName, dst);
                 dst.AddElement(newDir);
-                return ((VfsDirectory)src).GetEntries().TrueForAll(entry => copyHelper(entry, newDir, false));
+                return ((VfsDirectory)src).GetEntries().ToList().TrueForAll(entry => copyHelper(entry, newDir, false));
             }
             else
             {
@@ -632,6 +639,7 @@ namespace VFS.VFS
 
         public static void Decompress(FileInfo fileToDecompress)
         {
+            if (fileToDecompress == null) throw new ArgumentNullException("fileToDecompress");
             using (FileStream originalFileStream = fileToDecompress.OpenRead())
             {
                 string currentFileName = fileToDecompress.FullName;
@@ -647,6 +655,7 @@ namespace VFS.VFS
                 }
             }
         }
+
         /// <summary>
         /// Imports a File from the host Filesystem to a directory inside the virtual Filesystem. (are we supporting importing whole directories too?)
         /// Overwrites already existing files with the same name.
@@ -843,10 +852,10 @@ namespace VFS.VFS
         {
             //Get the entry to export and its name
             if (toExport == null) 
-                throw new ArgumentNullException("The file to export is null.");
+                throw new ArgumentNullException("toExport");
             var entryName = toExport.Name;
             if (entryName == null) //TODO: probably useless check
-               throw new ArgumentNullException("Name of file is null.");
+               throw new NoNullAllowedException("entry name must not be null");
             
             //Create the path to destination (non existent folders are automatically created)
             Directory.CreateDirectory(dst);
@@ -870,13 +879,10 @@ namespace VFS.VFS
             toExport.Read(writer);
             
             //Close and dispose resources
-            writer.Dispose();
-            fs.Dispose();
             writer.Close();
-            fs.Close();
 
             //If I don't have to decompress we're done
-            if (!toExport.Type.Equals("gz")) return;
+            if (!toExport.FileType.Equals("gz")) return;
            
             //Decompress file
             var toDecompress = new FileInfo(completePath);

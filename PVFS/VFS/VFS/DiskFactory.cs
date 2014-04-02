@@ -94,7 +94,7 @@ namespace VFS.VFS
             }
             else
             {
-                throw new ArgumentException("path");
+                throw new ArgumentException("path does not exist", "path");
             }
         }
     }

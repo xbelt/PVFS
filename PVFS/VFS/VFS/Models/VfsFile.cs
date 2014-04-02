@@ -46,7 +46,7 @@ namespace VFS.VFS.Models
         #endregion
 
         public VfsDirectory Parent { get; protected internal set; }
-        public string Type
+        public string FileType
         {
             get
             {
