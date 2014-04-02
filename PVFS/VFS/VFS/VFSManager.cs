@@ -185,6 +185,27 @@ namespace VFS.VFS
             }
         }
 
+        public static void CreateDisk(string path, string name, double size, int blockSize, string pw)
+        {
+            if (!path.EndsWith("\\"))
+            {
+                path += "\\";
+            }
+
+            if (!Directory.Exists(path))
+            {
+                Console.Error("Directory does not exist.");
+                return;
+            }
+            if (File.Exists(path + name + ".vdi"))
+            {
+                Console.Error("This disk already exists");
+                return;
+            }
+            
+            var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
+            AddAndOpenDisk(disk);
+        }
 
         //----------------------Working Directory----------------------
 
