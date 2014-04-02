@@ -28,8 +28,8 @@ namespace UnitTest
             string name;
             VfsDisk disk = setup(out name);
 
-            VfsFile cfile = EntryFactory.createFile(disk, "a", 1000, disk.root);
-            VfsFile file = (VfsFile)EntryFactory.OpenEntry(disk, cfile.Address, disk.root);
+            VfsFile cfile = EntryFactory.createFile(disk, "a", 1000, disk.Root);
+            VfsFile file = (VfsFile)EntryFactory.OpenEntry(disk, cfile.Address, disk.Root);
 
             Debug.Assert(VfsFile.GetNoBlocks(disk, 1000) == 6);
             Debug.Assert(!file.ToString().Contains("(loaded)"));
@@ -74,9 +74,9 @@ namespace UnitTest
             VFSManager.AddAndOpenDisk(disk);
             var file = VFSManager.CreateFile("/" + name + "/fs.txt");
             Assert.AreNotSame(null, disk);
-            Assert.AreNotSame(null, disk.root);
-            Assert.AreNotSame(null, disk.root.GetFile("fs.txt"));
-            Assert.AreEqual("txt", disk.root.GetFile("fs.txt").Type);
+            Assert.AreNotSame(null, disk.Root);
+            Assert.AreNotSame(null, disk.Root.GetFile("fs.txt"));
+            Assert.AreEqual("txt", disk.Root.GetFile("fs.txt").Type);
         }
     
         [TestMethod]
@@ -85,7 +85,7 @@ namespace UnitTest
             string name;
             VfsDisk disk = setup(out name);
 
-            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
+            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.Root);
 
 
 
@@ -96,7 +96,7 @@ namespace UnitTest
         {
             string name;
             VfsDisk disk = setup(out name);
-            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
+            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.Root);
             end(name);
         }
         [TestMethod]
@@ -104,7 +104,7 @@ namespace UnitTest
         {
             string name;
             VfsDisk disk = setup(out name);
-            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
+            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.Root);
             end(name);
         }
         [TestMethod]
@@ -112,7 +112,7 @@ namespace UnitTest
         {
             string name;
             VfsDisk disk = setup(out name);
-            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.root);
+            VfsFile file = EntryFactory.createFile(disk, "a", 1000, disk.Root);
             end(name);
         }
     }

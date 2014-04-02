@@ -22,7 +22,7 @@ namespace UnitTest
                 VFSManager.CreateFile("/" + name + "/" + i);
             }
 
-            VfsEntry e = EntryFactory.OpenEntry(disk, disk.root.Address, null);
+            VfsEntry e = EntryFactory.OpenEntry(disk, disk.Root.Address, null);
 
             Debug.Assert(e != null);
             Debug.Assert(e.IsDirectory);
@@ -53,7 +53,7 @@ namespace UnitTest
                 VFSManager.Remove("/" + name + "/" + (33 + i));
             }
 
-            VfsEntry e = EntryFactory.OpenEntry(disk, disk.root.Address, null);
+            VfsEntry e = EntryFactory.OpenEntry(disk, disk.Root.Address, null);
 
             Debug.Assert(e != null);
             Debug.Assert(e.IsDirectory);
@@ -76,10 +76,10 @@ namespace UnitTest
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
             VFSManager.AddAndOpenDisk(disk);
 
-            disk.root.GetEntry("");
-            disk.root.GetFile("");
-            disk.root.GetEntry("");
-            disk.root.ToString();
+            disk.Root.GetEntry("");
+            disk.Root.GetFile("");
+            disk.Root.GetEntry("");
+            disk.Root.ToString();
         }
 
         [TestMethod]

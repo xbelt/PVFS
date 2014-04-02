@@ -9,6 +9,8 @@ namespace VFS.VFS.Parser
     {
         public override void EnterLs(ShellParser.LsContext context)
         {
+            if (context == null)
+                return;
             string path = ""; // context.path.Text;
             if (context.files == null && context.dirs == null)
             {
@@ -20,6 +22,8 @@ namespace VFS.VFS.Parser
 
         public override void EnterCd(ShellParser.CdContext context)
         {
+            if (context == null)
+                return;
             if (context.path != null)
             {
                 VFSManager.ChangeWorkingDirectory(context.path.Text);
@@ -40,11 +44,15 @@ namespace VFS.VFS.Parser
 
         public override void EnterCp(ShellParser.CpContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Copy(context.src.Text, context.dst.Text);
         }
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
         {
+            if (context == null)
+                return;
             var path = Directory.GetCurrentDirectory();
             var name = "disk" + DateTime.Now + ".vdi";
             string pw = null;
@@ -113,7 +121,7 @@ namespace VFS.VFS.Parser
             VFSManager.CreateDisk(path,name,size,blockSize,pw);
         }
 
-        private double getSizeInBytes(double intSize, string type)
+        private static double getSizeInBytes(double intSize, string type)
         {
             switch (type)
             {
@@ -135,6 +143,8 @@ namespace VFS.VFS.Parser
 
         public override void EnterRmdisk(ShellParser.RmdiskContext context)
         {
+            if (context == null)
+                return;
             if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
             {
                 string path = context.sys.Text;
@@ -166,6 +176,8 @@ namespace VFS.VFS.Parser
 
         public override void EnterLdisk(ShellParser.LdiskContext context)
         {
+            if (context == null)
+                return;
             VfsDisk disk = null;
             string pw = null;
             if (context.pw != null)
@@ -193,11 +205,13 @@ namespace VFS.VFS.Parser
                 VFSManager.AddAndOpenDisk(disk);
                 return;
             }
-            throw new DiskNotFoundException();
+            throw new Exception("disk not found");
         }
 
         public override void EnterLdisks(ShellParser.LdisksContext context)
         {
+            if (context == null)
+                return;
             IEnumerable<string> files;
             if (context.sys != null)
             {
@@ -216,6 +230,8 @@ namespace VFS.VFS.Parser
 
         public override void EnterMkdir(ShellParser.MkdirContext context)
         {
+            if (context == null)
+                return;
             if (context.id != null)
             {
                 VFSManager.CreateDirectory(VFSManager.getAbsolutePath(context.id.Text), false);
@@ -228,6 +244,8 @@ namespace VFS.VFS.Parser
 
         public override void EnterMkFile(ShellParser.MkFileContext context)
         {
+            if (context == null)
+                return;
             if (context.id != null)
             {
                 VFSManager.CreateFile(VFSManager.getAbsolutePath(context.id.Text));
@@ -240,6 +258,8 @@ namespace VFS.VFS.Parser
 
         public override void EnterRm(ShellParser.RmContext context)
         {
+            if (context == null)
+                return;
             if (context.trgt != null)
             {
                 VFSManager.Remove(context.trgt.Text);
@@ -252,55 +272,67 @@ namespace VFS.VFS.Parser
 
         public override void EnterMv(ShellParser.MvContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Move(context.src.Text, context.dst.Text);
         }
 
         public override void EnterRn(ShellParser.RnContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Rename(VFSManager.getAbsolutePath(context.src.Text), context.dst.Text);
         }
 
         public override void EnterIm(ShellParser.ImContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Import(context.ext.Text, context.inte.Text);
         }
 
         public override void EnterEx(ShellParser.ExContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Export(context.inte.Text, context.ext.Text);
         }
 
         public override void EnterFree(ShellParser.FreeContext context)
         {
+            if (context == null)
+                return;
             VFSManager.GetFreeSpace();
         }
 
         public override void EnterOcc(ShellParser.OccContext context)
         {
+            if (context == null)
+                return;
             VFSManager.GetOccupiedSpace();
         }
 
         public override void EnterDefrag(ShellParser.DefragContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Defrag();
         }
 
         public override void EnterExit(ShellParser.ExitContext context)
         {
+            if (context == null)
+                return;
             VFSManager.Exit();
             Environment.Exit(0);
         }
-    }
-
-    public class DiskNotFoundException : Exception
-    {
     }
 
     internal class UnsupportedFileSizeType : Exception
     {
         public UnsupportedFileSizeType(string msg)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(msg);
         }
     }
 }

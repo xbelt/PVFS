@@ -12,8 +12,12 @@ namespace VFS.VFS
         //TODO: L store readers/writers in disk
         public static VfsDisk Create(DiskInfo info, string pw)
         {
+            if (info == null)
+            {
+                return null;
+            }
             var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1}, pw);
-            var writer = disk.getWriter();
+            var writer = disk.GetWriter();
 
             //blocksForPreamble + RootAddress + #Block + #UsedBlocks + Size + BlockSize + NameLength + Name + BitMap
             var numberOfUsedBitsInPreamble = disk.DiskProperties.NumberOfBlocks + (4 + 4 + 4 + 8 + 4 + 4 + 128) * 8;
@@ -26,7 +30,7 @@ namespace VFS.VFS
             disk.DiskProperties.NumberOfUsedBlocks = blocksUsedForPreamble + 1;
                 
             DiskProperties.Write(writer, disk.DiskProperties);
-            writer.Seek(disk, 0, disk.DiskProperties.BitMapOffset);
+            writer.Seek(disk, 0, DiskProperties.BitMapOffset);
             //write bitMap
             for (var i = 0; i < Math.Ceiling((blocksUsedForPreamble + 1)/8d); i++)
             {
@@ -69,6 +73,8 @@ namespace VFS.VFS
                 var reader = new BinaryReader(stream, new ASCIIEncoding(), false);
                 var dp = DiskProperties.Load(reader);
                 reader.Close();
+                if (path == null)
+                    return null;
                 if (path.EndsWith(".vdi"))
                 {
                     path = path.Remove(path.LastIndexOf("\\"));
@@ -77,7 +83,7 @@ namespace VFS.VFS
                 vfsDisk.Init();
                 return vfsDisk;
             }
-            throw new InvalidPathException(path + " is not a valid path to a vdi");
+            throw new ArgumentException(path + " is not a valid path to a vdi");
         }
 
         public static void Remove(string path)
@@ -88,23 +94,12 @@ namespace VFS.VFS
             }
             else
             {
-                throw new DiskNotFoundException();
+                throw new ArgumentException("path");
             }
         }
     }
 
-    public class InvalidPathException : Exception
-    {
-        public InvalidPathException(string s)
-        {
-            Console.WriteLine(s);
-        }
-    }
-
     public class DiskInfo {
-        private String _path;
-        private String _name;
-        private double _size;
         private int _blockSize = 2048;
 
         public DiskInfo(string path, string name, double size, int blockSize) {

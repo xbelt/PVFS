@@ -11,7 +11,7 @@ namespace VFS.VFS.Models {
         public int NumberOfBlocks { get; set; }
         public int NumberOfUsedBlocks { get; set; }
 
-        public int BitMapOffset
+        public static int BitMapOffset
         {
             get
             {
@@ -24,6 +24,8 @@ namespace VFS.VFS.Models {
         public int RootAddress { get; set; }
 
         public static DiskProperties Load(BinaryReader reader) {
+            if (reader == null)
+                throw new ArgumentNullException("reader");
             var dp = new DiskProperties();
             var buffer = new byte[28];
             reader.Read(buffer, 0, 28);
@@ -44,6 +46,10 @@ namespace VFS.VFS.Models {
         }
 
         public static void Write(BinaryWriter writer, DiskProperties diskProperties) {
+            if (writer == null)
+                throw new ArgumentNullException("writer");
+            if (diskProperties == null)
+                throw new ArgumentNullException("diskProperties");
             writer.Write(diskProperties.NumberOfBlocks);
             writer.Write(diskProperties.NumberOfUsedBlocks);
             writer.Write(diskProperties.MaximumSize);

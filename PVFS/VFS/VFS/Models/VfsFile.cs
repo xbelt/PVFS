@@ -120,7 +120,7 @@ namespace VFS.VFS.Models
         /// </summary>
         private void Load()
         {
-            var reader = Disk.getReader();
+            var reader = Disk.GetReader();
             Inodes = new List<Block> { new Block(Address,  null) };
             var nextAddress = NextBlock;
 
@@ -148,7 +148,7 @@ namespace VFS.VFS.Models
             if (this.IsDirectory)
                 throw new ArgumentException("Can't be called on a directory.");
 
-            var writer = Disk.getWriter();
+            var writer = Disk.GetWriter();
 
             if (!IsLoaded)
                 Load();
@@ -211,7 +211,7 @@ namespace VFS.VFS.Models
         /// </summary>
         public void UpdateFileHeader()
         {
-            var writer = Disk.getWriter();
+            var writer = Disk.GetWriter();
             // Write File Header
             writer.Seek(Disk, Address);
             writer.Write(NextBlock);
@@ -232,7 +232,7 @@ namespace VFS.VFS.Models
             if (this.IsDirectory)
                 throw new ArgumentException("Can't be called on a directory.");
 
-            var reader = Disk.getReader();
+            var reader = Disk.GetReader();
 
             if (!IsLoaded)
                 Load();
@@ -284,7 +284,7 @@ namespace VFS.VFS.Models
             if (name.Length > MaxNameLength)
                 throw new ArgumentException("Name was too long.");
 
-            BinaryWriter writer = Disk.getWriter();
+            BinaryWriter writer = Disk.GetWriter();
             writer.Seek(Disk, Address, FileOffset.NameLength);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
@@ -330,8 +330,8 @@ namespace VFS.VFS.Models
 
             VfsFile copy = EntryFactory.createFile(this.Disk, copyName, this.FileSize, destination);
 
-            BinaryReader reader = this.Disk.getReader();
-            BinaryWriter writer = this.Disk.getWriter();
+            BinaryReader reader = this.Disk.GetReader();
+            BinaryWriter writer = this.Disk.GetWriter();
             byte[] buffer = new byte[this.Disk.BlockSize - SmallHeaderSize];
             int head = HeaderSize;
 

@@ -49,7 +49,7 @@ namespace VFS.VFS.Models
             }
 
 
-            BinaryReader reader = Disk.getReader();
+            BinaryReader reader = Disk.GetReader();
             this.Inodes = new List<Block> { new Block(this.Address, null) };
             List<int> elementAddresses = new List<int>();
             int head = HeaderSize, doneEntriesInCurrentBlock = 0, totalEntries = 0;
@@ -170,7 +170,7 @@ namespace VFS.VFS.Models
             if (this.elements.Contains(element))
                 return false;
 
-            BinaryWriter writer = this.Disk.getWriter();
+            BinaryWriter writer = this.Disk.GetWriter();
 
             if (GetNoBlocks(this.Disk, 4 * this.noEntries + 4) > this.NoBlocks)
             {// add a new block
@@ -233,7 +233,7 @@ namespace VFS.VFS.Models
             if (index == -1)
                 return false;
 
-            BinaryWriter writer = this.Disk.getWriter();
+            BinaryWriter writer = this.Disk.GetWriter();
 
             if (GetNoBlocks(this.Disk, 4 * this.noEntries - 4) < this.NoBlocks)
             {

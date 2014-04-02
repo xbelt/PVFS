@@ -28,7 +28,9 @@ namespace VFS.VFS
         /// <returns>A new VfsFile or VfsDirectory</returns>
         public static VfsEntry OpenEntry(VfsDisk disk, int address, VfsDirectory parent)
         {
-            var reader = disk.getReader();
+            if (disk == null) 
+                throw new ArgumentNullException("disk");
+            var reader = disk.GetReader();
             reader.Seek(disk, address);
 
             var nextBlock = reader.ReadInt32();
@@ -53,6 +55,8 @@ namespace VFS.VFS
         {
             if (disk == null)
                 throw new ArgumentNullException("disk");
+            if (name == null)
+                throw new ArgumentNullException("name");
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The filename can't be longer than " + VfsFile.MaxNameLength + ".");
             if (size < 0 || size > VfsFile.MaxSize)
@@ -63,7 +67,7 @@ namespace VFS.VFS
             if (!disk.Allocate(out addresses, VfsFile.GetNoBlocks(disk, size)))
                 throw new ArgumentException("There is not enough space on this disk!");
             var blocks = new List<Block>();
-            var writer = disk.getWriter();
+            var writer = disk.GetWriter();
 
             // Write File Header
             writer.Seek(disk, addresses[0]);
@@ -100,6 +104,8 @@ namespace VFS.VFS
         {
             if (disk == null)
                 throw new ArgumentNullException("disk");
+            if (name == null)
+                throw new ArgumentNullException("name");
             if (name.Length > VfsFile.MaxNameLength)
                 throw new ArgumentException("The directory-name can't be longer than " + VfsFile.MaxNameLength + ".");
             int address;
@@ -108,7 +114,7 @@ namespace VFS.VFS
             if (parent == null)
                 throw new ArgumentNullException("parent");
 
-            var writer = disk.getWriter();
+            var writer = disk.GetWriter();
 
             // Write Directory Header
             writer.Seek(disk, address);

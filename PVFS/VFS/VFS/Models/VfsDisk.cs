@@ -6,45 +6,38 @@ using VFS.VFS.Extensions;
 
 namespace VFS.VFS.Models
 {
-    public class VfsDisk {
-        public string Password { get; set; }
-        public FileStream Stream { get; set; }
+    public sealed class VfsDisk : IDisposable{
+        private string Password { get; set; }
+        public FileStream Stream { get; private set; }
         public VfsDisk(string path, DiskProperties properties, string pw) {
-            if (path.EndsWith("\\"))
-            {
-                Stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            }
-            else
-            {
-                Stream = File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-            }
+            Stream = path.EndsWith("\\") ? File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite) : File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-            Writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
-            Reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
+            _writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
+            _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
             Path = path;
             Password = pw;
             DiskProperties = properties;
-            bitMap = new BitArray(properties.NumberOfBlocks, true);
+            BitMap = new BitArray(properties.NumberOfBlocks, true);
         }
 
 
         public void Init()
         {
-            root = EntryFactory.OpenEntry(this, DiskProperties.RootAddress, null) as VfsDirectory;
+            Root = EntryFactory.OpenEntry(this, DiskProperties.RootAddress, null) as VfsDirectory;
             InitBitArray();
         }
 
-        public void InitBitArray()
+        private void InitBitArray()
         {
-            Reader.Seek(this, 0, DiskProperties.BitMapOffset);
+            _reader.Seek(this, 0, DiskProperties.BitMapOffset);
             var buffer = new byte[(int)Math.Ceiling(DiskProperties.NumberOfBlocks/8d)];
-            Reader.Read(buffer, 0, buffer.Length);
+            _reader.Read(buffer, 0, buffer.Length);
             var temp = new BitArray(buffer);
             for (var i = 0; i < Math.Ceiling(DiskProperties.NumberOfBlocks / 8d); i++)
             {
                 for (var j = 0; j < DiskProperties.NumberOfBlocks - 8 * i; j++)
                 {
-                    bitMap[8*i + j] = temp[8*i + (7 - j)];
+                    BitMap[8*i + j] = temp[8*i + (7 - j)];
                     if (j == 7)
                     {
                         break;
@@ -53,26 +46,31 @@ namespace VFS.VFS.Models
             }
         }
 
-        public BinaryReader Reader;
-        public BinaryWriter Writer;
-        public BitArray bitMap;
-        public DiskProperties DiskProperties { get; set; }
-        private string Path { get; set; }
+        private readonly BinaryReader _reader;
+        private readonly BinaryWriter _writer;
+        public readonly BitArray BitMap;
+        public DiskProperties DiskProperties { get; private set; }
 
-        public BinaryReader getReader() 
+        private static string Path
         {
-            return Reader;
+            set { if (value == null) throw new ArgumentNullException("value"); }
         }
-        public BinaryWriter getWriter()
+
+        public BinaryReader GetReader() 
         {
-            return Writer;
+            return _reader;
+        }
+        public BinaryWriter GetWriter()
+        {
+            return _writer;
         } 
 
-        public bool isFull() {
+        public bool IsFull() {
             return DiskProperties.NumberOfBlocks == DiskProperties.NumberOfUsedBlocks;
         }
 
-        public VfsDirectory root;
+        public VfsDirectory Root;
+
         #region Block
         /// <summary>
         /// This method will seek the first free block and allocate it.
@@ -82,9 +80,9 @@ namespace VFS.VFS.Models
         public bool Allocate(out int address)
         {
             address = 0;
-            for (var i = 0; i < bitMap.Length; i++)
+            for (var i = 0; i < BitMap.Length; i++)
             {
-                if (!bitMap[i])
+                if (!BitMap[i])
                 {
                     address = i;
                     break;
@@ -94,11 +92,11 @@ namespace VFS.VFS.Models
             {
                 return false;
             }
-            bitMap[address] = true;
+            BitMap[address] = true;
             SetBit(true, address%8, DiskProperties.BitMapOffset + address/8, 0);
             DiskProperties.NumberOfUsedBlocks++;
-            Writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
-            Writer.Write(DiskProperties.NumberOfUsedBlocks);
+            _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
+            _writer.Write(DiskProperties.NumberOfUsedBlocks);
             return true;
         }
 
@@ -111,10 +109,10 @@ namespace VFS.VFS.Models
         /// <param name="address">the address as a base for the offset</param>
         private void SetBit(bool value, int bitIndex, int byteIndex, int address)
         {
-            Reader.Seek(this, address, byteIndex);
+            _reader.Seek(this, address, byteIndex);
 
             var buffer = new byte[1];
-            Reader.Read(buffer, 0, 1);
+            _reader.Read(buffer, 0, 1);
 
             var existingValue = buffer[0];
             if (value)
@@ -125,8 +123,8 @@ namespace VFS.VFS.Models
             {
                 existingValue &= (byte)(255 - (byte) Math.Pow(2, 7 - bitIndex));
             }
-            Writer.Seek(this, address, byteIndex);
-            Writer.Write(existingValue);
+            _writer.Seek(this, address, byteIndex);
+            _writer.Write(existingValue);
 
         }
 
@@ -144,43 +142,43 @@ namespace VFS.VFS.Models
         public void Free(int address) 
         {
             SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
-            bitMap[address] = false;
+            BitMap[address] = false;
             DiskProperties.NumberOfUsedBlocks--;
-            Writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
-            Writer.Write(DiskProperties.NumberOfUsedBlocks);
+            _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
+            _writer.Write(DiskProperties.NumberOfUsedBlocks);
         }
 
         public void Move(int srcAddress, int dstAddress)
         {
             Free(srcAddress);
-            Reader.Seek(this, srcAddress, FileOffset.ParentAddress);
-            var parentId = Reader.ReadInt32();
-            Reader.Seek(this, parentId, FileOffset.Header);
+            _reader.Seek(this, srcAddress, FileOffset.ParentAddress);
+            var parentId = _reader.ReadInt32();
+            _reader.Seek(this, parentId, FileOffset.Header);
             var offset = FileOffset.Header / 4;
-            while (Reader.ReadInt32() != srcAddress)
+            while (_reader.ReadInt32() != srcAddress)
             {
                 offset++;
                 if (offset*4 > DiskProperties.BlockSize)
                 {
-                    Reader.Seek(this, parentId, FileOffset.NextBlock);
-                    parentId = Reader.ReadInt32();
+                    _reader.Seek(this, parentId, FileOffset.NextBlock);
+                    parentId = _reader.ReadInt32();
                     if (parentId == 0)
                     {
                         throw new DirectoryNotFoundException("parent did not contain desired file");
                     }
-                    Reader.Seek(this, parentId, FileOffset.SmallHeader);
+                    _reader.Seek(this, parentId, FileOffset.SmallHeader);
                     offset = FileOffset.SmallHeader/4;
                     break;
                 }
             }
-            Writer.Seek(this, parentId, offset*4);
-            Writer.Write(dstAddress);
+            _writer.Seek(this, parentId, offset*4);
+            _writer.Write(dstAddress);
 
             var buffer = new byte[DiskProperties.BlockSize];
-            Reader.Seek(this, srcAddress);
-            Reader.Read(buffer, 0, DiskProperties.BlockSize);
-            Writer.Seek(this, dstAddress);
-            Writer.Write(buffer);
+            _reader.Seek(this, srcAddress);
+            _reader.Read(buffer, 0, DiskProperties.BlockSize);
+            _writer.Seek(this, dstAddress);
+            _writer.Write(buffer);
         }
         #endregion
 
@@ -189,6 +187,12 @@ namespace VFS.VFS.Models
         public int BlockSize
         {
             get { return DiskProperties.BlockSize; }
+        }
+
+        public void Dispose()
+        {
+            _reader.Close();
+            _writer.Close();
         }
     }
 }

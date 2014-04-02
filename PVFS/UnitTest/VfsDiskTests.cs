@@ -22,7 +22,7 @@ namespace UnitTest
             string name;
             string path;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 2048, 1024);
-            Debug.Assert(disk.isFull());
+            Debug.Assert(disk.IsFull());
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@ namespace UnitTest
             string name;
             string path;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 4096, 1024);
-            Debug.Assert(!disk.isFull());
+            Debug.Assert(!disk.IsFull());
         }
     }
 }

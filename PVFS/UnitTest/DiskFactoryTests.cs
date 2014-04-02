@@ -70,7 +70,6 @@ namespace UnitTest
             var createdDisk = createTestDisk(out path, out name);
             createdDisk.Stream.Close();
             var disk = DiskFactory.Load(path, null);
-            Debug.Assert(createdDisk.DiskProperties.BitMapOffset == disk.DiskProperties.BitMapOffset);
             Debug.Assert(createdDisk.DiskProperties.BlockSize == disk.DiskProperties.BlockSize);
             Debug.Assert(createdDisk.DiskProperties.MaximumSize == disk.DiskProperties.MaximumSize);
             Debug.Assert(createdDisk.DiskProperties.NumberOfBlocks == disk.DiskProperties.NumberOfBlocks);
@@ -107,7 +106,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidPathException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void TestLoadException()
         {
             DiskFactory.Load("X::\\Test.vdi", "");
@@ -131,7 +130,7 @@ namespace UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DiskNotFoundException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void TestRemoveDiskFailure()
         {
             string path;

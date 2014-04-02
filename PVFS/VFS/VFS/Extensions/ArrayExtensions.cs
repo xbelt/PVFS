@@ -1,16 +1,7 @@
-﻿using System;
-
-namespace VFS.VFS
+﻿namespace VFS.VFS
 {
     static class ArrayExtensions
     {
-        public static T[] SubArray<T>(this T[] data, int index, int length)
-        {
-            var result = new T[length];
-            Array.Copy(data, index, result, 0, length);
-            return result;
-        }
-
         public static int IndexOf<T>(this T[] arr, T value)
         {
             for (int i = 0; i < arr.Length; i++)

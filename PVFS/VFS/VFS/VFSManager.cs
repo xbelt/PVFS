@@ -57,7 +57,7 @@ namespace VFS.VFS
             if (i == -1)
             {
                 var diskRoot = getDisk(path.Substring(1));
-                last = diskRoot.root;
+                last = diskRoot.Root;
                 //TODO: return null if disk null
                 remaining = new List<string>();
                 return last;
@@ -100,7 +100,7 @@ namespace VFS.VFS
             if (path == null)
                 throw new ArgumentNullException("path");
 
-            VfsDirectory current = disk.root;
+            VfsDirectory current = disk.Root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
                 throw new ArgumentException("Path not valid");
@@ -175,7 +175,7 @@ namespace VFS.VFS
         {
             _disks.Add(disk);
             CurrentDisk = disk;
-            workingDirectory = disk.root;
+            workingDirectory = disk.Root;
 
             Console.Message("Opened disk " + disk.DiskProperties.Name + ".");
         }
@@ -185,8 +185,8 @@ namespace VFS.VFS
             var unmountedDisks = _disks.Where(x => x.DiskProperties.Name == name).ToList();
             foreach (var unmountedDisk in unmountedDisks)
             {
-                unmountedDisk.getReader().Close();
-                unmountedDisk.getWriter().Close();
+                unmountedDisk.GetReader().Close();
+                unmountedDisk.GetWriter().Close();
 
                 Console.Message("Closed disk " + unmountedDisk.DiskProperties.Name + ".");
                 _disks.Remove(unmountedDisk);
@@ -273,7 +273,7 @@ namespace VFS.VFS
             VfsEntry entry;
             if (path.IndexOf("/", 1) == -1)
             {
-                entry = CurrentDisk.root;
+                entry = CurrentDisk.Root;
             }
             else
             {
@@ -630,7 +630,7 @@ namespace VFS.VFS
             return returnPath;
         }
 
-        public static void Decompress(FileInfo fileToDecompress, string type)
+        public static void Decompress(FileInfo fileToDecompress)
         {
             using (FileStream originalFileStream = fileToDecompress.OpenRead())
             {
@@ -682,7 +682,7 @@ namespace VFS.VFS
                 //Check that it's not the disk we've opened
                 //TODO: this is not entirely correct but I haven't found a better method...
                 var lastName = src.Substring(src.LastIndexOf('\\') + 1);
-                if ((dstDir.Disk.root.Name + ".vdi").Equals(lastName))
+                if ((dstDir.Disk.Root.Name + ".vdi").Equals(lastName))
                 {
                     Console.Message("You're not allowed to import the currently opened disk. Aborted import.");
                     return;
@@ -818,7 +818,7 @@ namespace VFS.VFS
             {
                 var disk = getDisk(src.Substring(1, src.Length -1));
                 if (disk == null) { Console.Message("disk is null");}
-                ExportDirectory(dst, disk.root, true);
+                ExportDirectory(dst, disk.Root, true);
                 return;
             }
             //get entry to export
@@ -843,10 +843,10 @@ namespace VFS.VFS
         {
             //Get the entry to export and its name
             if (toExport == null) 
-                throw new NullReferenceException("The file to export is null.");
+                throw new ArgumentNullException("The file to export is null.");
             var entryName = toExport.Name;
             if (entryName == null) //TODO: probably useless check
-               throw new NullReferenceException("Name of file is null.");
+               throw new ArgumentNullException("Name of file is null.");
             
             //Create the path to destination (non existent folders are automatically created)
             Directory.CreateDirectory(dst);
@@ -880,8 +880,7 @@ namespace VFS.VFS
            
             //Decompress file
             var toDecompress = new FileInfo(completePath);
-            var typeExtension = toExport.Type;
-            Decompress(toDecompress, typeExtension);
+            Decompress(toDecompress);
 
             //Delete compressed file
             File.Delete(toDecompress.FullName);
@@ -936,7 +935,7 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
-                if (entry == entry.Disk.root)
+                if (entry == entry.Disk.Root)
                 {
                     Console.Message("You're not allowed to delete the root directory.");
                     return;
@@ -975,7 +974,7 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
-                if (entry == entry.Disk.root) 
+                if (entry == entry.Disk.Root) 
                 {
                     Console.Message("You're not allowed to delete the root directory.");
                     return;
@@ -1039,16 +1038,16 @@ namespace VFS.VFS
             //TODO: this is not optimal in case: 1110000001 -> 1110000010
             var numberOfUnusedBlocks = 0;
             var lastUsedBlockAddress = 0;
-            for (var i = 0; i < CurrentDisk.bitMap.Count; i++)
+            for (var i = 0; i < CurrentDisk.BitMap.Count; i++)
             {
-                if (CurrentDisk.bitMap[i])
+                if (CurrentDisk.BitMap[i])
                 {
                     lastUsedBlockAddress = i;
                 }
             }
             for (var i = 0; i < lastUsedBlockAddress; i++)
             {
-                if (!CurrentDisk.bitMap[i])
+                if (!CurrentDisk.BitMap[i])
                 {
                     numberOfUnusedBlocks++;
                 }
@@ -1064,15 +1063,15 @@ namespace VFS.VFS
                 {
                     break;
                 }
-                if (CurrentDisk.bitMap[i])
+                if (CurrentDisk.BitMap[i])
                 {
                     CurrentDisk.Move(i, addresses[numberOfUnusedBlocks--]);
                 }
             }
 
-            for (var i = 0; i < CurrentDisk.bitMap.Count; i++)
+            for (var i = 0; i < CurrentDisk.BitMap.Count; i++)
             {
-                if (CurrentDisk.bitMap[i])
+                if (CurrentDisk.BitMap[i])
                 {
                     lastUsedBlockAddress = i;
                 }

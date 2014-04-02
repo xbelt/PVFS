@@ -16,7 +16,7 @@ namespace UnitTest
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
             Debug.Assert(VFSManager.CurrentDisk == disk);
-            Debug.Assert(VFSManager.workingDirectory == disk.root);
+            Debug.Assert(VFSManager.workingDirectory == disk.Root);
             disk.Stream.Close();
         }
 
