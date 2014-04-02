@@ -841,38 +841,6 @@ namespace VFS.VFS
                 ImportDirectory(subDir, newDir);
             }
         }
-        private static VfsEntry GetEntryIfPathValid(string dst)
-        {
-            if (dst == null) throw new ArgumentNullException("dst");
-
-            //Check if path is valid and correct it if not.
-            bool dstHasBeenChanged;
-            bool isValid;
-
-            var dstDir = getEntry(dst); 
-            if (dstDir != null)
-            {
-                Console.Message(dstDir.Name + "is the destination Directory.");
-                if (dstDir.IsDirectory)
-                    return dstDir;
-                //Destination is not a directory
-                Console.Message("Your destination does not lead to a directory:\n" + dst);
-                Console.Message("Please enter a valid path. Operation is aborted.");
-                return null;
-            }
-            //Destination was invalid
-            Console.Message("Invalid destination. Do you want to create the path: " + dst);
-            var answer = Console.Query("Write 'Ok' or 'Cancel'.", "Ok", "Cancel");
-            if (answer == 0) //Ok
-            {
-                CreateDirectory(dst, true);
-                Console.Message("Created the following path:" + ((VfsFile) getEntry(dst)).GetAbsolutePath());
-                //Get entry again so it's not null
-                return getEntry(dst);
-            }
-            Console.Message("Aborted operation.");
-            return null;
-        }
 
         /// <summary>
         /// Writes a VfsFile to the location indicated by dst in the host-file from src
