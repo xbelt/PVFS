@@ -45,9 +45,9 @@ namespace UnitTest
             string path;
             var disk = DiskFactoryTests.createTestDisk(out path);
             VFSManager.AddAndOpenDisk(disk);
-            VFSManager.CreateDirectory("/a/b/c", true);
-            VFSManager.ChangeWorkingDirectory("/a/b/c");
-            Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/a/b/c");
+            VFSManager.CreateDirectory("/b/b/c", true);
+            VFSManager.ChangeWorkingDirectory("/b/b/c");
+            Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/b/b/c");
         }
 
 
