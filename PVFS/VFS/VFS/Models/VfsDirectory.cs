@@ -107,56 +107,6 @@ namespace VFS.VFS.Models
             return this.GetEntries().FirstOrDefault(entry => entry.Name.Equals(name));
         }
         
-        /*
-        /// <summary>
-        /// Stores the directory to disk.
-        /// </summary>
-        private void Store()
-        {
-            //TODO: L store also new name in case of rename and other properties
-            if (noEntries == GetEntries().Count)
-            {
-                throw new Exception("Why did you call Store when nothing has changed?");
-            }
-            var writer = Disk.getWriter();
-            var reader = Disk.getReader();
-            int doneEntriesInCurrentBlock = 0, totalEntries = 0, blockNumber = 0, currentBlockAddress = Address;
-            writer.Seek(Disk, Address, HeaderSize);
-            FileSize = elements.Count;
-            writer.Seek(Disk, Address, FileOffset.FileSize);
-            writer.Write(FileSize);
-            while (totalEntries < FileSize)
-            {
-                writer.Write(elements[totalEntries].Address);
-                totalEntries++;
-                doneEntriesInCurrentBlock++;
-
-                // Current Block exhausted?
-                if (doneEntriesInCurrentBlock >= (Disk.BlockSize - HeaderSize) / 4 && totalEntries != FileSize)
-                {
-                    blockNumber++;
-                    if (blockNumber > NoBlocks)
-                    {
-                        int next;
-                        Disk.Allocate(out next);
-                        writer.Seek(Disk, currentBlockAddress);
-                        writer.Write(next);
-                        writer.Seek(Disk, Address, FileOffset.NumberOfBlocks);
-                        writer.Write(++NoBlocks);
-                        writer.Seek(Disk, next, SmallHeaderSize);
-                    }
-                    else
-                    {
-                        reader.Seek(Disk, currentBlockAddress);
-                        currentBlockAddress = reader.ReadInt32();
-                    }
-
-                    doneEntriesInCurrentBlock = 0;
-                }
-            }
-            writer.Flush();
-        }*/
-
         /// <summary>
         /// Lists all SubDirectories.
         /// </summary>
@@ -200,41 +150,6 @@ namespace VFS.VFS.Models
                 return null;
         }
         
-        /*
-        /// <summary>
-        /// Recursively looks for a name.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public VfsFile GetFileCheckingSubDirectories(string name)
-        {
-            VfsFile result;
-            if (name == null)
-                throw new Exception("argument 'name' was null");
-            if (GetEntries().Count <= 0)
-                throw new Exception("Elements.Count was < 1");//TODO F: This is no good for a recursive method!
-
-            foreach (VfsFile element in elements)
-            {
-                if (element.IsDirectory)
-                {
-                    var dir = (VfsDirectory)element;
-                    result = dir.GetFileCheckingSubDirectories(name);
-                    if (result != null)
-                        return result;
-                }
-                else
-                {
-                    if (element.Name.Equals(name))
-                    {
-                        return element;
-                    }
-                }
-            }
-            throw new Exception("File " + name + " was not found");
-        }
-        */
-
         /// <summary>
         /// Adds an element to this directory. If it was already contained this does nothing.
         /// Throws an exception if there is not enough space on the disk to add this element.
