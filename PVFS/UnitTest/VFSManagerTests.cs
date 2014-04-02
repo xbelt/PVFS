@@ -57,25 +57,68 @@ namespace UnitTest
         [TestMethod]
         public void TestGetEntryPathOnlineFile()
         {
-            
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+            VFSManager.AddAndOpenDisk(disk);
+            var file = VFSManager.CreateFile("/b/testFile");
+            var readFile = VFSManager.getEntry("/b/testFile");
+            Debug.Assert(file == readFile);
         }
 
         [TestMethod]
         public void TestGetEntryPathOnlineFolder()
         {
-            
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/b/testFolder", true);
+            var readFile = VFSManager.getEntry("/b/testFolder");
+            var directoryFile = readFile as VfsDirectory;
+            Debug.Assert(readFile.IsDirectory);
+            Debug.Assert(readFile.Address == 2);
+            Debug.Assert(readFile.Name == "testFolder");
+            Debug.Assert(directoryFile.Parent.Address
+                 == 1);
+
         }
 
         [TestMethod]
         public void TestGetEntryPathOfflineFile()
         {
-
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+            VFSManager.AddAndOpenDisk(disk);
+            var file = VFSManager.CreateFile("/b/testFile");
+            VFSManager.UnloadDisk("b");
+            disk = DiskFactory.Load(path, null);
+            VFSManager.AddAndOpenDisk(disk);
+            var readFile = VFSManager.getEntry("/b/testFile");
+            var newFile = readFile as VfsFile;
+            Debug.Assert(readFile != null);
+            Debug.Assert(file.Parent.Address == newFile.Parent.Address);
+            Debug.Assert(file.Address == newFile.Address);
+            Debug.Assert(file.IsDirectory == newFile.IsDirectory);
+            Debug.Assert(file.Name == newFile.Name);
         }
 
         [TestMethod]
         public void TestGetEntryPathOfflineFolder()
         {
-
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/b/testDir", true);
+            var file = VFSManager.getEntry("/b/testDir") as VfsDirectory;
+            VFSManager.UnloadDisk("b");
+            disk = DiskFactory.Load(path, null);
+            VFSManager.AddAndOpenDisk(disk);
+            var readFile = VFSManager.getEntry("/b/testDir");
+            var newDirectory = readFile as VfsDirectory;
+            Debug.Assert(readFile != null);
+            Debug.Assert(file.Parent.Address == newDirectory.Parent.Address);
+            Debug.Assert(file.Address == newDirectory.Address);
+            Debug.Assert(file.IsDirectory == newDirectory.IsDirectory);
+            Debug.Assert(file.Name == newDirectory.Name);
         }
 
         [TestMethod]
