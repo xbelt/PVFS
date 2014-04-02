@@ -469,7 +469,11 @@ namespace VFS.VFS
             {
                 src.Parent.RemoveElement(src);
                 dst.AddElement(src);
+
             }
+
+            src.Parent = dst;
+            src.UpdateFileHeader();
 
             Console.Message("Moved  " + srcPath + " to " + dstPath + ".");
         }
