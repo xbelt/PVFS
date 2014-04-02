@@ -32,7 +32,7 @@ namespace UnitTest
 
             var accessor = new PrivateType(typeof (VFSManager));
             accessor.InvokeStatic("AddAndOpenDisk", new [] {disk});
-            var result = accessor.InvokeStatic("getDisk", new[] {"b"});
+            var result = accessor.InvokeStatic("getDisk", new[] {name});
             Debug.Assert(result == disk);
             disk.Stream.Close();
         }
@@ -61,8 +61,8 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
-            var file = VFSManager.CreateFile("/b/testFile");
-            var readFile = VFSManager.getEntry("/b/testFile");
+            var file = VFSManager.CreateFile("/" + name + "/testFile");
+            var readFile = VFSManager.getEntry("/" + name + "/testFile");
             Debug.Assert(file == readFile);
         }
 
@@ -73,8 +73,8 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
-            VFSManager.CreateDirectory("/b/testFolder", true);
-            var readFile = VFSManager.getEntry("/b/testFolder");
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            var readFile = VFSManager.getEntry("/" + name + "/testFolder");
             var directoryFile = readFile as VfsDirectory;
             Debug.Assert(readFile.IsDirectory);
             Debug.Assert(readFile.Address == 2);
@@ -91,11 +91,11 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
-            var file = VFSManager.CreateFile("/b/testFile");
-            VFSManager.UnloadDisk("b");
+            var file = VFSManager.CreateFile("/" + name + "/testFile");
+            VFSManager.UnloadDisk(name);
             disk = DiskFactory.Load(path, null);
             VFSManager.AddAndOpenDisk(disk);
-            var readFile = VFSManager.getEntry("/b/testFile");
+            var readFile = VFSManager.getEntry("/" + name + "/testFile");
             var newFile = readFile as VfsFile;
             Debug.Assert(readFile != null);
             Debug.Assert(file.Parent.Address == newFile.Parent.Address);
@@ -111,12 +111,12 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
-            VFSManager.CreateDirectory("/b/testDir", true);
-            var file = VFSManager.getEntry("/b/testDir") as VfsDirectory;
-            VFSManager.UnloadDisk("b");
+            VFSManager.CreateDirectory("/" + name + "/testDir", true);
+            var file = VFSManager.getEntry("/" + name + "/testDir") as VfsDirectory;
+            VFSManager.UnloadDisk(name);
             disk = DiskFactory.Load(path, null);
             VFSManager.AddAndOpenDisk(disk);
-            var readFile = VFSManager.getEntry("/b/testDir");
+            var readFile = VFSManager.getEntry("/" + name + "/testDir");
             var newDirectory = readFile as VfsDirectory;
             Debug.Assert(readFile != null);
             Debug.Assert(file.Parent.Address == newDirectory.Parent.Address);
