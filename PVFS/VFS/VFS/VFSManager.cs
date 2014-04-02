@@ -59,7 +59,11 @@ namespace VFS.VFS
             {
                 var diskRoot = getDisk(path.Substring(1));
                 if (diskRoot == null)
+                {
+                    last = null;
+                    remaining = null;
                     return null;
+                }
                 last = diskRoot.Root;
                 remaining = new List<string>();
                 return last;
@@ -941,12 +945,12 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
-                if (entry == entry.Disk.Root)
+               /* if (entry == entry.Disk.Root)
                 {
                     Console.Message("You're not allowed to delete the root directory.");
                     return;
-                }
-                var files = ((VfsDirectory)entry).GetFiles();
+                } */
+                var files = ((VfsDirectory)entry).GetFiles().ToList();
                 foreach (var file in files)
                 {
                     file.Free();
@@ -955,7 +959,7 @@ namespace VFS.VFS
                 //TODO: we get an exception here. System.InvalidOperationException: 
                 //Die Auflistung wurde geändert. Der Enumerationsvorgang kann möglicherweise 
                 //nicht ausgeführt werden.
-                foreach (var directory in directories)
+                foreach (var directory in directories.ToList())
                 {
                     Console.Message("Removing " + directory.GetAbsolutePath());
                     Remove(directory.GetAbsolutePath());
@@ -980,18 +984,18 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
-                if (entry == entry.Disk.Root) 
+                /*if (entry == entry.Disk.Root) 
                 {
                     Console.Message("You're not allowed to delete the root directory.");
                     return;
-                }
+                } */
                 var files = ((VfsDirectory)entry).GetFiles();
                 foreach (var file in files)
                 {
                     file.Free();
                 }
                 var directories = ((VfsDirectory)entry).GetDirectories();
-                foreach (var directory in directories)
+                foreach (var directory in directories.ToList())
                 {
                     Remove(directory.GetAbsolutePath());
                 }
