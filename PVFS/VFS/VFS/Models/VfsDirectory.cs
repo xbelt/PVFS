@@ -8,7 +8,7 @@ namespace VFS.VFS.Models
 {
     /*
  * NextBlock 4
- * StartBlock 4
+ * Parent 4
  * NrOfChildren 4
  * NoBlocks 4
  * Directory 1
