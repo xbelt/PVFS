@@ -310,7 +310,7 @@ namespace VFS.VFS.Models
             if (this.IsDirectory)
                 throw new ArgumentException("This can't be called on a directory!");
 
-            VfsFile copy = EntryFactory.createFile(this.Disk, this.Name, this.FileSize, destination);
+            VfsFile copy = EntryFactory.createFile(this.Disk, copyName, this.FileSize, destination);
 
             BinaryReader reader = this.Disk.getReader();
             BinaryWriter writer = this.Disk.getWriter();
