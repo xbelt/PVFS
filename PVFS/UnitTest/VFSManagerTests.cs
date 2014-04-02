@@ -199,5 +199,18 @@ namespace UnitTest
             VFSManager.CreateDirectory("/" + name + "/testFolder", true);
             var readFile = VFSManager.getAbsolutePath(null);
         }
+
+        [TestMethod]
+        public void TestRemoveDirectory()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 6000, 300);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            VFSManager.CreateDirectory("/" + name + "/testFolder/b", true);
+            VFSManager.CreateFile("/" + name + "/testFolder/a");
+            VFSManager.Remove("/" + name + "/testFolder");
+        }
     }
 }
