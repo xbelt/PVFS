@@ -848,24 +848,6 @@ namespace VFS.VFS
             //Check if path is valid and correct it if not.
             bool dstHasBeenChanged;
             bool isValid;
-        /*    var correctedDst = ConvertToValidString(dst, out dstHasBeenChanged, out isValid);
-            VfsEntry dstDir;
-            if (isValid)
-            {
-                dstDir = getEntry(dst); //Could also be correctedDst, doesn't matter in this case.
-            }
-            else
-            {
-                if (dstHasBeenChanged)
-                {
-                    dstDir = getEntry(correctedDst);
-                }
-                else
-                {
-                    Console.Message("You're not allowed to use invalid names. Aborted operation.");
-                    return null;
-                }
-            } */
 
             var dstDir = getEntry(dst); 
             if (dstDir != null)
@@ -1041,6 +1023,9 @@ namespace VFS.VFS
                     file.Free();
                 }
                 var directories = ((VfsDirectory)entry).GetDirectories();
+                //TODO: we get an exception here. System.InvalidOperationException: 
+                //Die Auflistung wurde geändert. Der Enumerationsvorgang kann möglicherweise 
+                //nicht ausgeführt werden.
                 foreach (var directory in directories)
                 {
                     Console.Message("Removing " + directory.GetAbsolutePath());
@@ -1056,7 +1041,7 @@ namespace VFS.VFS
         // copy
         public static void RemoveByIdentifier(string ident)
         {
-            var entry = getEntry(CurrentDisk, workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
+            var entry = getEntry(workingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
 
             if (entry == null)
             {
