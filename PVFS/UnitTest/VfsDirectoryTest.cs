@@ -58,7 +58,7 @@ namespace UnitTest
 
             VfsDirectory dir = (VfsDirectory)e;
 
-            Debug.Assert(dir.GetEntries().Count == 100);
+            Debug.Assert(dir.GetEntries().Count == 99);
             for (int i = 0; i < 100; i++)
             {
                 if (i==33) continue;

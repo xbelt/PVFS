@@ -372,9 +372,9 @@ namespace VFS.VFS.Models
         public override string ToString()
         {
             if (IsLoaded)
-                return "{Directory(loaded): Children:" + noEntries + " Address:" + Address + " Blocks:" + NoBlocks + "}";
+                return "{Directory(loaded): Name:" + Name + " Children:" + noEntries + " Address:" + Address + " Blocks:" + NoBlocks + "}";
             else
-                return "{Directory: Children:" + noEntries + " Address:" + Address + " Blocks:" + NoBlocks + "}";
+                return "{Directory: Name:" + Name + " Children:" + noEntries + " Address:" + Address + " Blocks:" + NoBlocks + "}";
         }
     }
 }
