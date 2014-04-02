@@ -202,7 +202,16 @@ namespace VFS.VFS
                 Console.Error("This disk already exists");
                 return;
             }
-            
+            if (blockSize%4 != 0 || blockSize <= FileOffset.Header)
+            {
+                Console.Error("Blocksize must be a multiple of 4 and larger than 128!");
+                return;
+            }
+            if (size < blockSize || size/blockSize < 5)
+            {
+                Console.Error("The disk must at least hold 5 blocks.");
+                return;
+            }
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
             AddAndOpenDisk(disk);
         }
