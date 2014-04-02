@@ -16,5 +16,21 @@ namespace UnitTest
             Debug.Assert(!disk.Allocate(out address));
             Debug.Assert(address == 0);
         }
+
+        [TestMethod]
+        public void TestIsFullTrue() {
+            string name;
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 2048, 1024);
+            Debug.Assert(disk.isFull());
+        }
+
+        [TestMethod]
+        public void TestIsFullFalse() {
+            string name;
+            string path;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 4096, 1024);
+            Debug.Assert(!disk.isFull());
+        }
     }
 }
