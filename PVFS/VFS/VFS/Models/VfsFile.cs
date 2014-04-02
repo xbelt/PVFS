@@ -207,6 +207,24 @@ namespace VFS.VFS.Models
         }
 
         /// <summary>
+        /// Updates the file headers with the current data
+        /// </summary>
+        public void UpdateFileHeader()
+        {
+            var writer = Disk.getWriter();
+            // Write File Header
+            writer.Seek(Disk, Address);
+            writer.Write(NextBlock);
+            writer.Write(FileSize);
+            writer.Write(NoBlocks);
+            writer.Write(false);
+            writer.Write(Parent.Address);
+            writer.Write((byte)Name.Length);
+            writer.Write(Name.ToCharArray());
+            writer.Flush();
+        }
+
+        /// <summary>
         /// reads the content of this vFile and writes it to the supplied BinaryWriter.
         /// </summary>
         public void Read(BinaryWriter writer)
