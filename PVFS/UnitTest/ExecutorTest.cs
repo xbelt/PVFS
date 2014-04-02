@@ -1,6 +1,9 @@
-﻿namespace UnitTest
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace UnitTest
 {
-    class ExecutorTest
+    [TestClass]
+    public class ExecutorTest
     {
     }
 }
