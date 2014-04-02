@@ -348,5 +348,13 @@ namespace VFS.VFS.Models
             }
             return 1;
         }
+
+        public override string ToString()
+        {
+            if (IsLoaded)
+                return "{File(loaded): Address:" + Address + " Size:" + FileSize + " Blocks:" + NoBlocks + "}";
+            else
+                return "{FIle: Address:" + Address + " Size:" + FileSize + " Blocks:" + NoBlocks + "}";
+        }
     }
 }

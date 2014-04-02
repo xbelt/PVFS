@@ -368,5 +368,13 @@ namespace VFS.VFS.Models
             writer.Flush();
             return true;
         }
+
+        public override string ToString()
+        {
+            if (IsLoaded)
+                return "{Directory(loaded): Children:" + noEntries + " Address:" + Address + " Blocks:" + NoBlocks + "}";
+            else
+                return "{Directory: Children:" + noEntries + " Address:" + Address + " Blocks:" + NoBlocks + "}";
+        }
     }
 }
