@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UnitTest
 {
-    class VfsEntry
+    class VfsEntryTest
     {
     }
 }
