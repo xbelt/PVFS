@@ -113,11 +113,10 @@ namespace VFS.VFS
             // Write Directory Header
             writer.Seek(disk, address);
             writer.Write(0);
-            writer.Write(address);
+            writer.Write(parent.Address);
             writer.Write(0);
             writer.Write(1);
             writer.Write(true);
-            writer.Write(parent.Address);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
             writer.Flush();
