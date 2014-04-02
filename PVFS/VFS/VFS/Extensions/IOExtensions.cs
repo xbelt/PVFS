@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using VFS.VFS.Models;
 
 namespace VFS.VFS.Extensions
 {
-    static class IOExtensions
+    public static class IOExtensions
     {
         /// <summary>
         /// Sets the position in the current stream according to the block address of the disk.

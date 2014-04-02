@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace VFS.VFS.Models {
+﻿namespace VFS.VFS.Models {
     public class Block {
         public Block(int address, Block nextBlock)
         {
