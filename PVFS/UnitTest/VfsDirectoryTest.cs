@@ -14,8 +14,8 @@ namespace UnitTest
 
         public static string PrepareDisk(int blocksize, int size)
         {
-            VFSManager
             DiskFactory.Create(new DiskInfo(wDir, "dirTest", size, blocksize), null);
+            return "";
         }
 
         public void TestAddEntry()
