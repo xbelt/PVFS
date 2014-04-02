@@ -212,5 +212,53 @@ namespace UnitTest
             VFSManager.CreateFile("/" + name + "/testFolder/a");
             VFSManager.Remove("/" + name + "/testFolder");
         }
+
+        [TestMethod]
+        public void TestRemoveDirectoryByIdent()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 6000, 300);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            VFSManager.CreateDirectory("/" + name + "/testFolder/b", true);
+            VFSManager.CreateFile("/" + name + "/testFolder/a");
+            VFSManager.RemoveByIdentifier("testFolder");
+        }
+
+        [TestMethod]
+        public void TestDefrag()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 6000, 300);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateFile("/" + name + "/a");
+            VFSManager.CreateFile("/" + name + "/b");
+            VFSManager.CreateFile("/" + name + "/c");
+            VFSManager.Remove("/" + name + "/a");
+            VFSManager.Defrag();
+        }
+
+        [TestMethod]
+        public void TestGetFreeSpace()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 900, 300);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.GetFreeSpace();
+            VFSManager.GetOccupiedSpace();
+        }
+
+        [TestMethod]
+        public void TestExit()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 900, 300);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.Exit();
+        }
     }
 }
