@@ -13,7 +13,8 @@ namespace UnitTest
         public void TestAddEntry()
         {
             string path, name;
-            VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 103 * 200, 200);
+            VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 106 * 200, 200);
+            VFSManager.AddAndOpenDisk(disk);
 
             for (int i = 0; i < 100; i++)
             {
@@ -40,6 +41,7 @@ namespace UnitTest
         {
             string path, name;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
+            VFSManager.AddAndOpenDisk(disk);
 
             for (int i = 0; i < 100; i++)
             {
