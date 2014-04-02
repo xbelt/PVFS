@@ -47,8 +47,10 @@ namespace UnitTest
             {
                 VFSManager.CreateFile("/" + name + "/" + i);
             }
-
-            VFSManager.Remove("/"+name+"/33");
+            for (int i = 0; i < 41; i++)
+            {
+                VFSManager.Remove("/" + name + "/" + (33 + i));
+            }
 
             VfsEntry e = EntryFactory.OpenEntry(disk, disk.root.Address, null);
 
@@ -58,10 +60,10 @@ namespace UnitTest
 
             VfsDirectory dir = (VfsDirectory)e;
 
-            Debug.Assert(dir.GetEntries().Count == 99);
+            Debug.Assert(dir.GetEntries().Count == 59);
             for (int i = 0; i < 100; i++)
             {
-                if (i==33) continue;
+                if (i>=33&& i<74) continue;
                 Debug.Assert(dir.GetFile(""+i) != null);
             }
         }
