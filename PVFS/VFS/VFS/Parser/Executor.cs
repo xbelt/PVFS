@@ -202,14 +202,15 @@ namespace VFS.VFS.Parser
             if (context.sys != null)
             {
                 files = Directory.EnumerateFiles(context.sys.Text, "*.vdi");
+
+                foreach (var file in files)
+                {
+                    VFSManager.Console.Message(file);
+                }
             }
             else
             {
-                files = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.vdi");
-            }
-            foreach (var file in files)
-            {
-                VFSManager.Console.Message(file);
+                VFSManager.ListDisks();
             }
         }
 

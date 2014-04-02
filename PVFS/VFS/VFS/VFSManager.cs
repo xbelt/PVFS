@@ -163,6 +163,14 @@ namespace VFS.VFS
 
         //----------------------Disk----------------------
 
+        /// <summary>
+        /// Lists the currently loaded disks.
+        /// </summary>
+        public static void ListDisks()
+        {
+            Console.Message(_disks.Aggregate("", (curr, d) => curr + " " + d.DiskProperties.Name));
+        }
+
         public static void AddAndOpenDisk(VfsDisk disk)
         {
             _disks.Add(disk);
