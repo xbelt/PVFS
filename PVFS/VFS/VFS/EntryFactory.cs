@@ -17,7 +17,8 @@ namespace VFS.VFS
      * Name 110
      * Data
      */
-    class EntryFactory : Factory
+
+    public class EntryFactory : Factory
     {
         /// <summary>
         /// Opens a startblock of a File or Directory and creates the corresponding VfsEntry.
