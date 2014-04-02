@@ -36,7 +36,11 @@ namespace VFS.VFS
         /// <returns>Returns the entry if found, otherwise null.</returns>
         public static VfsEntry getEntry(string path)
         {
-            //TODO: add support for relative paths
+            //Check if path is relative, if so, make it absolute
+            if (path[0] != '/')
+            {
+                path = workingDirectory.GetAbsolutePath() + "/" + path;
+            }
             VfsDirectory last;
             IEnumerable<string> remaining;
             return getEntry(path, out last, out remaining);
@@ -669,13 +673,19 @@ namespace VFS.VFS
         /// Throws an exception if you try to import the virtual disk itself! TODO
         /// </summary>
         /// <param name="src">The absolute path to the File (or Directory) that should be imported (Host file system).</param>
-        /// <param name="dst">The absolute path to the directory where we import.</param>
+        /// <param name="dst">The (not necesseraly) absolute path to the directory where we import.</param>
         public static void Import(string src, string dst) 
         {
             //TODO: correct prevention of import of currently opened disk
             //TODO: add compression and encryption
             if (src == null) throw new ArgumentNullException("src");
             if (dst == null) throw new ArgumentNullException("dst");
+
+            //If path not relative, make it absolute
+            if (dst[0] != '/')
+            {
+                dst = workingDirectory.GetAbsolutePath() + "/" + dst;
+            }
 
             //Check if destination exists, create it on request and get the entry:
             //var dstDir = (VfsDirectory) GetEntryIfPathValid(dst);
