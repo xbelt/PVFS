@@ -16,8 +16,8 @@ namespace UnitTest
         [TestMethod]
         public void TestAddAndOpenDisk()
         {
-            string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
             Debug.Assert(VFSManager.CurrentDisk == disk);
             Debug.Assert(VFSManager.workingDirectory == disk.root);
@@ -27,8 +27,8 @@ namespace UnitTest
         [TestMethod]
         public void TestGetDisk()
         {
-            string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
 
             var accessor = new PrivateType(typeof (VFSManager));
             accessor.InvokeStatic("AddAndOpenDisk", new [] {disk});
@@ -42,11 +42,11 @@ namespace UnitTest
         [TestMethod]
         public void TestChangeWorkingDirectory()
         { //TODO: get this to work
-            string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
-            VFSManager.CreateDirectory("/b/b/c", true);
-            VFSManager.ChangeWorkingDirectory("/b/b/c");
+            VFSManager.CreateDirectory("/"+name+"/b/c", true);
+            VFSManager.ChangeWorkingDirectory("/"+name+"/b/c");
             Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/b/b/c");
         }
 
@@ -81,28 +81,28 @@ namespace UnitTest
         [TestMethod]
         public void TestGetAbsolutePath()
         {
-            string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
-            Debug.Assert(VFSManager.getAbsolutePath("") == "/b");
-            Debug.Assert(VFSManager.getAbsolutePath(".") == "/b");
-            Debug.Assert(VFSManager.getAbsolutePath("..") == "/b");
-            Debug.Assert(VFSManager.getAbsolutePath("/b") == "/b");
-            VFSManager.CreateDirectory("/b/a", true);
-            Debug.Assert(VFSManager.getAbsolutePath("a") == "/b/a");
+            Debug.Assert(VFSManager.getAbsolutePath("") == "/"+name);
+            Debug.Assert(VFSManager.getAbsolutePath(".") == "/"+name);
+            Debug.Assert(VFSManager.getAbsolutePath("..") == "/"+name);
+            Debug.Assert(VFSManager.getAbsolutePath("/"+name) == "/"+name);
+            VFSManager.CreateDirectory("/"+name+"/a", true);
+            Debug.Assert(VFSManager.getAbsolutePath("a") == "/"+name+"/a");
             disk.Stream.Close();
         }
 
         [TestMethod]
         public void TestUnloadDisk()
         {
-            string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
 
             var accessor = new PrivateType(typeof(VFSManager));
             accessor.InvokeStatic("AddAndOpenDisk", new[] { disk });
-            accessor.InvokeStatic("UnloadDisk", new[] { "b" });
-            var result = accessor.InvokeStatic("getDisk", new[] { "b" });
+            accessor.InvokeStatic("UnloadDisk", new[] { name });
+            var result = accessor.InvokeStatic("getDisk", new[] { name });
             Debug.Assert(result == null);
         }
     }

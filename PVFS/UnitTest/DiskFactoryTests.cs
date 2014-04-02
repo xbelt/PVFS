@@ -65,8 +65,8 @@ namespace UnitTest
         [TestMethod]
         public void TestDiskFactoryLoad()
         {
-            string path;
-            var createdDisk = createTestDisk(out path);
+            string path, name;
+            var createdDisk = createTestDisk(out path, out name);
             createdDisk.Stream.Close();
             var disk = DiskFactory.Load(path, null);
             Debug.Assert(createdDisk.DiskProperties.BitMapOffset == disk.DiskProperties.BitMapOffset);
@@ -78,11 +78,31 @@ namespace UnitTest
             Debug.Assert(createdDisk.DiskProperties.Name == disk.DiskProperties.Name);
         }
 
-        public static VfsDisk createTestDisk(out string path)
+        public static VfsDisk createTestDisk(out string path, out string name)
         {
-            Directory.CreateDirectory("C:\\Test");
-            path = "C:\\Test\\b.vdi";
-            return DiskFactory.Create(new DiskInfo("C:\\Test", "b.vdi", 4096, 1024), null);
+            path = Environment.CurrentDirectory;
+            name = "b";
+            int i = 0;
+            while (File.Exists(path + "\\" + name+".vdi"))
+            {
+                name = "b" + i++;
+            }
+            VfsDisk disk = DiskFactory.Create(new DiskInfo(path, name + ".vdi", 4096, 1024), null);
+            path += "\\" + name + ".vdi";
+            return disk;
+        }
+        public static VfsDisk createTestDisk(out string path, out string name, int size, int blocksize)
+        {
+            path = Environment.CurrentDirectory;
+            name = "b";
+            int i = 0;
+            while (File.Exists(path + "\\" + name + ".vdi"))
+            {
+                name = "b" + i++;
+            } 
+            VfsDisk disk = DiskFactory.Create(new DiskInfo(path, name + ".vdi", size, blocksize), null);
+            path += "\\" + name + ".vdi";
+            return disk;
         }
     }
 }
