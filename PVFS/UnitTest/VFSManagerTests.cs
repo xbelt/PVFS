@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
 using VFS.VFS.Models;
@@ -162,6 +163,17 @@ namespace UnitTest
             VFSManager.CreateDirectory("/" + name + "/b/c", true);
             VFSManager.ChangeDirectoryByIdentifier("b/c");
             Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/" + name + "/b/c");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestGetEntryArgNullException() {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            var readFile = VFSManager.getEntry(disk, null);
         }
     }
 }
