@@ -1,27 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
+using VFS.VFS.Models;
 
 namespace UnitTest
 {
-    class VfsDirectoryTest_
+    [TestClass]
+    class VfsDirectoryTest
     {
-        public static string wDir = Directory.GetCurrentDirectory();
-
-        public static string PrepareDisk(int blocksize, int size)
-        {
-            DiskFactory.Create(new DiskInfo(wDir, "dirTest", size, blocksize), null);
-            return "";
-        }
-
+     
+        [TestMethod]
         public void TestAddEntry()
         {
-            DiskFactory.Create(new DiskInfo(wDir, "dirTest", 1024 * 100, 1024), null);
+            string path, name;
+            VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 103*200, 200);
 
+            for (int i = 0; i < 100; i++)
+            {
+                VFSManager.CreateFile("/" + name + "/" + i);
+            }
+
+            VfsEntry e = EntryFactory.OpenEntry(disk, disk.root.Address, null);
+
+            Debug.Assert(e != null);
+            Debug.Assert(e.IsDirectory);
+            Debug.Assert(e.Name == name);
+
+            VfsDirectory dir = (VfsDirectory) e;
+
+            Debug.Assert(dir.GetEntries().Count == 100);
+            for (int i = 0; i < 100; i++)
+            {
+                Debug.Assert(dir.GetFile(i.ToString())!=null);
+            }
         }
 
     }
