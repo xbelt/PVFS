@@ -175,5 +175,29 @@ namespace UnitTest
             VFSManager.CreateDirectory("/" + name + "/testFolder", true);
             var readFile = VFSManager.getEntry(disk, null);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestGetEntryArgException()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            var readFile = VFSManager.getEntry(disk, "");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestGetAbsolutePathArgNullException()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/testFolder", true);
+            var readFile = VFSManager.getAbsolutePath(null);
+        }
     }
 }
