@@ -125,6 +125,5 @@ namespace VFS.VFS
             parent.AddElement(vfsDirectory);
             return vfsDirectory;
         }
-
     }
 }
