@@ -148,7 +148,7 @@ namespace VFS.VFS
         public static string getAbsolutePath(string path)
         {
             if (path == null)
-                throw new ArgumentException("path");
+                throw new ArgumentNullException("path");
 
             if (path == "." || path == "")
                 return workingDirectory.GetAbsolutePath();
