@@ -291,7 +291,7 @@ namespace VFS.VFS.Parser
         }
     }
 
-    internal class DiskNotFoundException : Exception
+    public class DiskNotFoundException : Exception
     {
     }
 
