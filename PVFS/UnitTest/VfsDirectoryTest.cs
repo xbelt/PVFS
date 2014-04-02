@@ -68,5 +68,17 @@ namespace UnitTest
             }
         }
 
+        [TestMethod]
+        public void TestGetters()
+        {
+            string path, name;
+            VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
+            VFSManager.AddAndOpenDisk(disk);
+
+            disk.root.GetEntry("");
+            disk.root.GetFile("");
+            disk.root.GetEntry("");
+            disk.root.ToString();
+        }
     }
 }

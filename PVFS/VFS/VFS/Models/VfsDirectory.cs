@@ -106,7 +106,8 @@ namespace VFS.VFS.Models
         {
             return this.GetEntries().FirstOrDefault(entry => entry.Name.Equals(name));
         }
-
+        
+        /*
         /// <summary>
         /// Stores the directory to disk.
         /// </summary>
@@ -154,7 +155,7 @@ namespace VFS.VFS.Models
                 }
             }
             writer.Flush();
-        }
+        }*/
 
         /// <summary>
         /// Lists all SubDirectories.
@@ -198,7 +199,8 @@ namespace VFS.VFS.Models
             else
                 return null;
         }
-
+        
+        /*
         /// <summary>
         /// Recursively looks for a name.
         /// </summary>
@@ -231,6 +233,7 @@ namespace VFS.VFS.Models
             }
             throw new Exception("File " + name + " was not found");
         }
+        */
 
         /// <summary>
         /// Adds an element to this directory. If it was already contained this does nothing.
