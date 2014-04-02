@@ -47,7 +47,7 @@ namespace UnitTest
             VFSManager.AddAndOpenDisk(disk);
             VFSManager.CreateDirectory("/"+name+"/b/c", true);
             VFSManager.ChangeWorkingDirectory("/"+name+"/b/c");
-            Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/b/b/c");
+            Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/" + name + "/b/c");
         }
 
 
@@ -58,7 +58,8 @@ namespace UnitTest
         public void TestGetEntryPathOnlineFile()
         {
             string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
             var file = VFSManager.CreateFile("/b/testFile");
             var readFile = VFSManager.getEntry("/b/testFile");
@@ -69,7 +70,8 @@ namespace UnitTest
         public void TestGetEntryPathOnlineFolder()
         {
             string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
             VFSManager.CreateDirectory("/b/testFolder", true);
             var readFile = VFSManager.getEntry("/b/testFolder");
@@ -86,7 +88,8 @@ namespace UnitTest
         public void TestGetEntryPathOfflineFile()
         {
             string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
             var file = VFSManager.CreateFile("/b/testFile");
             VFSManager.UnloadDisk("b");
@@ -105,7 +108,8 @@ namespace UnitTest
         public void TestGetEntryPathOfflineFolder()
         {
             string path;
-            var disk = DiskFactoryTests.createTestDisk(out path);
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VFSManager.AddAndOpenDisk(disk);
             VFSManager.CreateDirectory("/b/testDir", true);
             var file = VFSManager.getEntry("/b/testDir") as VfsDirectory;
@@ -147,6 +151,22 @@ namespace UnitTest
             accessor.InvokeStatic("UnloadDisk", new[] { name });
             var result = accessor.InvokeStatic("getDisk", new[] { name });
             Debug.Assert(result == null);
+        }
+
+        [TestMethod]
+        public void TestGetTempFilePath() {
+            var accessor = new PrivateType(typeof(VFSManager));
+            var result = accessor.InvokeStatic("getTempFilePath", new object[] {});
+        }
+
+        [TestMethod]
+        public void TestChangeDirectoryByIdentifier() {
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VFSManager.AddAndOpenDisk(disk);
+            VFSManager.CreateDirectory("/" + name + "/b/c", true);
+            VFSManager.ChangeDirectoryByIdentifier("b/c");
+            Assert.AreEqual(VFSManager.workingDirectory.GetAbsolutePath(), "/" + name + "/b/c");
         }
     }
 }
