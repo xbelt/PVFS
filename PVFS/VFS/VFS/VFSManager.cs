@@ -15,6 +15,7 @@ namespace VFS.VFS
         public static VfsDisk CurrentDisk;
         public static VfsConsole Console = new VfsConsole();
         private readonly static string[] IdToSize = { "bytes", "kb", "mb", "gb", "tb" };
+        private static bool PassWordCorrect = false;
 
         #region Private Methods
 
@@ -625,8 +626,6 @@ namespace VFS.VFS
             {
                 if (( File.GetAttributes(fileToCompress.FullName) & FileAttributes.Hidden ) == FileAttributes.Hidden & fileToCompress.Extension != ".gz") 
                     return fileToCompress.FullName; //Was an additional condition: 
-
-             //   var fileToCompressName = fileToCompress.FullName.Substring(0,fileToCompress.FullName.LastIndexOf('.')) + ".gz";
                 using (FileStream compressedFileStream = File.Create(fileToCompress.FullName + ".gz"))
                 {
                     returnPath = fileToCompress.FullName + ".gz";
@@ -640,14 +639,15 @@ namespace VFS.VFS
             return returnPath;
         }
 
-        public static void Decompress(FileInfo fileToDecompress)
+        private static string Decompress(FileInfo fileToDecompress)
         {
+            string returnPath;
             if (fileToDecompress == null) throw new ArgumentNullException("fileToDecompress");
             using (FileStream originalFileStream = fileToDecompress.OpenRead())
             {
-                string currentFileName = fileToDecompress.FullName;
-                string newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
-                
+                var currentFileName = fileToDecompress.FullName;
+                var newFileName = currentFileName.Remove(currentFileName.Length - fileToDecompress.Extension.Length);
+                returnPath = newFileName;
                 using (FileStream decompressedFileStream = File.Create(newFileName))
                 {
                     using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
@@ -657,6 +657,7 @@ namespace VFS.VFS
                     }
                 }
             }
+            return returnPath;
         }
 
         /// <summary>
@@ -723,17 +724,18 @@ namespace VFS.VFS
 
         private static void ImportFile(string src, VfsDirectory dstDir) 
         {   //TODO
-            //1. Check file size
             //2. Add encryption
-            //3. support relative paths
 
             //Get FileInfo
             var toCompress = new FileInfo(src);
             
+            //Encrypt it
+            toCompress.Encrypt();
+
             //Compress the file before importing
             var compressedSrc = Compress(toCompress);
 
-            //get the compressed file
+            //get the compressed file and its name
             var fileInfo = new FileInfo(compressedSrc);
             var fileName = fileInfo.Name;
 
@@ -763,8 +765,6 @@ namespace VFS.VFS
                 Console.Message("Removing " + fileWithSamename.Name);
                 Remove(fileWithSamename.GetAbsolutePath()); //Works because of duplicate name.
             }
-
-
 
             //Create entry in which to write the file
             var importEntry = EntryFactory.createFile(dstDir.Disk, fileName, fileLength, dstDir);
@@ -845,6 +845,10 @@ namespace VFS.VFS
                 return;
             }
 
+            //Check password
+            var pw = Console.Readline("Please enter password of disk for decryption.");
+            PassWordCorrect = pw.Equals(CurrentDisk.Password);
+
             //Check if src is rootdirectory
             if (src.LastIndexOf('/') == 0)
             {
@@ -869,6 +873,8 @@ namespace VFS.VFS
             {
                 ExportFile(dst, (VfsFile) toExport);
             }
+            //Reset to false for future exports
+            PassWordCorrect = false;
         }
 
         private static void ExportFile(string dst, VfsFile toExport) //TODO: finish this thing here
@@ -893,9 +899,6 @@ namespace VFS.VFS
                 return;
             }
 
-            //TODO: might be more efficient to pass these 
-            //as argument or have them as fields instead of making
-            //them for each file
             //Start actual export
             var fs = File.Create(completePath);
             var writer = new BinaryWriter(fs);
@@ -909,11 +912,14 @@ namespace VFS.VFS
            
             //Decompress file
             var toDecompress = new FileInfo(completePath);
-            Decompress(toDecompress);
+            var decompressed = Decompress(toDecompress);
 
             //Delete compressed file
             File.Delete(toDecompress.FullName);
-          
+            
+            //If pw correct, decrypt the file
+            if (PassWordCorrect) 
+                File.Decrypt(decompressed);
         }
 
         private static void ExportDirectory(string dst, VfsDirectory toExport, bool isFirstRecursion) 
@@ -1054,7 +1060,7 @@ namespace VFS.VFS
 
         public static void Exit()
         {
-            foreach (var vfsDisk in Disks)
+            foreach (var vfsDisk in Disks.ToList())
             {
                 UnloadDisk(vfsDisk.DiskProperties.Name);
             }
