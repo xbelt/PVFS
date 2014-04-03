@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
 using VFS.VFS.Models;
@@ -286,5 +287,50 @@ namespace UnitTest
             VfsManager.CreateDisk("C:\\NewDisk", "Disk1", 4096, 256, "pw");
             Debug.Assert(File.Exists(dirInfo.FullName + "\\" + "Disk1.vdi"));
         }
+
+        [TestMethod]
+        public void TestImportExport()
+        {
+            var expInfo = Directory.CreateDirectory("C:\\exportTest");
+            var dirInfo1 = Directory.CreateDirectory("C:\\importTest\\a\\b");
+            var dirInfo2 = Directory.CreateDirectory("C:\\importTest\\c");
+            var writer1 = File.CreateText(dirInfo1.FullName + "\\f1.txt");
+            writer1.Write("I'm in \\a\\b.");
+            writer1.Close();
+            var writer2 = File.CreateText(dirInfo2.FullName + "\\f2.txt");
+            writer2.Write("I'm in \\c");
+            writer2.Close();
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            Debug.Assert(disk != null);
+            VfsManager.AddAndOpenDisk(disk);
+            //TODO: dunno why but never enters ImportFile
+            VfsManager.Import("C:\\importTest", "/"+disk.Root.Name);
+            Debug.Assert(disk.Root.GetDirectory("importTest") != null);
+            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/a") != null);
+            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/c") != null);
+            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/a/b") != null);
+            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/a/b/f1.txt") != null);
+            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/c/f2.txt") != null);
+            VfsManager.Export("/" + disk.Root.Name + "/importTest", "C::\\exportTest");
+            Debug.Assert(Directory.Exists("C::\\exportTest\\importTest\\a\\b"));
+            Debug.Assert(Directory.Exists("C::\\exportTest\\importTest\\c"));
+            Debug.Assert(File.Exists("C:\\exportTest\\importTest\\a\\b\\f1.txt"));
+            Debug.Assert(File.Exists("C:\\exportTest\\importTest\\c\\f2.txt"));
+            const string filePath1 = "C:\\exportTest\\importTest\\a\\b\\f1.txt";
+            const string filePath2 = "C:\\exportTest\\importTest\\c\\f2.txt";
+            Debug.Assert(FileContentComparer(filePath1, "C:\\importTest\\a\\b\\f1.txt"));
+            Debug.Assert(FileContentComparer(filePath2, "C:\\importTest\\c\\f2.txt"));
+        }
+
+        private static bool FileContentComparer(string arg1, string arg2)
+        {
+            byte[] file1 = File.ReadAllBytes(arg1);
+            byte[] file2 = File.ReadAllBytes(arg2);
+            if (file1.Length != file2.Length) return false;
+            return !file1.Where((t, i) => t != file2[i]).Any();
+        }
+
+
     }
 }
