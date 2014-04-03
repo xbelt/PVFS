@@ -147,17 +147,15 @@ namespace VFS.VFS.Models
             if (!IsLoaded)
                 Load();
 
-            int blockId = 0, head = HeaderSize, totalSize = 0, count;
+            int blockId = 0, head = HeaderSize, totalSize = (int) reader.BaseStream.Length, count = 0;
             var buffer = new byte[Disk.BlockSize - SmallHeaderSize];
             while (blockId < Inodes.Count)
             {
-                count = (int) reader.BaseStream.Length;
-                reader.Read(buffer, 0, Disk.BlockSize - head);
+                count = reader.Read(buffer, 0, Disk.BlockSize - head);
                 writer.Seek(Disk, Inodes[blockId].Address, head);
                 writer.Write(buffer, 0, count);
-                totalSize += count;
 
-                if (count < Disk.BlockSize - head)
+                if (count == 0)
                     break;
 
                 blockId++;
@@ -179,7 +177,7 @@ namespace VFS.VFS.Models
 
                 writer.Seek(Disk, address);
                 writer.Write(0);// nextBlock unknown
-                writer.Write(Address);
+                writer.Write(Parent.Address);
                 writer.Write(buffer, 0, count);
                 totalSize += count;
             }
