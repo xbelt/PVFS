@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -57,6 +58,39 @@ namespace UnitTest
             Directory.CreateDirectory("C:\\Test");
             var writer1 = File.CreateText("C:\\Test\\myText.txt");
             writer1.Write("I'm in Test.");
+            writer1.Close();
+            var stream = File.Open("C:\\Test\\myText.txt", FileMode.Open, FileAccess.ReadWrite);
+            Assert.AreNotSame(null, stream);
+            var reader = new BinaryReader(stream);
+            Assert.AreNotSame(null, reader);
+            file.Write(reader);
+
+            var fileSize2 = file.FileSize;
+            Assert.AreNotSame(null, fileSize2);
+            reader.Dispose();
+            reader.Close();
+            Assert.AreNotEqual(fileSize1, fileSize2);
+        }
+
+        [TestMethod]
+        public void TestLongWrite()
+        {
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name,10000, 200);
+            Assert.AreNotSame(null, disk);
+            VfsManager.AddAndOpenDisk(disk);
+            var file = VfsManager.CreateFile("/" + name + "/fs.txt");
+            Assert.AreNotSame(null, file);
+            var fileSize1 = file.FileSize;
+            Assert.AreNotSame(null, fileSize1);
+            Directory.CreateDirectory("C:\\Test");
+            var writer1 = File.CreateText("C:\\Test\\myText.txt");
+            var temp = "";
+            for (int i = 0; i < 200; i++)
+            {
+                temp += "a";
+            }
+            writer1.Write(temp);
             writer1.Close();
             var stream = File.Open("C:\\Test\\myText.txt", FileMode.Open, FileAccess.ReadWrite);
             Assert.AreNotSame(null, stream);
