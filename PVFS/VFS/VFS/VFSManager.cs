@@ -568,7 +568,7 @@ namespace VFS.VFS
             if (dstEntry == null)
             {
                 // Create dst using last.
-                if (!CreateDirectory(dstPath, true))
+                if (!CreateDirectory(dstPath, false))
                 {
                     Console.Error("Copying was canceled.");
                     return;
@@ -577,7 +577,7 @@ namespace VFS.VFS
             }
             VfsDirectory dst = (VfsDirectory)dstEntry;
 
-            if (!CopyHelper(srcEntry, dst, true))
+            if (((VfsFile)srcEntry).Parent.GetAbsolutePath() == dst.GetAbsolutePath() ? !CopyHelper(srcEntry, dst, true) : !CopyHelper(srcEntry, dst, false))
             {
                 Console.Error("Copying was canceled due to a too long file or directory name.");
                 return;
@@ -904,7 +904,7 @@ namespace VFS.VFS
             Directory.CreateDirectory(dst);
             
             //Get path including fileName
-            var completePath = Path.Combine(dst, entryName);
+            var completePath = Path.Combine(dst, entryName) + ".gz";
 
             //Check if file with same name already exists at that location
             if (File.Exists(completePath))
@@ -920,9 +920,6 @@ namespace VFS.VFS
             
             //Close and dispose resources
             writer.Close();
-
-            //If I don't have to decompress we're done
-            if (!toExport.FileType.Equals("gz")) return;
            
             //Decompress file
             var toDecompress = new FileInfo(completePath);
