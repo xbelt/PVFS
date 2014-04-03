@@ -705,6 +705,7 @@ namespace VFS.VFS
                     Console.Message("You're not allowed to import the currently opened disk. Aborted import.");
                     return;
                 }
+                Console.Message("Start import file");
                 ImportFile(src, dstDir);
             }
             else if (Directory.Exists(src))
@@ -722,7 +723,7 @@ namespace VFS.VFS
             if (path == null) throw new ArgumentNullException("path");
 
             if (!path.StartsWith("/"))
-                return WorkingDirectory + "/" + path;
+                return WorkingDirectory.GetAbsolutePath() + "/" + path;
             return path;
         }
 
