@@ -53,7 +53,8 @@ namespace VFS.VFS.Models
 
         protected internal VfsDisk Disk { get; protected set; }
         protected bool IsLoaded;
-        public int FileSize, NoBlocks, NextBlock;
+        public int NoBlocks, NextBlock;
+        public long FileSize;
         protected List<Block> Inodes;
 
         #region Constructor
@@ -61,7 +62,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Constructs an unloaded file.
         /// </summary>
-        public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, int noBlocks, int nextBlock)
+        public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, long filesize, int noBlocks, int nextBlock)
         {
             if (disk == null)
                 throw new ArgumentNullException("disk");
@@ -84,7 +85,7 @@ namespace VFS.VFS.Models
         /// if we already know all blocks, use this (this happens when we just allocated a new file)
         /// Constructs a Loaded File
         /// </summary>
-        public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, int filesize, List<Block> blocks)
+        public VfsFile(VfsDisk disk, int address, string name, VfsDirectory parent, long filesize, List<Block> blocks)
         {
             if (disk == null)
                 throw new ArgumentNullException("disk");
@@ -230,7 +231,8 @@ namespace VFS.VFS.Models
             if (!IsLoaded)
                 Load();
 
-            int blockId = 0, head = HeaderSize, totalRead = 0;
+            int blockId = 0, head = HeaderSize;
+            long totalRead = 0;
             var buffer = new byte[Disk.BlockSize - SmallHeaderSize];
             while (blockId < Inodes.Count)
             {
@@ -239,7 +241,7 @@ namespace VFS.VFS.Models
 
                 var count = Disk.BlockSize - head;
                 if (count > FileSize - totalRead)
-                    count = FileSize - totalRead;
+                    count = (int) (FileSize - totalRead);
 
                 writer.Write(buffer, 0, count);
 
@@ -348,7 +350,7 @@ namespace VFS.VFS.Models
         /// <param name="disk">the target disk</param>
         /// <param name="filesize">thie FileSize in Bytes</param>
         /// <returns>number of blocks (Startblock + Following blocks) needed for this file</returns>
-        public static int GetNoBlocks(VfsDisk disk, int filesize)
+        public static int GetNoBlocks(VfsDisk disk, long filesize)
         {
             var blockSize = disk.BlockSize;
             if (filesize > blockSize - HeaderSize)
@@ -356,7 +358,7 @@ namespace VFS.VFS.Models
                 filesize -= blockSize - HeaderSize;
                 var noBlocks = filesize / (blockSize - SmallHeaderSize);
                 if (noBlocks * (blockSize - SmallHeaderSize) != filesize) noBlocks++;
-                return noBlocks + 1;
+                return (int)noBlocks + 1;
             }
             return 1;
         }

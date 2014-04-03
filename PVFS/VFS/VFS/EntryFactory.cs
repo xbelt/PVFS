@@ -51,7 +51,7 @@ namespace VFS.VFS
         /// throws exceptions if invalid name/invalid size/disk too full
         /// </summary>
         /// <returns>a handle for the file</returns>
-        public static VfsFile createFile(VfsDisk disk, string name, int size, VfsDirectory parent)
+        public static VfsFile createFile(VfsDisk disk, string name, long size, VfsDirectory parent)
         {
             if (disk == null)
                 throw new ArgumentNullException("disk");

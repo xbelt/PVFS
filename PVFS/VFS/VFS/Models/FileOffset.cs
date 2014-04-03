@@ -4,11 +4,11 @@
     {
         public const int NextBlock = 0;
         public const int FileSize = 4;
-        public const int NumberOfBlocks = 8;
-        public const int IsDirectory = 12;
-        public const int ParentAddress = 13;
-        public const int NameLength = 17;
-        public const int Name = 18;
+        public const int NumberOfBlocks = 12;
+        public const int IsDirectory = 16;
+        public const int ParentAddress = 17;
+        public const int NameLength = 21;
+        public const int Name = 22;
         public const int Header = 128;
         public const int SmallHeader = 8;
     }

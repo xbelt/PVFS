@@ -29,7 +29,7 @@ namespace VFS.VFS.Models
         /// Do not use, for Load method only. Use GetEntries() instead (this makes sure it's loaded).
         /// </summary>
         private List<VfsEntry> elements;
-        private int noEntries
+        private long noEntries
         {
             get { return FileSize; }
             set { FileSize = value; }
@@ -191,7 +191,7 @@ namespace VFS.VFS.Models
             {
                 // seek to end of used content
                 // TODO: Please check really hard for index errors, there are probably some in here.
-                int head = HeaderSize, noSubs, pos = noEntries;
+                int head = HeaderSize, noSubs, pos = (int) noEntries;
                 Block current = Inodes.First();
                 while ((noSubs = (Disk.BlockSize - head) / 4) <= pos)// find block
                 {

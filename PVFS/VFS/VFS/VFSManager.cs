@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -673,6 +674,7 @@ namespace VFS.VFS
         /// <param name="dst">The (not necesseraly) absolute path to the directory where we import.</param>
         public static void Import(string src, string dst) 
         {
+            Console.Message("Starting import");
             //TODO: correct prevention of import of currently opened disk
             //TODO: add compression and encryption
             if (src == null) throw new ArgumentNullException("src");
@@ -726,28 +728,30 @@ namespace VFS.VFS
 
         private static void ImportFile(string src, VfsDirectory dstDir) 
         {   //TODO Add encryption
-
+            Console.Message("Start importing file");
             //Get FileInfo
             var toCompress = new FileInfo(src);
-            
-            //Encrypt it
-            toCompress.Encrypt();
 
+            Console.Message("Starting compression");
             //Compress the file before importing
+            var watch = new Stopwatch();
+            watch.Start();
             var compressedSrc = Compress(toCompress);
+            watch.Stop();
+            Console.Message("Compression finished after: " + watch.Elapsed);
 
             //get the compressed file and its name
             var fileInfo = new FileInfo(compressedSrc);
             var fileName = fileInfo.Name.Remove(fileInfo.Name.Length - 3);
 
             //Get fileLength
-            var fileLengthLong = Convert.ToInt32(fileInfo.Length) + FileOffset.Header - FileOffset.SmallHeader;
+            var fileLengthLong = fileInfo.Length + FileOffset.Header - FileOffset.SmallHeader;
             if (fileLengthLong > (dstDir.Disk.DiskProperties.BlockSize - FileOffset.SmallHeader) * (dstDir.Disk.DiskProperties.NumberOfBlocks - dstDir.Disk.DiskProperties.NumberOfUsedBlocks))
             {
                 Console.Message("Filesize too large. Skipping import of: " + fileInfo.Name);
                 return;
             }
-            var fileLength = Convert.ToInt32(fileInfo.Length);
+            var fileLength = fileInfo.Length;
 
             Console.Message("Importing " + fileName + " in " + dstDir.GetAbsolutePath());
 
