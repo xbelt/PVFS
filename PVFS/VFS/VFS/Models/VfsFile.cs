@@ -53,7 +53,7 @@ namespace VFS.VFS.Models
 
         protected internal VfsDisk Disk { get; protected set; }
         protected bool IsLoaded;
-        protected int FileSize, NoBlocks, NextBlock;
+        public int FileSize, NoBlocks, NextBlock;
         protected List<Block> Inodes;
 
         #region Constructor
@@ -151,7 +151,8 @@ namespace VFS.VFS.Models
             var buffer = new byte[Disk.BlockSize - SmallHeaderSize];
             while (blockId < Inodes.Count)
             {
-                count = reader.Read(buffer, 0, Disk.BlockSize - head);
+                count = (int) reader.BaseStream.Length;
+                reader.Read(buffer, 0, Disk.BlockSize - head);
                 writer.Seek(Disk, Inodes[blockId].Address, head);
                 writer.Write(buffer, 0, count);
                 totalSize += count;
