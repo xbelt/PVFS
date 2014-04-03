@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
 using VFS.VFS.Models;
@@ -274,6 +275,16 @@ namespace UnitTest
             var directory = VfsManager.GetEntry("/" + name + "/testFolder") as VfsDirectory;
             var file = VfsManager.GetEntry("/" + name + "/testFolder/a") as VfsFile;
             Debug.Assert(file.Parent.Address == directory.Address);
+        }
+
+        [TestMethod]
+        public void TestCreateDiskOutsideDebugFolder()
+        {
+            //TODO: never goes to line 234 in vfsManager - CreateDisk
+            //(last line of code of that function)
+            var dirInfo = Directory.CreateDirectory("C:\\NewDisk");
+            VfsManager.CreateDisk("C:\\NewDisk", "Disk1", 4096, 256, "pw");
+            Debug.Assert(File.Exists(dirInfo.FullName + "\\" + "Disk1.vdi"));
         }
     }
 }
