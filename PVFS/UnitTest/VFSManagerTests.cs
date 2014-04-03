@@ -351,7 +351,7 @@ namespace UnitTest
             VfsManager.CreateFile(diskPath + "/subdir/file.txt");
             var directoryInfo = Directory.CreateDirectory("C:\\fileExp2");
             VfsManager.Export(diskPath + "/subdir", "C:\\fileExp2");
-            Debug.Assert(File.Exists("C:\\filExp2\\subdir\\file.txt"));
+            Assert.IsTrue(File.Exists("C:\\fileExp2\\subdir\\file.txt"));
         }
 
         [TestMethod]
