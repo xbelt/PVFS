@@ -69,7 +69,7 @@
       <DependentUpon>Shell.g4</DependentUpon>
     </Compile>
     <Compile Include="VFS\VfsConsole.cs" />
-    <Compile Include="VFS\VFSManager.cs" />
+    <Compile Include="VFS\VfsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
