@@ -34,5 +34,11 @@ namespace VFS.VFS
             } while (!options.Contains(answer));
             return options.IndexOf(answer);
         }
+
+        public virtual string Readline(string message)
+        {
+            Console.WriteLine(message);
+            return Console.ReadLine();
+        }
     }
 }
