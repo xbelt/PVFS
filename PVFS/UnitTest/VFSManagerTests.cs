@@ -281,7 +281,6 @@ namespace UnitTest
         [TestMethod]
         public void TestCreateDiskOutsideDebugFolder()
         {
-            //TODO: never goes to line 234 in vfsManager - CreateDisk
             //(last line of code of that function)
             var dirInfo = Directory.CreateDirectory("C:\\NewDisk");
             VfsManager.CreateDisk("C:\\NewDisk", "Disk1.vdi", 4096, 256, "pw");
@@ -305,7 +304,6 @@ namespace UnitTest
             var diskPath = disk.Root.GetAbsolutePath();
             Debug.Assert(disk != null);
             VfsManager.AddAndOpenDisk(disk);
-            //TODO: dunno why but never enters ImportFile
             VfsManager.Import("C:\\importTest",disk.Root.GetAbsolutePath());
             Debug.Assert(disk.Root.GetDirectory("importTest") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a") != null);
