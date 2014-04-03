@@ -52,15 +52,19 @@ namespace UnitTest
             VfsManager.AddAndOpenDisk(disk);
             var file = VfsManager.CreateFile("/" + name + "/fs.txt");
             Assert.AreNotSame(null, file);
-            var fileSize1 = disk.DiskProperties.NumberOfUsedBlocks;
+            var fileSize1 = file.FileSize;
             Assert.AreNotSame(null, fileSize1);
-            var fileInfo = new FileInfo("C:\\Test\\myText.txt");
-            Assert.AreNotSame(null, fileInfo);
-            var reader = new BinaryReader(fileInfo.OpenRead());
+            Directory.CreateDirectory("C:\\Test");
+            var writer1 = File.CreateText("C:\\Test\\myText.txt");
+            writer1.Write("I'm in Test.");
+            writer1.Close();
+            var stream = File.Open("C:\\Test\\myText.txt", FileMode.Open, FileAccess.ReadWrite);
+            Assert.AreNotSame(null, stream);
+            var reader = new BinaryReader(stream);
             Assert.AreNotSame(null, reader);
             file.Write(reader);
 
-            var fileSize2 = disk.DiskProperties.NumberOfUsedBlocks;
+            var fileSize2 = file.FileSize;
             Assert.AreNotSame(null, fileSize2);
             reader.Dispose();
             reader.Close();
