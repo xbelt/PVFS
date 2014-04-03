@@ -284,7 +284,7 @@ namespace UnitTest
             //TODO: never goes to line 234 in vfsManager - CreateDisk
             //(last line of code of that function)
             var dirInfo = Directory.CreateDirectory("C:\\NewDisk");
-            VfsManager.CreateDisk("C:\\NewDisk", "Disk1", 4096, 256, "pw");
+            VfsManager.CreateDisk("C:\\NewDisk", "Disk1.vdi", 4096, 256, "pw");
             Debug.Assert(File.Exists(dirInfo.FullName + "\\" + "Disk1.vdi"));
         }
 
