@@ -55,7 +55,7 @@ namespace VFS.VFS.Parser
                 return;
             var path = Directory.GetCurrentDirectory();
             var name = "disk" + DateTime.Now + ".vdi";
-            string pw = null;
+            string pw = "";
             name = name.Replace(':', '_');
             name = name.Replace(' ', '_');
             var blockSize = 2048;
@@ -179,7 +179,7 @@ namespace VFS.VFS.Parser
             if (context == null)
                 return;
             VfsDisk disk = null;
-            string pw = null;
+            string pw = "";
             if (context.pw != null)
             {
                 pw = context.pw.Text;
