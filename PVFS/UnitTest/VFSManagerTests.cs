@@ -311,8 +311,8 @@ namespace UnitTest
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b") != null);
-            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b/f1.txt.gz") != null);
-            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c/f2.txt.gz") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b/f1.txt") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c/f2.txt") != null);
             VfsManager.Export(diskPath + "/importTest", "C:\\exportTest");
             Debug.Assert(Directory.Exists("C:\\exportTest\\importTest\\a\\b"));
             Debug.Assert(Directory.Exists("C:\\exportTest\\importTest\\c"));
