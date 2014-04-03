@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.AccessControl;
 using VFS.VFS.Models;
 
 namespace VFS.VFS
@@ -622,6 +623,7 @@ namespace VFS.VFS
 
         private static string Compress(FileInfo fileToCompress) {
             String returnPath;
+            long savedBytes = 0;
             using (FileStream originalFileStream = fileToCompress.OpenRead())
             {
                 if (( File.GetAttributes(fileToCompress.FullName) & FileAttributes.Hidden ) == FileAttributes.Hidden & fileToCompress.Extension != ".gz") 
@@ -632,10 +634,11 @@ namespace VFS.VFS
                     using (GZipStream compressionStream = new GZipStream(compressedFileStream, CompressionMode.Compress))
                     {
                         originalFileStream.CopyTo(compressionStream);
-                        Console.Message("Compressed " + fileToCompress.Name + " from " + fileToCompress.Length.ToString() + " to " + compressedFileStream.Length.ToString() + " bytes.");
+                        savedBytes += fileToCompress.Length - compressedFileStream.Length;
                     }
                 }
             }
+            Console.Message("You saved " + savedBytes + "bytes due compression.");
             return returnPath;
         }
 
@@ -653,7 +656,6 @@ namespace VFS.VFS
                     using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
                     {
                         decompressionStream.CopyTo(decompressedFileStream);
-                        Console.Message("Decompressed: " + fileToDecompress.Name);
                     }
                 }
             }
@@ -723,8 +725,7 @@ namespace VFS.VFS
         }
 
         private static void ImportFile(string src, VfsDirectory dstDir) 
-        {   //TODO
-            //2. Add encryption
+        {   //TODO Add encryption
 
             //Get FileInfo
             var toCompress = new FileInfo(src);
@@ -848,7 +849,12 @@ namespace VFS.VFS
             //Check password
             var pw = Console.Readline("Please enter password of disk for decryption.");
             PassWordCorrect = pw.Equals(CurrentDisk.Password);
-
+            if (!PassWordCorrect)
+            {
+                //TODO: temporary solution...
+                Console.Message("Password is incorrect. Export denied.");
+                return;
+            }
             //Check if src is rootdirectory
             if (src.LastIndexOf('/') == 0)
             {
@@ -916,10 +922,6 @@ namespace VFS.VFS
 
             //Delete compressed file
             File.Delete(toDecompress.FullName);
-            
-            //If pw correct, decrypt the file
-            if (PassWordCorrect) 
-                File.Decrypt(decompressed);
         }
 
         private static void ExportDirectory(string dst, VfsDirectory toExport, bool isFirstRecursion) 
