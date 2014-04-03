@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VFS.VFS;
@@ -35,7 +36,7 @@ namespace UnitTest
             Debug.Assert(!file.ToString().Contains("(loaded)"));
             Debug.Assert(file.GetAbsolutePath() == "/" + name + "/a");
             PrivateObject o = new PrivateObject(file);
-            o.Invoke("Load", new { });
+            o.Invoke("Load", new object[]{ });
             Debug.Assert(file.ToString().Contains("(loaded)"));
 
 
