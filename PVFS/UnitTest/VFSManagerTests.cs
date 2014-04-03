@@ -311,11 +311,11 @@ namespace UnitTest
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b") != null);
-            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b/f1.txt") != null);
-            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c/f2.txt") != null);
-            VfsManager.Export(diskPath + "/importTest", "C::\\exportTest");
-            Debug.Assert(Directory.Exists("C::\\exportTest\\importTest\\a\\b"));
-            Debug.Assert(Directory.Exists("C::\\exportTest\\importTest\\c"));
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b/f1.txt.gz") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c/f2.txt.gz") != null);
+            VfsManager.Export(diskPath + "/importTest", "C:\\exportTest");
+            Debug.Assert(Directory.Exists("C:\\exportTest\\importTest\\a\\b"));
+            Debug.Assert(Directory.Exists("C:\\exportTest\\importTest\\c"));
             Debug.Assert(File.Exists("C:\\exportTest\\importTest\\a\\b\\f1.txt"));
             Debug.Assert(File.Exists("C:\\exportTest\\importTest\\c\\f2.txt"));
             const string filePath1 = "C:\\exportTest\\importTest\\a\\b\\f1.txt";
@@ -342,7 +342,6 @@ namespace UnitTest
         [TestMethod]
         public void TestSingleFileInDirectoryExport()
         {
-            //TODO: gives runtime exception, but files are there? :/
             string path;
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
