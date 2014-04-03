@@ -742,7 +742,7 @@ namespace VFS.VFS
 
             //Get fileLength
             var fileLengthLong = Convert.ToInt32(fileInfo.Length);
-            if (fileLengthLong > dstDir.Disk.GetFreeSpace())
+            if (fileLengthLong > GetFreeSpace())
             {
                 Console.Message("Filesize too large. Skipping import of: " + fileInfo.Name);
                 return;
@@ -846,15 +846,19 @@ namespace VFS.VFS
                 return;
             }
 
+            #region password
+            //TODO: temporary solution...
             //Check password
-            var pw = Console.Readline("Please enter password of disk for decryption.");
+            /*var pw = Console.Readline("Please enter password of disk for decryption.");
             PassWordCorrect = pw.Equals(CurrentDisk.Password);
             if (!PassWordCorrect)
             {
-                //TODO: temporary solution...
                 Console.Message("Password is incorrect. Export denied.");
                 return;
-            }
+            } */
+
+            #endregion
+
             //Check if src is rootdirectory
             if (src.LastIndexOf('/') == 0)
             {
@@ -1038,7 +1042,7 @@ namespace VFS.VFS
 
         //----------------------Disk Properties----------------------
 
-        public static void GetFreeSpace()
+        public static double GetFreeSpace()
         {
             var divisor = 1;
             while ((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
@@ -1046,9 +1050,11 @@ namespace VFS.VFS
             {
                 divisor++;
             }
-            Console.Message(((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
-                            CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1))).ToString("0.##") + IdToSize[divisor - 1] + " free space available on " +
+            var result = ((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
+                          CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1)));
+            Console.Message(result.ToString("0.##") + IdToSize[divisor - 1] + " free space available on " +
                             CurrentDisk.DiskProperties.Name);
+            return result;
         }
 
         public static void GetOccupiedSpace()
