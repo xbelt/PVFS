@@ -1,0 +1,189 @@
+% This is based on "sig-alternate.tex" V1.9 April 2009
+% This file should be compiled with V2.4 of "sig-alternate.cls" April 2009
+%
+\documentclass{report}
+
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{subfigure}
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{fancyhdr}
+\usepackage[plain]{fancyref}
+
+\usepackage{color}
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+% code listings
+
+\usepackage{listings}
+\lstset{language=[Sharp]C,
+showspaces=false,
+showtabs=false,
+breaklines=true,
+showstringspaces=false,
+breakatwhitespace=true,
+numbers=left,
+captionpos=b,
+morekeywords={\#if, \#endif, \#else},
+escapeinside={(*@}{@*)},
+commentstyle=\color{greencomments},
+keywordstyle=\color{bluekeywords}\bfseries,
+stringstyle=\color{redstrings},
+basicstyle=\ttfamily
+}
+
+\newcommand*{\fancyreflstlabelprefix}{lst}
+
+\fancyrefaddcaptions{english}{%
+  \providecommand*{\freflstname}{listing}%
+  \providecommand*{\Freflstname}{Listing}%
+}
+
+\frefformat{plain}{\fancyreflstlabelprefix}{\freflstname\fancyrefdefaultspacing#1}
+\Frefformat{plain}{\fancyreflstlabelprefix}{\Freflstname\fancyrefdefaultspacing#1}
+
+\frefformat{vario}{\fancyreflstlabelprefix}{%
+  \freflstname\fancyrefdefaultspacing#1#3%
+}
+\Frefformat{vario}{\fancyreflstlabelprefix}{%
+  \Freflstname\fancyrefdefaultspacing#1#3%
+}
+
+% Disable single lines at the start of a paragraph (Schusterjungen)
+
+\clubpenalty = 10000
+
+% Disable single lines at the end of a paragraph (Hurenkinder)
+
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+ 
+% allows for colored, easy-to-find todos
+
+\newcommand{\todo}[1]{\textsf{\textbf{\textcolor{orange}{[[#1]]}}}}
+
+% consistent references: use these instead of \label and \ref
+
+\newcommand{\lsec}[1]{\label{sec:#1}}
+\newcommand{\lssec}[1]{\label{ssec:#1}}
+\newcommand{\lfig}[1]{\label{fig:#1}}
+\newcommand{\ltab}[1]{\label{tab:#1}}
+\newcommand{\rsec}[1]{Section~\ref{sec:#1}}
+\newcommand{\rssec}[1]{Section~\ref{ssec:#1}}
+\newcommand{\rfig}[1]{Figure~\ref{fig:#1}}
+\newcommand{\rtab}[1]{Table~\ref{tab:#1}}
+\newcommand{\rlst}[1]{Listing~\ref{#1}}
+
+% General information
+
+\title{Java C\# in depth -- Part 1: VFS core}
+
+\numberofauthors{3} 
+\author{
+% 1st. author
+\alignauthor Fabian Meier\\
+	\affaddr{ETH ID 10-919-280}\\
+	\email{meiefabi@student.ethz.ch}
+% 2nd. author
+\alignauthor Andrea Canonica\\
+	\affaddr{ETH ID 10-293-116}\\
+	\email{canandre@student.ethz.ch}
+%% 3rd. author
+\alignauthor Lukas H\"afliger\\
+	\affaddr{ETH ID 11-916-376}\\
+	\email{haelukas@student.ethz.ch}
+}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+In this part we developed the VFS core. All requirements were implemented as stated in the problem description. The disk is stored in a single file and can be configured with multiple parameters when creating it. Also hosting multiple disks and disposing them is possible without limitations. A rich variety of commands is implemented to create, delete, rename, move and copying files and directories. There is rich support for navigating through the filesystem and querying of free and occupied space is possible with a nice textual representation. Finally import and export for arbitrary files is possible without limitations. As bonus features we implemented several additions. Firstly we implemented compression and encryption with a third-party library. The implemented filesystem is an elastic disk. It supports dynamical growing and shrinking when the disk is defragmentated with the \texttt{defrag} command. The last point implemented is a support for large data so the filesystem is not bound by the size of the RAM.
+\end{abstract}
+
+\section{Introduction}
+In this part the VFS core was implemented. We used ANTLR4\footnote{A parser/lexer generator} to implement the command line. This led to a great extensibility of the command line. The VFS core was implemented in Visual Studio 2013 Ultimate using the Resharper\footnote{Visual Studio plugin from JetBrains} and dotCover\footnote{Coverage plugin from JetBrains} plugins. The goal of this part was to develop an API which is used in later parts. 
+
+\section{Virtual disk layout}
+In this part the core layout of the disk is described. 
+\begin{itemize}
+\item 4 bytes: address of the root directory
+\item 4 bytes: number of blocks in the disk
+\item 4 bytes: number of used blocks in the disk
+\item 8 bytes: the maximum size of the disk in bytes
+\item 4 bytes: the length of the name of the disk without the \texttt{.vdi} ending
+\item 128 bytes: the name of the disk as a char array
+\end{itemize}
+
+After this so called preamble of the disk, the bitmap is written. The bitmap provides information about which blocks of the disk are free and which are occupied. It uses exactly one bit per block so the actual size of this part may span over multiple blocks. The next block after the preamble and the bitmap is reserved for the root directory. The root directory has the same name as the disk. So when changing the working directory one can always change to a directory on another disk (which needs to be loaded at the time) by just accessing the root directory of said disk.\\
+
+\subsection{Enhancements}
+To improve the performance of the system, only the preamble, the bit map and the root directory are loaded on start up. From then on all operations are directly forwarded to disk to allow files which are even bigger than the RAM.
+
+
+\section{File layout}
+A file stored on the disk always occupies at least a single block. The first block of a file has always the following layout:
+\begin{itemize}
+\item 4 bytes: the address of the next block of the file. If there is no next block, the value of this field is zero
+\item 4 bytes: size of the file in bytes
+\item 4 bytes: the number of blocks
+\item 1 byte: signals if this entry is a directory. Always 0 for files
+\item 4 bytes: the address of the parent directory
+\item 1 byte: the length of the file name
+\item 106 bytes: the name as a char array
+\end{itemize}
+
+After the first 128 bytes, the file header, the actual data starts.\\
+If the file extends over multiple blocks, only the first block stores the meta information. Any consecutive block has the following layout:
+\begin{itemize}
+\item 4 bytes: the address of the next block of the file. If there is no next block, the value of this field is zero
+\item 4 bytes: the address of the parent directory
+\end{itemize}
+
+\subsection{Enhancements}
+To improve performance when navigating through the filesystem, only the header of a file is loaded. The actual data is only loaded when exporting the file to the host filesystem.
+
+\section{Directory layout}
+The layout of a directory is exactly the same as for files. Only the file size field is used to denote the number of entries in the directory.
+
+\section{Design}
+The main application is built around the \texttt{VFSManager} class which provides an API for all operation supported. It then uses multiple classes such as \texttt{DiskFactory} and \texttt{EntryFactory} which provide low level commands to create/load disks or create/load files/directories respectively. Files and directories are abstracted through the classes \texttt{VfsFile} and \texttt{VfsDirectory} which inherits from \texttt{VfsFile}. \texttt{VfsFile} inherits from \texttt{VfsEntry} which is just an abstraction of an entry which is either a file or a folder.
+
+\section{Implementation}
+All writing and reading from the disk are done with \texttt{BinaryWriter}s and \texttt{BinaryReader}s. Through our own extension class we added a simple overload on the seek method which provided us a convenient way to access a certain address. A simple example is shown in \fref{lst:Seek}.\\
+\begin{lstlisting} [label={lst:Seek},caption=A simple Seek extension]
+public static void Seek(this BinaryWriter writer, VfsDisk disk, int address)
+{
+    if (writer != null) if (disk != null) writer.Seek(address * disk.BlockSize, SeekOrigin.Begin);
+}
+\end{lstlisting}
+To ease to loading and creation of disks, the \texttt{DiskProperties} class was introduced. This class provides an easy way to load all necessary information from a disk as described in chapter 2.1. \\To be able to easy change the layout of the disk or a file, the \texttt{FileOffset} class was introduced. It stores all offsets to the certain fields which need to be read. 
+\section{Command description}
+\begin{itemize}
+\item ls: lists all files in the current directory. Optional parameters are \texttt{-f} and \texttt{-d} to only list file or directories respectively
+\item cd: changes the working directory. It accepts either a relative path or an absolute path. As an alternative two dots \texttt{..} can be used to navigate to the parent directory
+\item createdisk or cdisk: creates a disk an requires a \texttt{-s} parameter which denotes the size of the created disk. The allowed units are \texttt{kb, mb, gb, tb, KB, MB, GB, TB}. As optional parameters we can specify a password for encryption with the \texttt{-pw} parameter. Further we can specify the block size, the name and the path where the disk should be created with the parameters \texttt{-b, -n, -p}. If they are not specified default values are used. For encryption we do not use encryption if not specified, for the block size we use a default value of 2048 bytes, for the name we use a automatically generated one and for the path we use the current executing directory
+\item loaddisk or ldisk: loads a disk for further usage. It accepts as a first argument either the path to a virtual disk or directly an identifier if the disk is in the execution directory. as a last argument one can pass a \texttt{-pw} parameter to specify a password for decryption
+\item removedisk or rmdisk: removes a disk from the host filesystem and takes either a path or a disk name as an argument. To accept a disk name, the disk must be in the same directory as the executable.
+\item listdisks or ldisks: lists all disks in the execution directory or if specified with the \texttt{-p} paramtere in the specified path
+\item copy or cp: copies the file from the first argument into the directory passed by the second argument. Each argument can either be a relative or an absolute path
+\item mkdir: Creates a directory either in the current directory when a relative path is provided, or the directory specified by the absolute path. If a directory does not exist in the provided path, it get automatically created.
+\item mk or touch: Creates a file in the given path either specified by an absolute or relative path
+\item remove or rm: removes a file or a directory specified by an absolute or relative path
+\item move or mv: Moves a file from a source path to a destination path, where every path can either be an absolute or a relative path
+\item rename or rn: renames a file or a directory specified in the first argument
+\item import or im: imports a file, specified in the first argument, from the host file system to a path specified in the second argument
+\item export or ex: exports a file, specified in the first argument, from a path on the disk to a path, specified in the second argument, on the host filesystem
+\item free and occ: display the free or the occupied space on the current disk respectively
+\item defrag or df: defragmentates the disk and shrinks it if space is available
+\item exit or quit: exits the application and savely unloads all disks
+\end{itemize}
+\end{document}
