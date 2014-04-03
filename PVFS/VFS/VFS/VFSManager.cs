@@ -741,13 +741,13 @@ namespace VFS.VFS
             var fileName = fileInfo.Name;
 
             //Get fileLength
-            var fileLengthLong = Convert.ToInt32(fileInfo.Length);
-            if (fileLengthLong > GetFreeSpace())
+            var fileLengthLong = Convert.ToInt32(fileInfo.Length) + FileOffset.Header - FileOffset.SmallHeader;
+            if (fileLengthLong > (dstDir.Disk.DiskProperties.BlockSize - FileOffset.SmallHeader) * (dstDir.Disk.DiskProperties.NumberOfBlocks - dstDir.Disk.DiskProperties.NumberOfUsedBlocks))
             {
                 Console.Message("Filesize too large. Skipping import of: " + fileInfo.Name);
                 return;
             }
-            var fileLength = Convert.ToInt32(fileLengthLong);
+            var fileLength = Convert.ToInt32(fileInfo.Length);
 
             Console.Message("Importing " + fileName + " in " + dstDir.GetAbsolutePath());
 
@@ -940,7 +940,7 @@ namespace VFS.VFS
             //Export directory
             //TODO: check for correctness
             if (isFirstRecursion) 
-                path += '/' + toExport.Name;
+                path += "\\" + toExport.Name;
 
             Directory.CreateDirectory(path);
 
@@ -958,8 +958,7 @@ namespace VFS.VFS
             //If there are subfolders in toExport: export them
             foreach (var subDir in subDirs)
             {
-                path += '/' + subDir.Name;
-                ExportDirectory(path, subDir, false);
+                ExportDirectory(path + "\\" + subDir.Name, subDir, false);
             }
         }
 
