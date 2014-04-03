@@ -7,7 +7,7 @@ using VFS.VFS.Extensions;
 namespace VFS.VFS.Models
 {
     public sealed class VfsDisk : IDisposable{
-        private string Password { get; set; }
+        public string Password { get; set; } //TODO: had to make this public for VfsManager
         public FileStream Stream { get; private set; }
         public VfsDisk(string path, DiskProperties properties, string pw) {
             if (properties != null)
