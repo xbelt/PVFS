@@ -738,7 +738,7 @@ namespace VFS.VFS
 
             //get the compressed file and its name
             var fileInfo = new FileInfo(compressedSrc);
-            var fileName = fileInfo.Name;
+            var fileName = fileInfo.Name.Remove(fileInfo.Name.Length - 3);
 
             //Get fileLength
             var fileLengthLong = Convert.ToInt32(fileInfo.Length) + FileOffset.Header - FileOffset.SmallHeader;
