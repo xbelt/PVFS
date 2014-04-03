@@ -376,6 +376,33 @@ namespace UnitTest
             return !file1.Where((t, i) => t != file2[i]).Any();
         }
 
+        [TestMethod]
+        public void TestRename()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.CreateFile("/" + name + "/a");
+            VfsManager.Rename("/" + name + "/a", "b");
+            Assert.IsNull(VfsManager.GetEntry("/" + name + "/a"));
+            Assert.IsNotNull(VfsManager.GetEntry("/" + name + "/b"));
+            Assert.IsTrue(VfsManager.GetEntry("/" + name + "/b").Name == "b");
+        }
+
+        [TestMethod]
+        public void TestCopy()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
+            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.CreateFile("/" + name + "/a");
+            VfsManager.Copy("/" + name + "/a", "/" + name + "/b");
+            Assert.IsNotNull(VfsManager.GetEntry("/" + name + "/a"));
+            Assert.IsNotNull(VfsManager.GetEntry("/" + name + "/b/a"));
+        }
+
 
     }
 }
