@@ -747,7 +747,7 @@ namespace VFS.VFS
 
             //Get fileLength
             var fileLengthLong = fileInfo.Length + FileOffset.Header - FileOffset.SmallHeader;
-            if (fileLengthLong > (dstDir.Disk.DiskProperties.BlockSize - FileOffset.SmallHeader) * (dstDir.Disk.DiskProperties.NumberOfBlocks - dstDir.Disk.DiskProperties.NumberOfUsedBlocks))
+            if (fileLengthLong > ((long)dstDir.Disk.DiskProperties.BlockSize - (long)FileOffset.SmallHeader) * ((long)dstDir.Disk.DiskProperties.NumberOfBlocks - (long)dstDir.Disk.DiskProperties.NumberOfUsedBlocks))
             {
                 Console.Message("Filesize too large. Skipping import of: " + fileInfo.Name);
                 return;
