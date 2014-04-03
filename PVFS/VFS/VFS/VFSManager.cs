@@ -638,7 +638,7 @@ namespace VFS.VFS
                     }
                 }
             }
-            Console.Message("You saved " + savedBytes + "bytes due compression.");
+            Console.Message("You saved " + savedBytes + " bytes thanks to compression.");
             return returnPath;
         }
 
@@ -859,7 +859,11 @@ namespace VFS.VFS
             if (src.LastIndexOf('/') == 0)
             {
                 var disk = GetDisk(src.Substring(1, src.Length -1));
-                if (disk == null) { Console.Message("disk is null");}
+                if (disk == null) 
+                { 
+                    Console.Message("disk is null");
+                    return;
+                }
                 ExportDirectory(dst, disk.Root, true);
                 return;
             }
