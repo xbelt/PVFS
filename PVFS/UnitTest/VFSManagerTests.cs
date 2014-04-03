@@ -30,7 +30,7 @@ namespace UnitTest
 
             var accessor = new PrivateType(typeof (VfsManager));
             accessor.InvokeStatic("AddAndOpenDisk", new [] {disk});
-            var result = accessor.InvokeStatic("getDisk", new[] {name});
+            var result = accessor.InvokeStatic("GetDisk", new[] {name});
             Debug.Assert(result == disk);
             disk.Stream.Close();
         }
@@ -147,14 +147,14 @@ namespace UnitTest
             var accessor = new PrivateType(typeof(VfsManager));
             accessor.InvokeStatic("AddAndOpenDisk", new[] { disk });
             accessor.InvokeStatic("UnloadDisk", new[] { name });
-            var result = accessor.InvokeStatic("getDisk", new[] { name });
+            var result = accessor.InvokeStatic("GetDisk", new[] { name });
             Debug.Assert(result == null);
         }
 
         [TestMethod]
         public void TestGetTempFilePath() {
             var accessor = new PrivateType(typeof(VfsManager));
-            var result = accessor.InvokeStatic("getTempFilePath", new object[] {});
+            var result = accessor.InvokeStatic("GetTempFilePath", new object[] {});
         }
 
         [TestMethod]
@@ -358,13 +358,14 @@ namespace UnitTest
 
         public void TestExportWithDestToFile()
         {
-            File.Create("C:\\useless.txt");
+            Directory.CreateDirectory("C:\\tmp\\");
+            File.Create("C:\\tmp\\useless.txt");
             string path;
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VfsManager.AddAndOpenDisk(disk);
             VfsManager.CreateFile(disk.Root.GetAbsolutePath() + "/useless2.txt");
-            VfsManager.Export(disk.Root.GetAbsolutePath() + "/useless2.txt", "C:\\useless.txt");
+            VfsManager.Export(disk.Root.GetAbsolutePath() + "/useless2.txt", "C:\\tmp\\useless.txt");
         }
 
         private static bool FileContentComparer(string arg1, string arg2)
