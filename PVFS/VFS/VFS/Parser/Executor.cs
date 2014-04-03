@@ -14,10 +14,10 @@ namespace VFS.VFS.Parser
             string path = ""; // context.path.Text;
             if (context.files == null && context.dirs == null)
             {
-                VFSManager.ListEntries(VFSManager.getAbsolutePath(path), true, true);
+                VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), true, true);
                 return;
             }
-            VFSManager.ListEntries(VFSManager.getAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
+            VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
         }
 
         public override void EnterCd(ShellParser.CdContext context)
@@ -26,17 +26,17 @@ namespace VFS.VFS.Parser
                 return;
             if (context.path != null)
             {
-                VFSManager.ChangeWorkingDirectory(context.path.Text);
+                VfsManager.ChangeWorkingDirectory(context.path.Text);
                 return;
             }
             if (context.ident != null)
             {
-                VFSManager.ChangeDirectoryByIdentifier(context.ident.Text);
+                VfsManager.ChangeDirectoryByIdentifier(context.ident.Text);
                 return;
             }
             if (context.dots != null)
             {
-                VFSManager.navigateUp();
+                VfsManager.NavigateUp();
                 return;
             }
             throw new ArgumentException("cd requires at least one argument");
@@ -46,7 +46,7 @@ namespace VFS.VFS.Parser
         {
             if (context == null)
                 return;
-            VFSManager.Copy(context.src.Text, context.dst.Text);
+            VfsManager.Copy(context.src.Text, context.dst.Text);
         }
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
@@ -118,7 +118,7 @@ namespace VFS.VFS.Parser
                 size = getSizeInBytes(intSize, context.Size().Symbol.Text.Substring(context.Size().Symbol.Text.Length - 2));
             }
 
-            VFSManager.CreateDisk(path,name,size,blockSize,pw);
+            VfsManager.CreateDisk(path,name,size,blockSize,pw);
         }
 
         private static double getSizeInBytes(double intSize, string type)
@@ -149,7 +149,7 @@ namespace VFS.VFS.Parser
             {
                 string path = context.sys.Text;
                 var noFileEnding = path.Remove(path.LastIndexOf("."));
-                VFSManager.UnloadDisk(noFileEnding.Substring(noFileEnding.LastIndexOf("\\")));
+                VfsManager.UnloadDisk(noFileEnding.Substring(noFileEnding.LastIndexOf("\\")));
                 DiskFactory.Remove(context.sys.Text);
                 return;
             }
@@ -163,12 +163,12 @@ namespace VFS.VFS.Parser
                 string name = context.name.Text;
                 if (!context.name.Text.EndsWith(".vdi"))
                 {
-                    VFSManager.UnloadDisk(name);
+                    VfsManager.UnloadDisk(name);
                     name += ".vdi";
                 }
                 else
                 {
-                    VFSManager.UnloadDisk(name.Remove(name.LastIndexOf(".")));
+                    VfsManager.UnloadDisk(name.Remove(name.LastIndexOf(".")));
                 }
                 DiskFactory.Remove(path + name);
             }
@@ -202,7 +202,7 @@ namespace VFS.VFS.Parser
             }
             if (disk != null)
             {
-                VFSManager.AddAndOpenDisk(disk);
+                VfsManager.AddAndOpenDisk(disk);
                 return;
             }
         }
@@ -218,12 +218,12 @@ namespace VFS.VFS.Parser
 
                 foreach (var file in files)
                 {
-                    VFSManager.Console.Message(file);
+                    VfsManager.Console.Message(file);
                 }
             }
             else
             {
-                VFSManager.ListDisks();
+                VfsManager.ListDisks();
             }
         }
 
@@ -233,11 +233,11 @@ namespace VFS.VFS.Parser
                 return;
             if (context.id != null)
             {
-                VFSManager.CreateDirectory(VFSManager.getAbsolutePath(context.id.Text), false);
+                VfsManager.CreateDirectory(VfsManager.GetAbsolutePath(context.id.Text), false);
             }
             else
             {
-                VFSManager.Console.Error("Format: mkdir <DirectoryName>");
+                VfsManager.Console.Error("Format: mkdir <DirectoryName>");
             }
         }
 
@@ -247,11 +247,11 @@ namespace VFS.VFS.Parser
                 return;
             if (context.id != null)
             {
-                VFSManager.CreateFile(VFSManager.getAbsolutePath(context.id.Text));
+                VfsManager.CreateFile(VfsManager.GetAbsolutePath(context.id.Text));
             }
             else
             {
-                VFSManager.Console.Error("Format: mk <FileName>");
+                VfsManager.Console.Error("Format: mk <FileName>");
             }
         }
 
@@ -261,11 +261,11 @@ namespace VFS.VFS.Parser
                 return;
             if (context.trgt != null)
             {
-                VFSManager.Remove(context.trgt.Text);
+                VfsManager.Remove(context.trgt.Text);
             }
             if (context.id != null)
             {
-                VFSManager.RemoveByIdentifier(context.id.Text);
+                VfsManager.RemoveByIdentifier(context.id.Text);
             }
         }
 
@@ -273,56 +273,56 @@ namespace VFS.VFS.Parser
         {
             if (context == null)
                 return;
-            VFSManager.Move(context.src.Text, context.dst.Text);
+            VfsManager.Move(context.src.Text, context.dst.Text);
         }
 
         public override void EnterRn(ShellParser.RnContext context)
         {
             if (context == null)
                 return;
-            VFSManager.Rename(VFSManager.getAbsolutePath(context.src.Text), context.dst.Text);
+            VfsManager.Rename(VfsManager.GetAbsolutePath(context.src.Text), context.dst.Text);
         }
 
         public override void EnterIm(ShellParser.ImContext context)
         {
             if (context == null)
                 return;
-            VFSManager.Import(context.ext.Text, context.inte.Text);
+            VfsManager.Import(context.ext.Text, context.inte.Text);
         }
 
         public override void EnterEx(ShellParser.ExContext context)
         {
             if (context == null)
                 return;
-            VFSManager.Export(context.inte.Text, context.ext.Text);
+            VfsManager.Export(context.inte.Text, context.ext.Text);
         }
 
         public override void EnterFree(ShellParser.FreeContext context)
         {
             if (context == null)
                 return;
-            VFSManager.GetFreeSpace();
+            VfsManager.GetFreeSpace();
         }
 
         public override void EnterOcc(ShellParser.OccContext context)
         {
             if (context == null)
                 return;
-            VFSManager.GetOccupiedSpace();
+            VfsManager.GetOccupiedSpace();
         }
 
         public override void EnterDefrag(ShellParser.DefragContext context)
         {
             if (context == null)
                 return;
-            VFSManager.Defrag();
+            VfsManager.Defrag();
         }
 
         public override void EnterExit(ShellParser.ExitContext context)
         {
             if (context == null)
                 return;
-            VFSManager.Exit();
+            VfsManager.Exit();
             Environment.Exit(0);
         }
     }
