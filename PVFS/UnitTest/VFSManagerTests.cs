@@ -301,18 +301,19 @@ namespace UnitTest
             writer2.Write("I'm in \\c");
             writer2.Close();
             string path, name;
-            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 16384,256);
+            var diskPath = disk.Root.GetAbsolutePath();
             Debug.Assert(disk != null);
             VfsManager.AddAndOpenDisk(disk);
             //TODO: dunno why but never enters ImportFile
-            VfsManager.Import("C:\\importTest", "/"+disk.Root.Name);
+            VfsManager.Import("C:\\importTest",disk.Root.GetAbsolutePath());
             Debug.Assert(disk.Root.GetDirectory("importTest") != null);
-            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/a") != null);
-            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/c") != null);
-            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/a/b") != null);
-            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/a/b/f1.txt") != null);
-            Debug.Assert(VfsManager.GetEntry("/" + disk.Root.Name + "/importTest/c/f2.txt") != null);
-            VfsManager.Export("/" + disk.Root.Name + "/importTest", "C::\\exportTest");
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b/f1.txt") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c/f2.txt") != null);
+            VfsManager.Export(diskPath + "/importTest", "C::\\exportTest");
             Debug.Assert(Directory.Exists("C::\\exportTest\\importTest\\a\\b"));
             Debug.Assert(Directory.Exists("C::\\exportTest\\importTest\\c"));
             Debug.Assert(File.Exists("C:\\exportTest\\importTest\\a\\b\\f1.txt"));
@@ -321,6 +322,50 @@ namespace UnitTest
             const string filePath2 = "C:\\exportTest\\importTest\\c\\f2.txt";
             Debug.Assert(FileContentComparer(filePath1, "C:\\importTest\\a\\b\\f1.txt"));
             Debug.Assert(FileContentComparer(filePath2, "C:\\importTest\\c\\f2.txt"));
+        }
+
+        [TestMethod]
+        public void TestSingleFileExport()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.CreateFile(disk.Root.GetAbsolutePath() + "/file.txt");
+            Debug.Assert(disk.Root.GetFile("file.txt") != null);
+            var directoryInfo = Directory.CreateDirectory("C:\\fileExp");
+            Debug.Assert(Directory.Exists("C:\\fileExp"));
+            VfsManager.Export(disk.Root.GetAbsolutePath() + "/file.txt", "C:\\fileExp");
+            Debug.Assert(File.Exists("C:\\fileExp\\file.txt"));
+        }
+
+        [TestMethod]
+        public void TestSingleFileInDirectoryExport()
+        {
+            //TODO: gives runtime exception, but files are there? :/
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VfsManager.AddAndOpenDisk(disk);
+            var diskPath = disk.Root.GetAbsolutePath();
+            VfsManager.CreateDirectory(diskPath + "/subdir", false);
+            VfsManager.CreateFile(diskPath + "/subdir/file.txt");
+            var directoryInfo = Directory.CreateDirectory("C:\\fileExp2");
+            VfsManager.Export(diskPath + "/subdir", "C:\\fileExp2");
+            Debug.Assert(File.Exists("C:\\filExp2\\subdir\\file.txt"));
+        }
+
+        [TestMethod]
+
+        public void TestExportWithDestToFile()
+        {
+            File.Create("C:\\useless.txt");
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name);
+            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.CreateFile(disk.Root.GetAbsolutePath() + "/useless2.txt");
+            VfsManager.Export(disk.Root.GetAbsolutePath() + "/useless2.txt", "C:\\useless.txt");
         }
 
         private static bool FileContentComparer(string arg1, string arg2)
