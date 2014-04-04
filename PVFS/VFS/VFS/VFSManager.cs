@@ -7,6 +7,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.AccessControl;
 using VFS.VFS.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace VFS.VFS
 {
@@ -18,6 +20,8 @@ namespace VFS.VFS
         public static VfsConsole Console = new VfsConsole();
         private readonly static string[] IdToSize = { "bytes", "kb", "mb", "gb", "tb" };
         private static bool PassWordCorrect = false;
+        private const string Salt = "d5fg4df5sg4ds5fg45sdfg4";
+        private const int SizeOfBuffer = 1024 * 8;
 
         #region Private Methods
 
@@ -727,11 +731,93 @@ namespace VFS.VFS
             return path;
         }
 
+        private static string EncryptFile(FileInfo src, String password)
+        {
+            var srcPath = src.FullName;
+            var dstPath = srcPath + ".enc";
+
+            if (password == null)
+            {
+                return srcPath;
+            }
+
+            var input = new FileStream(srcPath, FileMode.Open, FileAccess.Read);
+            var output = new FileStream(dstPath, FileMode.OpenOrCreate, FileAccess.Write);
+
+            var algorithm = new RijndaelManaged { KeySize = 256, BlockSize = 128 };
+            var key = new Rfc2898DeriveBytes(password, Encoding.ASCII.GetBytes(Salt));
+
+            algorithm.Key = key.GetBytes(algorithm.KeySize / 8);
+            algorithm.IV = key.GetBytes(algorithm.BlockSize / 8);
+
+            using (var encryptedStream = new CryptoStream(output, algorithm.CreateEncryptor(), CryptoStreamMode.Write))
+            {
+                CopyStream(input, encryptedStream);
+            }
+
+            return dstPath;
+        }
+
+        private static string DecryptFile(FileInfo src, String password)
+        {
+            var inputPath = src.FullName;
+            var outputPath = inputPath + ".dc";
+            if (password == null)
+            {
+                return inputPath;
+            }
+            var input = new FileStream(inputPath, FileMode.Open, FileAccess.Read);
+            var output = new FileStream(outputPath, FileMode.OpenOrCreate, FileAccess.Write);
+            
+            var algorithm = new RijndaelManaged { KeySize = 256, BlockSize = 128 };
+            var key = new Rfc2898DeriveBytes(password, Encoding.ASCII.GetBytes(Salt));
+
+            algorithm.Key = key.GetBytes(algorithm.KeySize / 8);
+            algorithm.IV = key.GetBytes(algorithm.BlockSize / 8);
+
+            try
+            {
+                using (var decryptedStream = new CryptoStream(output, algorithm.CreateDecryptor(), CryptoStreamMode.Write))
+                {
+                    CopyStream(input, decryptedStream);
+                    File.Delete(inputPath);
+                    File.Move(outputPath, inputPath);
+                }
+            }
+            catch (CryptographicException)
+            {
+                throw new InvalidDataException("Please supply a correct password");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return outputPath;
+        }
+
+        private static void CopyStream(Stream input, Stream output)
+        {
+            using (output)
+            using (input)
+            {
+                byte[] buffer = new byte[SizeOfBuffer];
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    output.Write(buffer, 0, read);
+                }
+            }
+        }
+
         private static void ImportFile(string src, VfsDirectory dstDir) 
-        {   //TODO Add encryption
+        {   
             Console.Message("Start importing file");
+            var toEncrypt = new FileInfo(src);
+            //Encrypt file with disk password
+            var encryptedFile = EncryptFile(toEncrypt, dstDir.Disk.Password);
+
             //Get FileInfo
-            var toCompress = new FileInfo(src);
+            var toCompress = new FileInfo(encryptedFile);
 
             Console.Message("Starting compression");
             //Compress the file before importing
@@ -744,6 +830,10 @@ namespace VFS.VFS
             //get the compressed file and its name
             var fileInfo = new FileInfo(compressedSrc);
             var fileName = fileInfo.Name.Remove(fileInfo.Name.Length - 3);
+            if (fileName.EndsWith(".enc"))
+            {
+                fileName = fileName.Remove(fileName.Length - 4);
+            }
 
             //Get fileLength
             var fileLengthLong = fileInfo.Length + FileOffset.Header - FileOffset.SmallHeader;
@@ -785,6 +875,7 @@ namespace VFS.VFS
 
             //Delete the compressed file in host system (what kind of compression would it be to have the same file twice? :P)
             File.Delete(compressedSrc);
+            File.Delete(encryptedFile);
         }
 
 
@@ -850,19 +941,6 @@ namespace VFS.VFS
                 Console.Message("Destination does not lead to a directory: " + dst);
                 return;
             }
-
-            #region password
-            //TODO: temporary solution...
-            //Check password
-            /*var pw = Console.Readline("Please enter password of disk for decryption.");
-            PassWordCorrect = pw.Equals(CurrentDisk.Password);
-            if (!PassWordCorrect)
-            {
-                Console.Message("Password is incorrect. Export denied.");
-                return;
-            } */
-
-            #endregion
 
             //Check if src is rootdirectory
             if (src.LastIndexOf('/') == 0)
@@ -930,8 +1008,12 @@ namespace VFS.VFS
             var toDecompress = new FileInfo(completePath);
             var decompressed = Decompress(toDecompress);
 
+            var toDecrypt = new FileInfo(decompressed);
+            var decryptionTempFile = DecryptFile(toDecrypt, toExport.Disk.Password);
+
             //Delete compressed file
             File.Delete(toDecompress.FullName);
+            File.Delete(decryptionTempFile);
         }
 
         private static void ExportDirectory(string dst, VfsDirectory toExport, bool isFirstRecursion) 
