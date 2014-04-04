@@ -7,7 +7,7 @@ using VFS.VFS.Extensions;
 namespace VFS.VFS.Models
 {
     public sealed class VfsDisk : IDisposable{
-        public string Password { get; set; } //TODO: had to make this public for VfsManager
+        public String Password { get; set; }
         public FileStream Stream { get; private set; }
         public VfsDisk(string path, DiskProperties properties, string pw) {
             if (properties != null)
@@ -18,6 +18,10 @@ namespace VFS.VFS.Models
                 _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
                 Path = path;
                 Password = pw;
+                if (pw == "")
+                {
+                    Password = null;
+                }
                 DiskProperties = properties;
                 BitMap = new BitArray(properties.NumberOfBlocks, true);
             }
