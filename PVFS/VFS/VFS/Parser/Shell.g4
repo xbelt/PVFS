@@ -24,7 +24,7 @@ compileUnit
 	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
 	| ('removedisk' | 'rmdisk') (sys=SysPath | name=Identifier)+ compileUnit								#Rmdisk
 	| ('loaddisk' | 'ldisk') ( sys=SysPath | name=Identifier)+ ('-pw' pw=Identifier)? compileUnit			#Ldisk
-	| ('unloaddisk' | 'udisk') (sys=SysPath | name=Identifier)+												#UDisk
+	| ('unloaddisk' | 'udisk') (sys=SysPath | name=Identifier)+ compileUnit												#UDisk
 	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
 	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir
 	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
