@@ -52,7 +52,7 @@ namespace VFS.VFS
             //Write root folder manually
             writer.Seek(disk, blocksUsedForPreamble);
             writer.Write(0); //NextBlock
-            writer.Write(0); //NrOfChildren
+            writer.Write(0L); //NrOfChildren
             writer.Write(1); //NoBlocks
             writer.Write(one); //Directory?
             writer.Write(blocksUsedForPreamble);
