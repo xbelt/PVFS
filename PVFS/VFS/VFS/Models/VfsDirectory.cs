@@ -19,7 +19,7 @@ namespace VFS.VFS.Models
 
     public class VfsDirectory : VfsFile
     {
-        public VfsDirectory(VfsDisk disk, int address, string name, VfsDirectory parent, int noEntries, int noBlocks, int nextBlock)
+        public VfsDirectory(VfsDisk disk, int address, string name, VfsDirectory parent, long noEntries, int noBlocks, int nextBlock)
             : base(disk, address, name, parent, noEntries, noBlocks, nextBlock)
         {
             IsDirectory = true;
