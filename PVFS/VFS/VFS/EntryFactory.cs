@@ -35,7 +35,7 @@ namespace VFS.VFS
 
             var nextBlock = reader.ReadInt32();
 
-            var fileSize = reader.ReadInt32();//fileSize doubles as noEntries for a directory!
+            var fileSize = reader.ReadInt64();//fileSize doubles as noEntries for a directory!
             var noBlocks = reader.ReadInt32();
             var directory = reader.ReadBoolean();
             reader.ReadInt32();
@@ -119,10 +119,10 @@ namespace VFS.VFS
             // Write Directory Header
             writer.Seek(disk, address);
             writer.Write(0);
-            writer.Write(parent.Address);
-            writer.Write(0);
+            writer.Write(0L);
             writer.Write(1);
             writer.Write(true);
+            writer.Write(parent.Address);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
             writer.Flush();
