@@ -166,6 +166,34 @@ public static void Seek(this BinaryWriter writer, VfsDisk disk, int address)
 }
 \end{lstlisting}
 To ease the loading and creation of disks, the \texttt{DiskProperties} class was introduced. This class provides an easy way to load all necessary information from a disk as described in chapter 2.1. \\To be able to easy change the layout of the disk or a file, the \texttt{FileOffset} class was introduced. It stores all offsets to the certain fields which need to be read. 
+\subsection{Compression}
+Compression is done within the host filesystem. A \texttt{GZipStream} is used to compress the original file. The original file is opened in a \texttt{FileStream} and is then copied into a \texttt{GZipStream} which copies the source file into a temporary file with a \texttt{.gz} ending. This compressed file is then imported into the filesystem and later deleted.
+\subsection{Encryption}
+Encryption is based on the rijndael algorithm which provides AES encryption. In \fref{lst:AES} the decryption is shown. On line 4 a new instance of the \texttt{RijndaelManaged} class with keySize 256 which corresponds to AES-256 is instantiated. To encrypt a file only line 12 is different and the try/catch block is not necessary. To encrypt, one uses a \texttt{algorithm.CreateEncryptor()} instead of \texttt{algorithm.CreateDecryptor()}. 
+\begin{lstlisting}[label={lst:AES},caption=AES decryption]
+var input = new FileStream(inputPath, FileMode.Open, FileAccess.Read);
+var output = new FileStream(outputPath, FileMode.OpenOrCreate, FileAccess.Write);
+            
+var algorithm = new RijndaelManaged { KeySize = 256, BlockSize = 128 };
+var key = new Rfc2898DeriveBytes(password, Encoding.ASCII.GetBytes(Salt));
+
+algorithm.Key = key.GetBytes(algorithm.KeySize / 8);
+algorithm.IV = key.GetBytes(algorithm.BlockSize / 8);
+
+try
+{
+    using (var decryptedStream = new CryptoStream(output, algorithm.CreateDecryptor(), CryptoStreamMode.Write))
+    {
+        CopyStream(input, decryptedStream);
+        File.Delete(inputPath);
+        File.Move(outputPath, inputPath);
+    }
+}
+catch (CryptographicException)
+{
+    Console.Error("Please supply a correct password");
+}
+\end{lstlisting}
 \section{Command description}
 \begin{itemize}
 \item ls: lists all files in the current directory. Optional parameters are \texttt{-f} and \texttt{-d} to only list files or directories respectively
