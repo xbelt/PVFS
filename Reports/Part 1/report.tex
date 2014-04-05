@@ -155,7 +155,7 @@ To improve performance when navigating through the filesystem, only the header o
 The layout of a directory is exactly the same as for files. Only the file size field is used to denote the number of entries in the directory.
 
 \section{Design}
-The main application is built around the \texttt{VFSManager} class which provides an API for all operation supported. It then uses multiple classes such as \texttt{DiskFactory} and \texttt{EntryFactory} which provide low level commands to create/load disks or create/load files/directories respectively. Files and directories are abstracted through the classes \texttt{VfsFile} and \texttt{VfsDirectory} which inherits from \texttt{VfsFile}. \texttt{VfsFile} inherits from \texttt{VfsEntry} which is just an abstraction of an entry which is either a file or a folder.
+The main application is built around the \texttt{VFSManager} class which provides an API for all operations supported. It then uses multiple classes such as \texttt{DiskFactory} and \texttt{EntryFactory} which provide low level commands to create/load disks or create/load files/directories respectively. Files and directories are abstracted through the classes \texttt{VfsFile} and \texttt{VfsDirectory} which inherits from \texttt{VfsFile}. \texttt{VfsFile} inherits from \texttt{VfsEntry} which is just an abstraction of an entry which is either a file or a folder.
 
 \section{Implementation}
 All writing and reading from the disk are done with \texttt{BinaryWriter}s and \texttt{BinaryReader}s. Through our own extension class we added a simple overload on the seek method which provided us a convenient way to access a certain address. A simple example is shown in \fref{lst:Seek}.\\
@@ -165,23 +165,23 @@ public static void Seek(this BinaryWriter writer, VfsDisk disk, int address)
     if (writer != null) if (disk != null) writer.Seek(address * disk.BlockSize, SeekOrigin.Begin);
 }
 \end{lstlisting}
-To ease to loading and creation of disks, the \texttt{DiskProperties} class was introduced. This class provides an easy way to load all necessary information from a disk as described in chapter 2.1. \\To be able to easy change the layout of the disk or a file, the \texttt{FileOffset} class was introduced. It stores all offsets to the certain fields which need to be read. 
+To ease the loading and creation of disks, the \texttt{DiskProperties} class was introduced. This class provides an easy way to load all necessary information from a disk as described in chapter 2.1. \\To be able to easy change the layout of the disk or a file, the \texttt{FileOffset} class was introduced. It stores all offsets to the certain fields which need to be read. 
 \section{Command description}
 \begin{itemize}
-\item ls: lists all files in the current directory. Optional parameters are \texttt{-f} and \texttt{-d} to only list file or directories respectively
+\item ls: lists all files in the current directory. Optional parameters are \texttt{-f} and \texttt{-d} to only list files or directories respectively
 \item cd: changes the working directory. It accepts either a relative path or an absolute path. As an alternative two dots \texttt{..} can be used to navigate to the parent directory
-\item createdisk or cdisk: creates a disk an requires a \texttt{-s} parameter which denotes the size of the created disk. The allowed units are \texttt{kb, mb, gb, tb, KB, MB, GB, TB}. As optional parameters we can specify a password for encryption with the \texttt{-pw} parameter. Further we can specify the block size, the name and the path where the disk should be created with the parameters \texttt{-b, -n, -p}. If they are not specified default values are used. For encryption we do not use encryption if not specified, for the block size we use a default value of 2048 bytes, for the name we use a automatically generated one and for the path we use the current executing directory
+\item createdisk or cdisk: creates a disk and requires a \texttt{-s} parameter which denotes the size of the created disk. The allowed units are \texttt{kb, mb, gb, tb, KB, MB, GB, TB}. As optional parameters we can specify a password for encryption with the \texttt{-pw} parameter. Further we can specify the block size, the name and the path where the disk should be created with the parameters \texttt{-b, -n, -p}. If they are not specified default values are used. For encryption we do not use encryption if not specified, for the block size we use a default value of 2048 bytes, for the name we use a automatically generated one and for the path we use the current executing directory
 \item loaddisk or ldisk: loads a disk for further usage. It accepts as a first argument either the path to a virtual disk or directly an identifier if the disk is in the execution directory. as a last argument one can pass a \texttt{-pw} parameter to specify a password for decryption
 \item removedisk or rmdisk: removes a disk from the host filesystem and takes either a path or a disk name as an argument. To accept a disk name, the disk must be in the same directory as the executable.
 \item listdisks or ldisks: lists all disks in the execution directory or if specified with the \texttt{-p} paramtere in the specified path
 \item copy or cp: copies the file from the first argument into the directory passed by the second argument. Each argument can either be a relative or an absolute path
-\item mkdir: Creates a directory either in the current directory when a relative path is provided, or the directory specified by the absolute path. If a directory does not exist in the provided path, it get automatically created.
+\item mkdir: Creates a directory either in the current directory when a relative path is provided, or the directory specified by the absolute path. If a directory does not exist in the provided path, it is automatically created.
 \item mk or touch: Creates a file in the given path either specified by an absolute or relative path
 \item remove or rm: removes a file or a directory specified by an absolute or relative path
 \item move or mv: Moves a file from a source path to a destination path, where every path can either be an absolute or a relative path
 \item rename or rn: renames a file or a directory specified in the first argument
-\item import or im: imports a file, specified in the first argument, from the host file system to a path specified in the second argument
-\item export or ex: exports a file, specified in the first argument, from a path on the disk to a path, specified in the second argument, on the host filesystem
+\item import or im: imports a file or a directory, specified in the first argument, from the host file system to a path specified in the second argument
+\item export or ex: exports a file or a directory, specified in the first argument, from a path on the disk to a path, specified in the second argument, on the host filesystem
 \item free and occ: display the free or the occupied space on the current disk respectively
 \item defrag or df: defragmentates the disk and shrinks it if space is available
 \item exit or quit: exits the application and savely unloads all disks
