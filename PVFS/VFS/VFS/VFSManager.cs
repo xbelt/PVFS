@@ -755,7 +755,7 @@ namespace VFS.VFS
                 CopyStream(input, encryptedStream);
             }
 
-            return dstPath;
+            return srcPath;
         }
 
         private static string DecryptFile(FileInfo src, String password)
@@ -764,7 +764,7 @@ namespace VFS.VFS
             var outputPath = inputPath + ".dc";
             if (password == null)
             {
-                return inputPath;
+                return outputPath;
             }
             var input = new FileStream(inputPath, FileMode.Open, FileAccess.Read);
             var output = new FileStream(outputPath, FileMode.OpenOrCreate, FileAccess.Write);
@@ -813,9 +813,10 @@ namespace VFS.VFS
         {   
             Console.Message("Start importing file");
             var toEncrypt = new FileInfo(src);
+            Console.Message("Start encryption");
             //Encrypt file with disk password
             var encryptedFile = EncryptFile(toEncrypt, dstDir.Disk.Password);
-
+            Console.Message("Finished encryption");
             //Get FileInfo
             var toCompress = new FileInfo(encryptedFile);
 
@@ -875,7 +876,7 @@ namespace VFS.VFS
 
             //Delete the compressed file in host system (what kind of compression would it be to have the same file twice? :P)
             File.Delete(compressedSrc);
-            File.Delete(encryptedFile);
+            File.Delete(encryptedFile + ".enc");
         }
 
 
