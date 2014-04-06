@@ -9,7 +9,7 @@ using VFS.VFS.Models;
 namespace UnitTest
 {
     [TestClass]
-    public class VFSManagerTests
+    public class VfsManagerTests
     {
         [TestMethod]
         public void TestLoadDisk()
@@ -443,6 +443,112 @@ namespace UnitTest
             Debug.Assert(FileContentComparer(filePath1, "C:\\importTest\\a\\b\\f1.txt"));
             Debug.Assert(FileContentComparer(filePath2, "C:\\importTest\\c\\f2.txt"));
             Directory.Delete("C:\\exportTest\\", true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestListEntriesException()
+        {
+            var path = Environment.CurrentDirectory;
+            var name = "b";
+            int i = 0;
+            while (File.Exists(path + "\\" + name + ".vdi"))
+            {
+                name = "b" + i++;
+            }
+            VfsManager.ExecuteCommand("cdisk -n " + name + " -s 1mb");
+            VfsManager.CreateDirectory("a/b/c", true);
+            VfsManager.CreateFile("a.txt");
+            VfsManager.ListEntries("b", true, true);
+            VfsManager.ListEntries("a.txt", true, true);
+            VfsManager.ListEntries("", true, true);
+            VfsManager.ListEntries(null, true, true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof (ArgumentNullException))]
+        public void TestMoveException1()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
+            VfsManager.LoadDisk(disk);
+            VfsManager.Move(null, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestMoveException2()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
+            VfsManager.LoadDisk(disk);
+            VfsManager.Move("", null);
+        }
+
+        [TestMethod]
+        public void TestUnopenedDiskExceptions()
+        {
+            VfsManager.Console = new MockConsole();
+            VfsManager.Move("", "");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.NavigateUp();
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.ListEntries("", true, true);
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.CreateDirectory("", true);
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.CreateFile("");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Rename("", "");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Copy("", "");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Remove("");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Import("", "");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Export("", "");
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.GetFreeSpace();
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.GetOccupiedSpace();
+            Assert.AreEqual(((MockConsole) VfsManager.Console).lastCommand, MockConsole.Command.Error);
+        }
+
+        [TestMethod]
+        public void TestMoveErrors()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
+            VfsManager.LoadDisk(disk);
+            VfsManager.Console = new MockConsole();
+            VfsManager.CreateFile("a.txt");
+            VfsManager.CreateDirectory("a", true);
+            VfsManager.Move("b.txt", "");
+            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Move("a.txt", "a.txt");
+            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.Move("/" + name, "a");
+            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);
+        }
+
+        [TestMethod]
+        public void TestCreateDirectoryErrors()
+        {
+            string path;
+            string name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
+            VfsManager.LoadDisk(disk);
+            VfsManager.Console = new MockConsole();
+            VfsManager.CreateDirectory("a", true);
+            VfsManager.CreateDirectory("a", true);
+            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            VfsManager.CreateFile("b");
+            VfsManager.CreateDirectory("b", true);
+            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);
         }
 
 
