@@ -31,7 +31,7 @@ namespace VFS.VFS.Parser
             }
             if (context.ident != null)
             {
-                VfsManager.ChangeDirectoryByIdentifier(context.ident.Text);
+                VfsManager.ChangeWorkingDirectory(context.ident.Text);
                 return;
             }
             if (context.dots != null)
@@ -202,7 +202,7 @@ namespace VFS.VFS.Parser
             }
             if (disk != null)
             {
-                VfsManager.AddAndOpenDisk(disk);
+                VfsManager.LoadDisk(disk);
                 return;
             }
         }
@@ -265,7 +265,7 @@ namespace VFS.VFS.Parser
             }
             if (context.id != null)
             {
-                VfsManager.RemoveByIdentifier(context.id.Text);
+                VfsManager.Remove(context.id.Text);
             }
         }
 

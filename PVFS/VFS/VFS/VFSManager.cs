@@ -23,8 +23,7 @@ namespace VFS.VFS
         private const string Salt = "d5fg4df5sg4ds5fg45sdfg4";
         private const int SizeOfBuffer = 1024 * 8;
 
-        #region Private Methods
-
+        //----------------------Private Methods----------------------
 
         /// <summary>
         /// Returns the disk with the corresponding name.
@@ -39,12 +38,10 @@ namespace VFS.VFS
         /// <summary>
         /// Returns the corresponding VfsEntry
         /// </summary>
-        /// <param name="path">An absolute path containing the disk name</param>
+        /// <param name="path">A path containing the disk name (can be relative or absolute)</param>
         /// <returns>Returns the entry if found, otherwise null.</returns>
         public static VfsEntry GetEntry(string path)
         {
-            //Check if path is relative, if so, make it absolute
-            path = MakePathAbsolute(path);
             VfsDirectory last;
             IEnumerable<string> remaining;
             return GetEntry(path, out last, out remaining);
@@ -53,14 +50,17 @@ namespace VFS.VFS
         /// <summary>
         /// Returns the corresponding VfsEntry
         /// </summary>
-        /// <param name="path">An absolute path containing the disk name</param>
-        /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root. Null if disk was not found</param>
+        /// <param name="path">A path containing the disk name (can be relative or absolute)</param>
+        /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root. Null if disk was not found.</param>
         /// <param name="remaining">Returns the remaining path, if the result was null.</param>
-        /// <returns>Returns the entry if found, otherwise null.</returns>
+        /// <returns>Returns the entry if found, otherwise null. Can be root.</returns>
         public static VfsEntry GetEntry(string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
+
+            //Check if path is relative, if so, make it absolute
+            path = GetAbsolutePath(path);
 
             int i = path.IndexOf('/', 1);
             if (i == -1)
@@ -69,12 +69,12 @@ namespace VFS.VFS
                 if (diskRoot == null)
                 {
                     last = null;
-                    remaining = null;
+                    remaining = new List<string>{path};
                     return null;
                 }
-                last = diskRoot.Root;
+                last = null;
                 remaining = new List<string>();
-                return last;
+                return diskRoot.Root;
             }
 
             var disk = GetDisk(path.Substring(1, i - 1));
@@ -106,7 +106,7 @@ namespace VFS.VFS
         /// <param name="path">An absolute path, not containing the disk name</param>
         /// <param name="last">Returns the last found directory (usefull if not the whole path exists). Can be root.</param>
         /// <param name="remaining">Returns the remaining path, if the result was null.</param>
-        /// <returns>Returns the entry if found, otherwise null.</returns>
+        /// <returns>Returns the entry if found, otherwise null. Can be root.</returns>
         public static VfsEntry GetEntry(VfsDisk disk, string path, out VfsDirectory last, out IEnumerable<string> remaining)
         {
             if (disk == null) throw new ArgumentNullException("disk");
@@ -116,7 +116,11 @@ namespace VFS.VFS
             VfsDirectory current = disk.Root;
             string[] names = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (names.Length == 0)
-                throw new ArgumentException("Path not valid");
+            {
+                last = null;
+                remaining = names;
+                return current;
+            }
             for (int i = 0; i < names.Length - 1; i++)
             {
                 last = current;
@@ -147,8 +151,6 @@ namespace VFS.VFS
             return path;
         }
 
-        #endregion
-
         //----------------------Helper----------------------
 
         /// <summary>
@@ -157,7 +159,7 @@ namespace VFS.VFS
         /// Supports . and ..
         /// </summary>
         /// <param name="path">The path or identifier.</param>
-        /// <returns>A valid absolute path.</returns>
+        /// <returns>A valid absolute path starting with /.</returns>
         public static string GetAbsolutePath(string path)
         {
             if (path == null)
@@ -183,9 +185,15 @@ namespace VFS.VFS
             Console.Message(Disks.Aggregate("", (curr, d) => curr + " " + d.DiskProperties.Name));
         }
 
-        public static void AddAndOpenDisk(VfsDisk disk)
+        public static void LoadDisk(VfsDisk disk)
         {
             if (disk == null) throw new ArgumentNullException("disk");
+
+            if (GetDisk(disk.DiskProperties.Name) != null)
+            {
+                Console.Error("A disk with the same name was already in the system.");
+            }
+
             Disks.Add(disk);
             CurrentDisk = disk;
             WorkingDirectory = disk.Root;
@@ -216,6 +224,12 @@ namespace VFS.VFS
                 path += "\\";
             }
 
+            if (Disks.Any(d => d.DiskProperties.Name == name))
+            {
+                Console.Error("There is already a disk with that name in the VFS.");
+                return;
+            }
+
             if (!Directory.Exists(path))
             {
                 Console.Error("Directory does not exist.");
@@ -237,7 +251,7 @@ namespace VFS.VFS
                 return;
             }
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
-            AddAndOpenDisk(disk);
+            LoadDisk(disk);
         }
 
         //----------------------Working Directory----------------------
@@ -262,12 +276,6 @@ namespace VFS.VFS
             Console.Message("New working directory: " + path);
         }
 
-        // copy
-        public static void ChangeDirectoryByIdentifier(string name)
-        {
-            ChangeWorkingDirectory(WorkingDirectory.GetAbsolutePath() + "/" + name);
-        }
-
         public static void NavigateUp()
         {
             if (WorkingDirectory.Parent != null)
@@ -287,15 +295,8 @@ namespace VFS.VFS
         public static void ListEntries(string path, bool files, bool dirs)
         {
             if (path == null) throw new ArgumentNullException("path");
-            VfsEntry entry;
-            if (path.IndexOf("/", 1) == -1)
-            {
-                entry = CurrentDisk.Root;
-            }
-            else
-            {
-                entry = GetEntry(path);
-            }
+
+            VfsEntry entry = GetEntry(path);
 
             if (entry == null)
             {
@@ -431,24 +432,8 @@ namespace VFS.VFS
         /// <param name="dstPath">The absolute path to the target Directory.</param>
         public static void Move(string srcPath, string dstPath)
         {
-            //TODO: prevent from deleting root
             if (srcPath == null || dstPath == null)
                 throw new ArgumentNullException("", "Argument null.");
-
-            if (dstPath.StartsWith(srcPath)) // TODO: make a real recursive test
-            {
-                Console.Error("Can't move a directory into itself!");
-                return;
-            }
-            if (!srcPath.StartsWith("/"))
-            {
-                srcPath = WorkingDirectory.GetAbsolutePath() + "/" + srcPath;
-            }
-
-            if (!dstPath.StartsWith("/"))
-            {
-                dstPath = WorkingDirectory.GetAbsolutePath() + "/" + dstPath;
-            }
 
             VfsEntry srcEntry = GetEntry(srcPath);
             VfsEntry dstEntry = GetEntry(dstPath);
@@ -466,6 +451,18 @@ namespace VFS.VFS
 
             VfsFile src = (VfsFile)srcEntry;
             VfsDirectory dst = (VfsDirectory)dstEntry;
+
+
+            if (src.Parent == null)
+            {
+                Console.Error("Can't move root.");
+                return;
+            }
+            if (dst.GetAbsolutePath().StartsWith(src.GetAbsolutePath()))
+            {
+                Console.Error("Can't move a directory into itself!");
+                return;
+            }
 
             if (dst.GetEntry(src.Name) != null)
             {
@@ -502,13 +499,8 @@ namespace VFS.VFS
         /// <param name="newName">The new name.</param>
         public static void Rename(string src, string newName)
         {
-            //TODO: prevent from deleting root
             if (src == null) throw new ArgumentNullException("src");
             if (newName == null) throw new ArgumentNullException("newName");
-
-            VfsDirectory last;
-            IEnumerable<string> remaining;
-            VfsEntry entry = GetEntry(src, out last, out remaining);
 
             if (newName.Length > VfsFile.MaxNameLength)
             {
@@ -516,9 +508,19 @@ namespace VFS.VFS
                 return;
             }
 
+            VfsDirectory last;
+            IEnumerable<string> remaining;
+            VfsEntry entry = GetEntry(src, out last, out remaining);
+
             if (entry == null)
             {
                 Console.Error("This file does not exist.");
+                return;
+            }
+
+            if (((VfsFile) entry).Parent == null)
+            {
+                Console.Error("Can't rename root.");
                 return;
             }
 
@@ -535,7 +537,7 @@ namespace VFS.VFS
 
         /// <summary>
         /// Copies a file/directory into a target directory. Directories will be copied recursively.
-        /// If the target directory does not exist it will be created.
+        /// If the target directory does not exist it can be created.
         /// </summary>
         /// <param name="srcPath">The path to the file/directory which should be copied.</param>
         /// <param name="dstPath">The target directory.</param>
@@ -544,20 +546,8 @@ namespace VFS.VFS
             if (srcPath == null || dstPath == null)
                 throw new ArgumentNullException("srcPath", "src or dst was null");
 
-            if (!srcPath.StartsWith("/"))
-            {
-                srcPath = WorkingDirectory.GetAbsolutePath() + "/" + srcPath;
-            }
-
-            if (!dstPath.StartsWith("/"))
-            {
-                dstPath = WorkingDirectory.GetAbsolutePath() + "/" + dstPath;
-            }
-
             VfsEntry srcEntry = GetEntry(srcPath);
-            VfsDirectory last;
-            IEnumerable<string> remainingPath;
-            VfsEntry dstEntry = GetEntry(dstPath, out last, out remainingPath);
+            VfsEntry dstEntry = GetEntry(dstPath);
 
             if (srcEntry == null)
             {
@@ -572,13 +562,14 @@ namespace VFS.VFS
 
             if (dstEntry == null)
             {
-                // Create dst using last.
-                if (!CreateDirectory(dstPath, false))
+                if (Console.Query("The destination directory did not exist. Do you want to create it?", "Yes", "Cancel") == 0)
+                    CreateDirectory(dstPath, true);
+                dstEntry = GetEntry(dstPath);
+                if (dstEntry == null)
                 {
-                    Console.Error("Copying was canceled.");
+                    Console.Error("The destination directory did not exist.");
                     return;
                 }
-                dstEntry = GetEntry(dstPath);
             }
             VfsDirectory dst = (VfsDirectory)dstEntry;
 
@@ -601,10 +592,10 @@ namespace VFS.VFS
         private static bool CopyHelper(VfsEntry src, VfsDirectory dst, bool first)
         {
             // find name for copy
-            string newName = src.Name + (first ? "(copy)" : "");
+            string newName = src.Name + (first ? "_copy" : "");
             int i = 2;
             while (dst.GetEntry(newName) != null)
-                newName = src.Name + "(copy_" + i++ + ")";
+                newName = src.Name + "_copy_" + i++;
 
             if (newName.Length > VfsFile.MaxNameLength)
                 return false;
@@ -625,6 +616,48 @@ namespace VFS.VFS
                 return true;
             }
         }
+
+        /// <summary>
+        /// Deletes a file or directory from the disk.
+        /// </summary>
+        /// <param name="path">THe path to the file/directory.</param>
+        public static void Remove(string path)
+        {
+            var entry = GetEntry(path) as VfsFile;
+
+            if (entry == null)
+            {
+                Console.Error("This file does not exist.");
+                return;
+            }
+
+            if (entry.Parent == null)
+            {
+                Console.Message("Can't remove root directory.");
+                return;
+            }
+
+            if (entry.IsDirectory)
+            {
+                var files = ((VfsDirectory)entry).GetFiles().ToList();
+                foreach (var file in files)
+                {
+                    file.Free();
+                }
+                var directories = ((VfsDirectory)entry).GetDirectories().ToList();
+                foreach (var directory in directories)
+                {
+                    Remove(directory.GetAbsolutePath());
+                }
+            }
+            entry.Parent.RemoveElement(entry);
+            entry.Free();
+
+            Console.Message("Successfully removed " + entry.Name + ".");
+        }
+
+
+        //----------------------Import and Export----------------------
 
         private static string Compress(FileInfo fileToCompress) {
             String returnPath;
@@ -672,44 +705,42 @@ namespace VFS.VFS
         /// Overwrites already existing files with the same name.
         /// Creates the target directory if it doesn't exist. Introduces grandpa Joe.
         /// 
-        /// Throws an exception if you try to import the virtual disk itself! TODO
+        /// Throws an exception if you try to import the virtual disk itself!
         /// </summary>
         /// <param name="src">The absolute path to the File (or Directory) that should be imported (Host file system).</param>
         /// <param name="dst">The (not necesseraly) absolute path to the directory where we import.</param>
         public static void Import(string src, string dst) 
         {
-            Console.Message("Starting import");
-            //TODO: correct prevention of import of currently opened disk
             //TODO: add compression and encryption
+
             if (src == null) throw new ArgumentNullException("src");
             if (dst == null) throw new ArgumentNullException("dst");
 
-            //If path not relative, make it absolute
-            dst = MakePathAbsolute(dst);
+            VfsEntry dstEntry = GetEntry(dst);
 
-            var dstDir = (VfsDirectory) GetEntry(dst);
-            //Check if User aborted operation
-            if (dstDir == null) return;
-
-            //Check if destination was a file (we can't import into a file).
-            if (!dstDir.IsDirectory)
+            if (dstEntry == null)
             {
-                Console.Message("Your destination leads to a file. Aborting import operation.");
+                Console.Error("The destination folder did not exist.");
+                return;
+            }
+
+            if (!dstEntry.IsDirectory)
+            {
+                Console.Error("Destination was a file.");
+                return;
+            }
+
+            VfsDirectory dstDir = (VfsDirectory) dstEntry;
+
+            if (Disks.Any(d=>d.Path == src))
+            {
+                Console.Error("Can't import a currently opened disk.");
                 return;
             }
 
             //Check if source is valid: TODO: also check file and dir names
             if (File.Exists(src))
             {
-                //Check that it's not the disk we've opened
-                //TODO: this is not entirely correct but I haven't found a better method...
-                var lastName = src.Substring(src.LastIndexOf('\\') + 1);
-                if ((dstDir.Disk.Root.Name + ".vdi").Equals(lastName))
-                {
-                    Console.Message("You're not allowed to import the currently opened disk. Aborted import.");
-                    return;
-                }
-                Console.Message("Start import file");
                 ImportFile(src, dstDir);
             }
             else if (Directory.Exists(src))
@@ -718,17 +749,8 @@ namespace VFS.VFS
             }
             else
             {
-                Console.Message("Your source path does not lead to a valid file or directory. Aborting import operation.");
+                Console.Error("Your source path does not lead to a valid file or directory. Aborting import operation.");
             }
-        }
-
-        private static string MakePathAbsolute(string path)
-        {
-            if (path == null) throw new ArgumentNullException("path");
-
-            if (!path.StartsWith("/"))
-                return WorkingDirectory.GetAbsolutePath() + "/" + path;
-            return path;
         }
 
         private static string EncryptFile(FileInfo src, String password)
@@ -811,9 +833,7 @@ namespace VFS.VFS
 
         private static void ImportFile(string src, VfsDirectory dstDir) 
         {   
-            Console.Message("Start importing file");
             var toEncrypt = new FileInfo(src);
-            Console.Message("Start encryption");
             //Encrypt file with disk password
             var encryptedFile = EncryptFile(toEncrypt, dstDir.Disk.Password);
             Console.Message("Finished encryption");
@@ -840,7 +860,7 @@ namespace VFS.VFS
             var fileLengthLong = fileInfo.Length + FileOffset.Header - FileOffset.SmallHeader;
             if (fileLengthLong > ((long)dstDir.Disk.DiskProperties.BlockSize - (long)FileOffset.SmallHeader) * ((long)dstDir.Disk.DiskProperties.NumberOfBlocks - (long)dstDir.Disk.DiskProperties.NumberOfUsedBlocks))
             {
-                Console.Message("Filesize too large. Skipping import of: " + fileInfo.Name);
+                Console.Error("Filesize too large. Skipping import of: " + fileInfo.Name);
                 return;
             }
             var fileLength = fileInfo.Length;
@@ -855,7 +875,7 @@ namespace VFS.VFS
                 var answer = Console.Query("Do you want to overwrite it? Write 'Ok' or 'Cancel'. ", "Ok", "Cancel");
                 if (answer == 1)
                 {
-                    Console.Message("File has not been overwritten.");
+                    Console.Error("File has not been overwritten.");
                     return;
                 }
                 //Delete file to create a new one.
@@ -878,8 +898,6 @@ namespace VFS.VFS
             File.Delete(compressedSrc);
             File.Delete(encryptedFile + ".enc");
         }
-
-
 
         private static void ImportDirectory(string src, VfsDirectory dstDir) 
         {
@@ -939,29 +957,17 @@ namespace VFS.VFS
             if (src == null) throw new ArgumentNullException("src");
             if (!Directory.Exists(dst))
             {
-                Console.Message("Destination does not lead to a directory: " + dst);
+                Console.Error("Destination does not lead to a directory: " + dst);
                 return;
             }
 
-            //Check if src is rootdirectory
-            if (src.LastIndexOf('/') == 0)
-            {
-                var disk = GetDisk(src.Substring(1, src.Length -1));
-                if (disk == null) 
-                { 
-                    Console.Message("disk is null");
-                    return;
-                }
-                ExportDirectory(dst, disk.Root, true);
-                return;
-            }
             //get entry to export
             var toExport = GetEntry(src);
             if (toExport == null)
             {
-                Console.Message("Invalid path to source entry: " + src);
+                Console.Error("Invalid path to source entry: " + src);
                 return;
-            }              
+            }
 
             if (toExport.IsDirectory)
             {
@@ -971,6 +977,7 @@ namespace VFS.VFS
             {
                 ExportFile(dst, (VfsFile) toExport);
             }
+
             //Reset to false for future exports
             PassWordCorrect = false;
         }
@@ -1047,83 +1054,6 @@ namespace VFS.VFS
             }
         }
 
-        /// <summary>
-        /// Deletes a file or directory from the disk.
-        /// </summary>
-        /// <param name="path">THe path to the file/directory.</param>
-        public static void Remove(string path)
-        {
-            var entry = GetEntry(path) as VfsFile;
-
-            if (entry == null)
-            {
-                Console.Error("This file does not exist.");
-                return;
-            }
-
-            if (entry.IsDirectory)
-            {
-               /* if (entry == entry.Disk.Root)
-                {
-                    Console.Message("You're not allowed to delete the root directory.");
-                    return;
-                } */
-                var files = ((VfsDirectory)entry).GetFiles().ToList();
-                foreach (var file in files)
-                {
-                    file.Free();
-                }
-                var directories = ((VfsDirectory)entry).GetDirectories();
-                //TODO: we get an exception here. System.InvalidOperationException: 
-                //Die Auflistung wurde geändert. Der Enumerationsvorgang kann möglicherweise 
-                //nicht ausgeführt werden.
-                foreach (var directory in directories.ToList())
-                {
-                    Console.Message("Removing " + directory.GetAbsolutePath());
-                    Remove(directory.GetAbsolutePath());
-                }
-            }
-            entry.Parent.RemoveElement(entry);
-            entry.Free();
-
-            Console.Message("Successfully removed " + entry.Name + ".");
-        }
-
-        // copy
-        public static void RemoveByIdentifier(string ident)
-        {
-            var entry = GetEntry(WorkingDirectory.GetAbsolutePath() + "/" + ident) as VfsFile;
-
-            if (entry == null)
-            {
-                Console.Error("This file does not exist.");
-                return;
-            }
-
-            if (entry.IsDirectory)
-            {
-                /*if (entry == entry.Disk.Root) 
-                {
-                    Console.Message("You're not allowed to delete the root directory.");
-                    return;
-                } */
-                var files = ((VfsDirectory)entry).GetFiles();
-                foreach (var file in files)
-                {
-                    file.Free();
-                }
-                var directories = ((VfsDirectory)entry).GetDirectories();
-                foreach (var directory in directories.ToList())
-                {
-                    Remove(directory.GetAbsolutePath());
-                }
-            }
-            entry.Parent.RemoveElement(entry);
-            entry.Free();
-
-            Console.Message("Successfully removed " + entry.Name + ".");
-        }
-
         //----------------------Disk Properties----------------------
 
         public static double GetFreeSpace()
@@ -1160,9 +1090,13 @@ namespace VFS.VFS
             {
                 UnloadDisk(vfsDisk.DiskProperties.Name);
             }
-            Console.Message("Bye");
+            Console.Message("Do you want to exist?");
         }
 
+
+        /// <summary>
+        /// Defragments the current disk.
+        /// </summary>
         public static void Defrag()
         {
             //TODO: this is not optimal in case: 1110000001 -> 1110000010
