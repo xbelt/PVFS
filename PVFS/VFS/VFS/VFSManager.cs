@@ -236,14 +236,14 @@ namespace VFS.VFS
             Console.Message("Opened disk " + disk.DiskProperties.Name + ".");
         }
         
-        public static void UnloadDisk(string name)
+        public static bool UnloadDisk(string name)
         {
             VfsDisk disk = GetDisk(name);
 
             if (disk == null)
             {
                 Console.Error("This disk does not exist.");
-                return;
+                return false;
             }
 
             Disks.Remove(disk);
@@ -254,6 +254,7 @@ namespace VFS.VFS
             }
             disk.Dispose();
             Console.Message("Closed disk " + disk.DiskProperties.Name + ".");
+            return true;
         }
 
         public static void CreateDisk(string path, string name, double size, int blockSize, string pw)
@@ -294,6 +295,17 @@ namespace VFS.VFS
             }
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
             LoadDisk(disk);
+        }
+
+        public static void RemoveDisk(string path)
+        {
+            if (!File.Exists(path))
+            {
+                Console.Error("This disk does not exist.");
+                return;
+            }
+
+            DiskFactory.Remove(path);
         }
 
         //----------------------Working Directory----------------------
