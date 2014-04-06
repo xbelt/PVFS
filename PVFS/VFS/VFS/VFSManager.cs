@@ -165,22 +165,6 @@ namespace VFS.VFS
         /// <param name="command">The command to execute.</param>
         public static void ExecuteCommand(string command)
         {
-            if (Disks.Count == 0)
-            {
-                string[] allowedCommands =
-                {
-                    "createdisk", "loaddisk", "unloaddisk", "removedisk", "listdisks", "free",
-                    "occ", "help", "exit"
-                };
-
-
-                if (allowedCommands.Contains(command))
-                {
-                    Console.ErrorMessage("There are no open disks. (TODO)");
-                    return;
-                }
-            }
-
             var input = new AntlrInputStream(command);
             var lexer = new ShellLexer(input);
             var tokens = new CommonTokenStream(lexer);
@@ -323,6 +307,12 @@ namespace VFS.VFS
         /// <param name="path">The path to the new working directory.</param>
         public static void ChangeWorkingDirectory(string path)
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
+
             VfsEntry entry = GetEntry(path);
 
             if (entry == null || !entry.IsDirectory)
@@ -339,6 +329,12 @@ namespace VFS.VFS
 
         public static void NavigateUp()
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
+
             if (WorkingDirectory.Parent != null)
                 WorkingDirectory = WorkingDirectory.Parent;
 
@@ -356,6 +352,12 @@ namespace VFS.VFS
         public static void ListEntries(string path, bool files, bool dirs)
         {
             if (path == null) throw new ArgumentNullException("path");
+
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
 
             VfsEntry entry = GetEntry(path);
 
@@ -391,6 +393,12 @@ namespace VFS.VFS
         /// <returns>Returns true if the operation succeded, otherwise false.</returns>
         public static bool CreateDirectory(string path, bool silent)
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return false;
+            }
+
             VfsDirectory last;
             IEnumerable<string> remainingPath;
 
@@ -455,6 +463,12 @@ namespace VFS.VFS
         /// <param name="path">The path to the new file.</param>
         public static VfsFile CreateFile(string path)
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return null;
+            }
+
             VfsDirectory last;
             IEnumerable<string> remaining;
             VfsEntry entry = GetEntry(path, out last, out remaining);
@@ -497,6 +511,12 @@ namespace VFS.VFS
                 throw new ArgumentNullException("srcPath");
             if (dstPath == null)
                 throw new ArgumentNullException("dstPath");
+
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
 
             VfsEntry srcEntry = GetEntry(srcPath);
             VfsEntry dstEntry = GetEntry(dstPath);
@@ -565,6 +585,12 @@ namespace VFS.VFS
             if (src == null) throw new ArgumentNullException("src");
             if (newName == null) throw new ArgumentNullException("newName");
 
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
+
             if (newName.Length > VfsFile.MaxNameLength)
             {
                 Console.ErrorMessage("This name is too long.");
@@ -606,8 +632,16 @@ namespace VFS.VFS
         /// <param name="dstPath">The target directory.</param>
         public static void Copy(string srcPath, string dstPath)
         {
-            if (srcPath == null || dstPath == null)
-                throw new ArgumentNullException("srcPath", "src or dst was null");
+            if (srcPath == null)
+                throw new ArgumentNullException("srcPath");
+            if (dstPath == null)
+                throw new ArgumentNullException("dstPath");
+
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
 
             VfsEntry srcEntry = GetEntry(srcPath);
             VfsEntry dstEntry = GetEntry(dstPath);
@@ -686,6 +720,12 @@ namespace VFS.VFS
         /// <param name="path">THe path to the file/directory.</param>
         public static void Remove(string path)
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
+
             var entry = GetEntry(path) as VfsFile;
 
             if (entry == null)
@@ -778,6 +818,12 @@ namespace VFS.VFS
 
             if (src == null) throw new ArgumentNullException("src");
             if (dst == null) throw new ArgumentNullException("dst");
+
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
 
             VfsEntry dstEntry = GetEntry(dst);
 
@@ -1013,6 +1059,13 @@ namespace VFS.VFS
         {   
             if (dst == null) throw new ArgumentNullException("dst");
             if (src == null) throw new ArgumentNullException("src");
+
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
+
             if (!Directory.Exists(dst))
             {
                 Console.ErrorMessage("Destination does not lead to a directory: " + dst);
@@ -1113,6 +1166,12 @@ namespace VFS.VFS
 
         public static double GetFreeSpace()
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return 0d;
+            }
+
             var divisor = 1;
             while ((CurrentDisk.DiskProperties.NumberOfBlocks - CurrentDisk.DiskProperties.NumberOfUsedBlocks)*
                    CurrentDisk.DiskProperties.BlockSize/((int) Math.Pow(1024, divisor - 1)) > 1024)
@@ -1128,6 +1187,12 @@ namespace VFS.VFS
 
         public static void GetOccupiedSpace()
         {
+            if (Disks.Count == 0)
+            {
+                Console.ErrorMessage("Open a virtual disk before using this command.");
+                return;
+            }
+
             var divisor = 1;
             while (CurrentDisk.DiskProperties.NumberOfUsedBlocks*CurrentDisk.DiskProperties.BlockSize/
                    ((int) Math.Pow(1024, divisor - 1)) > 1024)
