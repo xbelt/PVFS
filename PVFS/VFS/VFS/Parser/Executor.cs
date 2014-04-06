@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using VFS.VFS.Models;
+using VFS.VFS;
 
 namespace VFS.VFS.Parser
 {
@@ -39,42 +40,27 @@ namespace VFS.VFS.Parser
             name = name.Replace(':', '_');
             name = name.Replace(' ', '_');
             var blockSize = 2048;
-            if (context.par1 != null)
+            foreach (var child in context.children)
             {
-                if (context.par1.path != null)
+                if (child is Parser.ShellParser.OptParamsContext)
                 {
-                    path = context.par1.path.Text;
-                }
-                if (context.par1.name != null)
-                {
-                    name = context.par1.name.Text;
-                }
-                if (context.par1.block != null)
-                {
-                    blockSize = Convert.ToInt32(context.par1.block.Text);
-                }
-                if (context.par1.pw != null)
-                {
-                    pw = context.par1.pw.Text;
-                }
-            }
-            if (context.par2 != null)
-            {
-                if (context.par2.path != null)
-                {
-                    path = context.par2.path.Text;
-                }
-                if (context.par2.name != null)
-                {
-                    name = context.par2.name.Text;
-                }
-                if (context.par2.block != null)
-                {
-                    blockSize = Convert.ToInt32(context.par2.block.Text);
-                }
-                if (context.par2.pw != null)
-                {
-                    pw = context.par2.pw.Text;
+                    var newchild = child as Parser.ShellParser.OptParamsContext;
+                    if (newchild.path != null)
+                    {
+                        path = newchild.path.Text;
+                    }
+                    if (newchild.name != null)
+                    {
+                        name = newchild.name.Text;
+                    }
+                    if (newchild.block != null)
+                    {
+                        blockSize = Convert.ToInt32(newchild.block.Text);
+                    }
+                    if (newchild.pw != null)
+                    {
+                        pw = newchild.pw.Text;
+                    }
                 }
             }
 
