@@ -554,7 +554,7 @@ namespace UnitTest
             VfsManager.Console = new MockConsole();
             VfsManager.CreateDirectory("a", true);
             VfsManager.CreateDirectory("a", true);
-            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);
+            Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Message);
             VfsManager.CreateFile("b");
             VfsManager.CreateDirectory("b", true);
             Assert.AreEqual(((MockConsole)VfsManager.Console).lastCommand, MockConsole.Command.Error);

@@ -455,7 +455,8 @@ namespace VFS.VFS
             }
             if (entry.IsDirectory)
             {
-                Console.ErrorMessage("This Directory already existed.");
+                if (!silent)
+                    Console.Message("This Directory already existed.");
                 return true;
             }
             Console.ErrorMessage("A file with the same name already existed.");
