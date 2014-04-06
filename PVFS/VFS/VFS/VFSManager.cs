@@ -401,7 +401,6 @@ namespace VFS.VFS
 
             VfsDirectory last;
             IEnumerable<string> remainingPath;
-
             VfsEntry entry = GetEntry(path, out last, out remainingPath);
 
             List<string> remaining = remainingPath.ToList();
@@ -428,6 +427,12 @@ namespace VFS.VFS
                             Console.ErrorMessage("The name of the directory was too long.");
                             return false;
                         }
+                        if (last.SpaceIndicator(1) + 1 > last.Disk.GetFreeBlocks)
+                        {
+                            Console.ErrorMessage("The disk has not enough space to create a new directory.");
+                            return false;
+                        }
+
                         VfsDirectory newDir = EntryFactory.createDirectory(last.Disk, name, last);
                         last.AddElement(newDir);
                         last = newDir;
@@ -489,6 +494,12 @@ namespace VFS.VFS
             if (fileNames.Count > 1)
             {
                 Console.ErrorMessage("Target directory was not found.");
+                return null;
+            }
+
+            if (last.SpaceIndicator(1) + 1 > last.Disk.GetFreeBlocks)
+            {
+                Console.ErrorMessage("The disk has not enough space to create a new file.");
                 return null;
             }
 
@@ -555,22 +566,30 @@ namespace VFS.VFS
 
             if (src.Disk != dst.Disk)
             {
+                if (dst.SpaceIndicator(1) + VfsFile.GetNoBlocks(dst.Disk, src.FileSize) > dst.Disk.GetFreeBlocks)
+                {
+                    Console.ErrorMessage("The disk has not enough space to move this file.");
+                    return;
+                }
                 string tmp = GetTempFilePath();
 
-                Export(tmp, srcPath);
+                Export(srcPath, tmp);
                 Import(tmp, dstPath);
                 Remove(srcPath);
                 File.Delete(tmp);
             }
             else
             {
+                if (dst.SpaceIndicator(1) > dst.Disk.GetFreeBlocks)
+                {
+                    Console.ErrorMessage("The disk has not enough space to move this file.");
+                    return;
+                }
                 src.Parent.RemoveElement(src);
                 dst.AddElement(src);
-
+                src.Parent = dst;
+                src.UpdateFileHeader();
             }
-
-            src.Parent = dst;
-            src.UpdateFileHeader();
 
             Console.Message("Moved  " + srcPath + " to " + dstPath + ".");
         }
@@ -669,10 +688,15 @@ namespace VFS.VFS
                 }
             }
             VfsDirectory dst = (VfsDirectory)dstEntry;
-
-            if (((VfsFile)srcEntry).Parent.AbsolutePath == dst.AbsolutePath ? !CopyHelper(srcEntry, dst, true) : !CopyHelper(srcEntry, dst, false))
+            if (((VfsFile) srcEntry).Disk != dst.Disk)
             {
-                Console.ErrorMessage("Copying was canceled due to a too long file or directory name.");
+                Console.ErrorMessage("Can't copy to anothe disk.");
+                return;
+            }
+
+            if (!CopyHelper(srcEntry, dst, ((VfsFile)srcEntry).Parent == dst))
+            {
+                Console.ErrorMessage("Copying was canceled due to a invalid file or directory name or not enough space on the disk.");
                 return;
             }
 
@@ -701,6 +725,8 @@ namespace VFS.VFS
             if (src.IsDirectory)
             {
                 // dir: create, recursive calls
+                if (dst.SpaceIndicator(1) + 1 > dst.Disk.GetFreeBlocks)
+                    return false;
                 VfsDirectory newDir = EntryFactory.createDirectory(dst.Disk, newName, dst);
                 dst.AddElement(newDir);
                 return ((VfsDirectory)src).GetEntries.ToList().TrueForAll(entry => CopyHelper(entry, newDir, false));
@@ -709,6 +735,8 @@ namespace VFS.VFS
             {
                 // file: copy
                 VfsFile file = (VfsFile)src;
+                if (dst.SpaceIndicator(1) + VfsFile.GetNoBlocks(dst.Disk, file.FileSize) > dst.Disk.GetFreeBlocks)
+                    return false;
                 file.Duplicate(dst, newName);
                 return true;
             }
@@ -977,8 +1005,7 @@ namespace VFS.VFS
             var fileWithSamename = dstDir.GetFile(fileName);
             if (fileWithSamename != null)
             {
-                Console.Message("There is already a file with the name: " + fileName + ".");
-                var answer = Console.Query("Do you want to overwrite it? Write 'Ok' or 'Cancel'. ", "Ok", "Cancel");
+                var answer = Console.Query("There is already a file with this name, do you want to overwrite it?", "Ok", "Cancel");
                 if (answer == 1)
                 {
                     Console.ErrorMessage("File has not been overwritten.");
