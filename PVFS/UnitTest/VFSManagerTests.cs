@@ -402,6 +402,13 @@ namespace UnitTest
             Assert.IsNotNull(VfsManager.GetEntry("/" + name + "/b/a"));
         }
 
+        [TestMethod]
+        public void TestHelp()
+        {
+            VfsManager.Help();
+        }
+
+
         public class MockConsole : VfsConsole
         {
             public enum Command
