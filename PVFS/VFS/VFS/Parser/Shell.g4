@@ -20,7 +20,7 @@ compileUnit
 	//TODO: check for list of arguments
 	| ('createdisk' | 'cdisk') par1=optParams* '-s' (Integer SizeUnit | Size)  par2=optParams* compileUnit	#Cdisk
 	| ('loaddisk' | 'ldisk') ( sys=SysPath | name=Identifier)+ ('-pw' pw=Identifier)? compileUnit			#Ldisk
-	| ('unloaddisk' | 'udisk') name=Identifier compileUnit													#UDisk
+	| ('unloaddisk' | 'udisk') name=Identifier compileUnit													#Udisk
 	| ('removedisk' | 'rmdisk') (sys=SysPath | name=Identifier)+ compileUnit								#Rmdisk
 	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
 
