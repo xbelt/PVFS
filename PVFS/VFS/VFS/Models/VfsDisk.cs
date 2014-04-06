@@ -86,6 +86,15 @@ namespace VFS.VFS.Models
         } 
 
         /// <summary>
+        /// Returns the number of free blocks.
+        /// </summary>
+        public int GetFreeBlocks
+        {
+            get { return DiskProperties.NumberOfBlocks - DiskProperties.NumberOfUsedBlocks; }
+            
+        }
+
+        /// <summary>
         /// Indicates wether this disk has some free blocks.
         /// </summary>
         public bool IsFull() {
