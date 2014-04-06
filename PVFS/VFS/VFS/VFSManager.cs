@@ -155,14 +155,12 @@ namespace VFS.VFS
 
         //----------------------Command----------------------
 
-
         /// <summary>
         /// Executes a commandline comand.
         /// </summary>
         /// <param name="command">The command to execute.</param>
         public static void ExecuteCommand(string command)
         {
-
             if (Disks.Count == 0)
             {
                 string[] allowedCommands =
@@ -1126,6 +1124,38 @@ namespace VFS.VFS
             Console.Message((CurrentDisk.DiskProperties.NumberOfUsedBlocks*
                             CurrentDisk.DiskProperties.BlockSize/(Math.Pow(1024, divisor - 1))).ToString("#.##") + IdToSize[divisor - 1] + " space is occupied on " +
                             CurrentDisk.DiskProperties.Name);
+        }
+
+        /// <summary>
+        /// Prints the helptext into the console.
+        /// </summary>
+        public static void Help()
+        {
+            Console.Message(
+                "Aviable Commands:\n" +
+@"createdisk -s Size [-p SysPath, -n Name, -b BlockSize, -pw Password]
+loaddisk SysPath [-pw Password]
+unloaddisk Name
+removedisk Name
+listdisks [-p SysPath]
+
+ls [-p Path, -f Files, -d Directories]
+cd Path
+mkdir Path
+mk Path
+remove Path
+rename Path Name
+move Path Path
+copy Path Path
+import SysPath Path
+export Path SysPath
+
+free
+occ
+help
+defrag
+exit"
+                );
         }
 
         public static void Exit()

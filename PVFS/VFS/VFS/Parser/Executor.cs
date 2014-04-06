@@ -311,6 +311,11 @@ namespace VFS.VFS.Parser
             VfsManager.GetOccupiedSpace();
         }
 
+        public override void EnterHelp(ShellParser.HelpContext context)
+        {
+            VfsManager.Help();
+        }
+
         public override void EnterDefrag(ShellParser.DefragContext context)
         {
             if (context == null)
