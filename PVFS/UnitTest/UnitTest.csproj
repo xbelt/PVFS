@@ -52,11 +52,11 @@
   <ItemGroup>
     <Compile Include="DiskFactoryTests.cs" />
     <Compile Include="EntryFactoryTests.cs" />
-    <Compile Include="ExecutorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ArrayExtensionsUnitTest.cs" />
+    <Compile Include="VfsConsoleUnitTest.cs" />
     <Compile Include="VfsDirectoryTest.cs" />
     <Compile Include="VfsDiskTests.cs" />
-    <Compile Include="VfsEntryTest.cs" />
     <Compile Include="VfsFileTest.cs" />
     <Compile Include="VFSManagerTests.cs" />
   </ItemGroup>
