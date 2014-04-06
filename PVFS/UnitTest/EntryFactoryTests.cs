@@ -23,6 +23,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
             EntryFactory.createFile(disk, "", 0, null);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -33,6 +34,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
             EntryFactory.createFile(disk, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 0, null);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -43,6 +45,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
             EntryFactory.createFile(disk, "aa", -1, null);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -52,7 +55,8 @@ namespace UnitTest
             string path;
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 2048, 1024);
-            EntryFactory.createFile(disk, "a", 500, new VfsDirectory(disk, 1, "b", null, 1, 1, 0));
+            EntryFactory.createFile(disk, "a", 500, disk.Root);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -60,7 +64,8 @@ namespace UnitTest
             string path;
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
-            EntryFactory.createFile(disk, "a", 400, new VfsDirectory(disk, 1, "b", null, 1, 1, 0));
+            EntryFactory.createFile(disk, "a", 400, disk.Root);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -78,6 +83,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
             EntryFactory.createDirectory(disk, "", null);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -88,6 +94,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
             EntryFactory.createDirectory(disk, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", null);
+            disk.Stream.Close();
         }
 
         [TestMethod]
@@ -98,6 +105,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 2048, 1024);
             EntryFactory.createDirectory(disk, "a", new VfsDirectory(disk, 1, "b", null, 1, 1, 0));
+            disk.Stream.Close();
         }
     }
 }
