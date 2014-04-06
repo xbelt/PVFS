@@ -320,6 +320,7 @@ namespace UnitTest
             const string filePath2 = "C:\\exportTest\\importTest\\c\\f2.txt";
             Debug.Assert(FileContentComparer(filePath1, "C:\\importTest\\a\\b\\f1.txt"));
             Debug.Assert(FileContentComparer(filePath2, "C:\\importTest\\c\\f2.txt"));
+            Directory.Delete("C:\\exportTest\\", true);
         }
 
         [TestMethod]
@@ -406,6 +407,42 @@ namespace UnitTest
         public void TestHelp()
         {
             VfsManager.Help();
+        }
+
+        [TestMethod]
+        public void TestEncryptionDecryption()
+        {
+            Directory.CreateDirectory("C:\\exportTest");
+            var dirInfo1 = Directory.CreateDirectory("C:\\importTest\\a\\b");
+            var dirInfo2 = Directory.CreateDirectory("C:\\importTest\\c");
+            var writer1 = File.CreateText(dirInfo1.FullName + "\\f1.txt");
+            writer1.Write("I'm in \\a\\b.");
+            writer1.Close();
+            var writer2 = File.CreateText(dirInfo2.FullName + "\\f2.txt");
+            writer2.Write("I'm in \\c");
+            writer2.Close();
+            string path, name;
+            var disk = DiskFactoryTests.createTestDisk(out path, out name, 16384, 256, "abc");
+            var diskPath = disk.Root.AbsolutePath;
+            Debug.Assert(disk != null);
+            VfsManager.LoadDisk(disk);
+            VfsManager.Import("C:\\importTest", disk.Root.AbsolutePath);
+            Debug.Assert(disk.Root.GetDirectory("importTest") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a/b/f1.txt") != null);
+            Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c/f2.txt") != null);
+            VfsManager.Export(diskPath + "/importTest", "C:\\exportTest");
+            Debug.Assert(Directory.Exists("C:\\exportTest\\importTest\\a\\b"));
+            Debug.Assert(Directory.Exists("C:\\exportTest\\importTest\\c"));
+            Debug.Assert(File.Exists("C:\\exportTest\\importTest\\a\\b\\f1.txt"));
+            Debug.Assert(File.Exists("C:\\exportTest\\importTest\\c\\f2.txt"));
+            const string filePath1 = "C:\\exportTest\\importTest\\a\\b\\f1.txt";
+            const string filePath2 = "C:\\exportTest\\importTest\\c\\f2.txt";
+            Debug.Assert(FileContentComparer(filePath1, "C:\\importTest\\a\\b\\f1.txt"));
+            Debug.Assert(FileContentComparer(filePath2, "C:\\importTest\\c\\f2.txt"));
+            Directory.Delete("C:\\exportTest\\", true);
         }
 
 
