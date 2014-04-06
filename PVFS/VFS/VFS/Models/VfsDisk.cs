@@ -9,22 +9,29 @@ namespace VFS.VFS.Models
     public sealed class VfsDisk : IDisposable{
         public String Password { get; set; }
         public FileStream Stream { get; private set; }
-        public VfsDisk(string path, DiskProperties properties, string pw) {
-            if (properties != null)
-            {
-                Stream = path != null && path.EndsWith("\\") ? File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite) : File.Open(path + "\\" + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        public string Path { get; private set; }
 
-                _writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
-                _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
-                Path = path;
-                Password = pw;
-                if (pw == "")
-                {
-                    Password = null;
-                }
-                DiskProperties = properties;
-                BitMap = new BitArray(properties.NumberOfBlocks, true);
+        public VfsDisk(string path, DiskProperties properties, string pw) {
+            if (properties == null)
+                throw new ArgumentNullException("properties");
+            if (path == null)
+                throw new ArgumentNullException("path");
+
+            //normalize path.
+            path = path.EndsWith("\\") ? path : path + "\\";
+
+            Stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+            _writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
+            _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
+            Path = path;
+            Password = pw;
+            if (pw == "")
+            {
+                Password = null;
             }
+            DiskProperties = properties;
+            BitMap = new BitArray(properties.NumberOfBlocks, true);
         }
 
 
@@ -58,10 +65,6 @@ namespace VFS.VFS.Models
         public BitArray BitMap { get; set; }
         public DiskProperties DiskProperties { get; private set; }
 
-        private static string Path
-        {
-            set { if (value == null) throw new ArgumentNullException("value"); }
-        }
 
         public BinaryReader GetReader() 
         {
