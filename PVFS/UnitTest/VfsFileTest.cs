@@ -35,7 +35,7 @@ namespace UnitTest
 
             Debug.Assert(VfsFile.GetNoBlocks(disk, 1000) == 6);
             Debug.Assert(!file.ToString().Contains("(loaded)"));
-            Debug.Assert(file.AbsolutePath() == "/" + name + "/a");
+            Debug.Assert(file.AbsolutePath == "/" + name + "/a");
             PrivateObject o = new PrivateObject(file);
             o.Invoke("Load", new object[]{ });
             Debug.Assert(file.ToString().Contains("(loaded)"));

@@ -109,7 +109,7 @@ namespace UnitTest
             VfsManager.CreateFile("/" + name + "/a");
             VfsManager.CreateFile("/" + name + "/b");
 
-            var list = VfsManager.WorkingDirectory.GetFiles().ToList();
+            var list = VfsManager.WorkingDirectory.GetFiles.ToList();
             Assert.AreEqual(list.Count, 2);
             Assert.AreEqual(list.Exists(x => x.Name == "a"), true);
         }

@@ -45,7 +45,7 @@ namespace UnitTest
             VfsManager.LoadDisk(disk);
             VfsManager.CreateDirectory("/"+name+"/b/c", true);
             VfsManager.ChangeWorkingDirectory("/"+name+"/b/c");
-            Assert.AreEqual(VfsManager.WorkingDirectory.AbsolutePath(), "/" + name + "/b/c");
+            Assert.AreEqual(VfsManager.WorkingDirectory.AbsolutePath, "/" + name + "/b/c");
         }
 
 
@@ -164,7 +164,7 @@ namespace UnitTest
             VfsManager.LoadDisk(disk);
             VfsManager.CreateDirectory("/" + name + "/b/c", true);
             VfsManager.ChangeWorkingDirectory("b/c");
-            Assert.AreEqual(VfsManager.WorkingDirectory.AbsolutePath(), "/" + name + "/b/c");
+            Assert.AreEqual(VfsManager.WorkingDirectory.AbsolutePath, "/" + name + "/b/c");
         }
 
         [TestMethod]
@@ -301,10 +301,10 @@ namespace UnitTest
             writer2.Close();
             string path, name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 16384,256);
-            var diskPath = disk.Root.AbsolutePath();
+            var diskPath = disk.Root.AbsolutePath;
             Debug.Assert(disk != null);
             VfsManager.LoadDisk(disk);
-            VfsManager.Import("C:\\importTest",disk.Root.AbsolutePath());
+            VfsManager.Import("C:\\importTest",disk.Root.AbsolutePath);
             Debug.Assert(disk.Root.GetDirectory("importTest") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/a") != null);
             Debug.Assert(VfsManager.GetEntry(diskPath + "/importTest/c") != null);
@@ -329,11 +329,11 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VfsManager.LoadDisk(disk);
-            VfsManager.CreateFile(disk.Root.AbsolutePath() + "/file.txt");
+            VfsManager.CreateFile(disk.Root.AbsolutePath + "/file.txt");
             Debug.Assert(disk.Root.GetFile("file.txt") != null);
             var directoryInfo = Directory.CreateDirectory("C:\\fileExp");
             Debug.Assert(Directory.Exists("C:\\fileExp"));
-            VfsManager.Export(disk.Root.AbsolutePath() + "/file.txt", "C:\\fileExp");
+            VfsManager.Export(disk.Root.AbsolutePath + "/file.txt", "C:\\fileExp");
             Debug.Assert(File.Exists("C:\\fileExp\\file.txt"));
         }
 
@@ -344,7 +344,7 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VfsManager.LoadDisk(disk);
-            var diskPath = disk.Root.AbsolutePath();
+            var diskPath = disk.Root.AbsolutePath;
             VfsManager.CreateDirectory(diskPath + "/subdir", false);
             VfsManager.CreateFile(diskPath + "/subdir/file.txt");
             var directoryInfo = Directory.CreateDirectory("C:\\fileExp2");
@@ -362,8 +362,8 @@ namespace UnitTest
             string name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VfsManager.LoadDisk(disk);
-            VfsManager.CreateFile(disk.Root.AbsolutePath() + "/useless2.txt");
-            VfsManager.Export(disk.Root.AbsolutePath() + "/useless2.txt", "C:\\tmp\\useless.txt");
+            VfsManager.CreateFile(disk.Root.AbsolutePath + "/useless2.txt");
+            VfsManager.Export(disk.Root.AbsolutePath + "/useless2.txt", "C:\\tmp\\useless.txt");
         }
 
         private static bool FileContentComparer(string arg1, string arg2)
