@@ -13,7 +13,7 @@ namespace VFS.VFS.Models
 
         private readonly BinaryReader _reader;
         private readonly BinaryWriter _writer;
-        public BitArray BitMap { get; set; }
+        public BitArray BitMap { get; private set; }
         public DiskProperties DiskProperties { get; private set; }
         public VfsDirectory Root { get; private set; }
 
@@ -34,7 +34,7 @@ namespace VFS.VFS.Models
             _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
             Path = path;
             Password = pw;
-            if (pw == "")
+            if (String.IsNullOrEmpty(pw))
             {
                 Password = null;
             }
@@ -72,17 +72,17 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Returns a binary reader for this disk (with arbitrary current position)
         /// </summary>
-        public BinaryReader GetReader() 
+        public BinaryReader GetReader
         {
-            return _reader;
+            get { return _reader; }
         }
-        
+
         /// <summary>
         /// Returns a binary writer for this disk (with arbitrary current position)
         /// </summary>
-        public BinaryWriter GetWriter()
+        public BinaryWriter GetWriter
         {
-            return _writer;
+            get { return _writer; }
         } 
 
         /// <summary>
@@ -129,11 +129,12 @@ namespace VFS.VFS.Models
             _writer.Write(DiskProperties.NumberOfUsedBlocks);
             return true;
         }
-        
+
         /// <summary>
         /// This method will allocate the specified number of blocks.
         /// </summary>
         /// <param name="address">the addresses of the allocated blocks</param>
+        /// <param name="numberOfBlocks">The number of blocks that should be allocated.</param>
         /// <returns>Returns a boolean indicating wether the operation was successfull</returns>
         public bool Allocate(out int[] address, int numberOfBlocks)
         {
@@ -141,7 +142,9 @@ namespace VFS.VFS.Models
             var returnValue = true;
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                returnValue = returnValue && Allocate(out address[i]);
+                int newAddress;
+                returnValue = Allocate(out newAddress) && returnValue;
+                address[i] = newAddress;
             }
             return returnValue;
         }
@@ -165,6 +168,8 @@ namespace VFS.VFS.Models
         public void Dispose()
         {
             Stream.Close(); // this closes reader&writer aswell.
+            _reader.Close(); // But the stupid code analysis wants this too :(
+            _writer.Close();
         }
 
         /// <summary>
