@@ -1210,7 +1210,7 @@ namespace VFS.VFS
         public static void Help()
         {
             Console.Message(
-                "Aviable Commands:\n" +
+                "Available Commands:\n" +
 @"createdisk -s Size [-p SysPath, -n Name, -b BlockSize, -pw Password]
 loaddisk SysPath [-pw Password]
 unloaddisk Name
