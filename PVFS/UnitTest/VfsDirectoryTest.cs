@@ -15,7 +15,7 @@ namespace UnitTest
         {
             string path, name;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 106 * 200, 200);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
 
             for (int i = 0; i < 100; i++)
             {
@@ -42,7 +42,7 @@ namespace UnitTest
         {
             string path, name;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
 
             for (int i = 0; i < 100; i++)
             {
@@ -74,7 +74,7 @@ namespace UnitTest
         {
             string path, name;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
 
             disk.Root.GetEntry("");
             disk.Root.GetFile("");
@@ -87,7 +87,7 @@ namespace UnitTest
         {
             string path, name;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
 
             VfsManager.CreateDirectory("/" + name + "/a", true);
             VfsManager.CreateDirectory("/" + name + "/b", true);
@@ -104,7 +104,7 @@ namespace UnitTest
         {
             string path, name;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 110 * 160, 160);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
 
             VfsManager.CreateFile("/" + name + "/a");
             VfsManager.CreateFile("/" + name + "/b");

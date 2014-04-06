@@ -15,7 +15,7 @@ namespace UnitTest
         {
             string path;
             VfsDisk disk = DiskFactoryTests.createTestDisk(out path, out name, 200 * 100, 200);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
             return disk;
         }
 
@@ -50,7 +50,7 @@ namespace UnitTest
             string path, name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             Assert.AreNotSame(null, disk);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
             var file = VfsManager.CreateFile("/" + name + "/fs.txt");
             Assert.AreNotSame(null, file);
             var fileSize1 = file.FileSize;
@@ -78,7 +78,7 @@ namespace UnitTest
             string path, name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name,10000, 200);
             Assert.AreNotSame(null, disk);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
             var file = VfsManager.CreateFile("/" + name + "/fs.txt");
             Assert.AreNotSame(null, file);
             var fileSize1 = file.FileSize;
@@ -110,7 +110,7 @@ namespace UnitTest
         {   //You have to have a local disk with name b and a file fs.txt in root directory
             string path, name;
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
-            VfsManager.AddAndOpenDisk(disk);
+            VfsManager.LoadDisk(disk);
             var file = VfsManager.CreateFile("/" + name + "/fs.txt");
             Assert.AreNotSame(null, disk);
             Assert.AreNotSame(null, disk.Root);
