@@ -11,16 +11,24 @@ namespace VFS.VFS.Models
         public FileStream Stream { get; private set; }
         public string Path { get; private set; }
 
+        private readonly BinaryReader _reader;
+        private readonly BinaryWriter _writer;
+        public BitArray BitMap { get; set; }
+        public DiskProperties DiskProperties { get; private set; }
+        public VfsDirectory Root { get; private set; }
+
+        //-----------Constructors and initialisation-----------
+
         public VfsDisk(string path, DiskProperties properties, string pw) {
             if (properties == null)
                 throw new ArgumentNullException("properties");
             if (path == null)
                 throw new ArgumentNullException("path");
 
-            //normalize path.
-            path = path.EndsWith("\\") ? path : path + "\\";
+            //find full path.
+            path = (path.EndsWith("\\") ? path : path + "\\") + properties.Name + ".vdi";
 
-            Stream = File.Open(path + properties.Name + ".vdi", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            Stream = File.Open(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
             _writer = new BinaryWriter(Stream, new ASCIIEncoding(), false);
             _reader = new BinaryReader(Stream, new ASCIIEncoding(), false);
@@ -33,7 +41,6 @@ namespace VFS.VFS.Models
             DiskProperties = properties;
             BitMap = new BitArray(properties.NumberOfBlocks, true);
         }
-
 
         public void Init()
         {
@@ -60,33 +67,46 @@ namespace VFS.VFS.Models
             }
         }
 
-        private readonly BinaryReader _reader;
-        private readonly BinaryWriter _writer;
-        public BitArray BitMap { get; set; }
-        public DiskProperties DiskProperties { get; private set; }
+        //-----------Access-----------
 
-
+        /// <summary>
+        /// Returns a binary reader for this disk (with arbitrary current position)
+        /// </summary>
         public BinaryReader GetReader() 
         {
             return _reader;
         }
+        
+        /// <summary>
+        /// Returns a binary writer for this disk (with arbitrary current position)
+        /// </summary>
         public BinaryWriter GetWriter()
         {
             return _writer;
         } 
 
+        /// <summary>
+        /// Indicates wether this disk has some free blocks.
+        /// </summary>
         public bool IsFull() {
             return DiskProperties.NumberOfBlocks == DiskProperties.NumberOfUsedBlocks;
         }
 
-        public VfsDirectory Root;
+        /// <summary>
+        /// Returns the blocksize of this disk.
+        /// </summary>
+        public int BlockSize
+        {
+            get { return DiskProperties.BlockSize; }
+        }
 
-        #region Block
+        //-----------Public interface-----------
+
         /// <summary>
         /// This method will seek the first free block and allocate it.
         /// </summary>
         /// <param name="address">the address of the allocated block</param>
-        /// <returns></returns>
+        /// <returns>Returns a boolean indicating wether the operation was successfull</returns>
         public bool Allocate(out int address)
         {
             address = 0;
@@ -108,6 +128,43 @@ namespace VFS.VFS.Models
             _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
             _writer.Write(DiskProperties.NumberOfUsedBlocks);
             return true;
+        }
+        
+        /// <summary>
+        /// This method will allocate the specified number of blocks.
+        /// </summary>
+        /// <param name="address">the addresses of the allocated blocks</param>
+        /// <returns>Returns a boolean indicating wether the operation was successfull</returns>
+        public bool Allocate(out int[] address, int numberOfBlocks)
+        {
+            address = new int[numberOfBlocks];
+            var returnValue = true;
+            for (var i = 0; i < numberOfBlocks; i++)
+            {
+                returnValue = returnValue && Allocate(out address[i]);
+            }
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Frees the block with a specified address.
+        /// </summary>
+        /// <param name="address">The address.</param>
+        public void Free(int address) 
+        {
+            SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
+            BitMap[address] = false;
+            DiskProperties.NumberOfUsedBlocks--;
+            _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
+            _writer.Write(DiskProperties.NumberOfUsedBlocks);
+        }
+        
+        /// <summary>
+        /// Releases recources held by this Disk.
+        /// </summary>
+        public void Dispose()
+        {
+            Stream.Close(); // this closes reader&writer aswell.
         }
 
         /// <summary>
@@ -138,26 +195,11 @@ namespace VFS.VFS.Models
 
         }
 
-        public bool Allocate(out int[] address, int numberOfBlocks)
-        {
-            address = new int[numberOfBlocks];
-            var returnValue = true;
-            for (var i = 0; i < numberOfBlocks; i++)
-            {
-                returnValue = returnValue && Allocate(out address[i]);
-            }
-            return returnValue;
-        }
+        //-----------Defragmentation helpers-----------
 
-        public void Free(int address) 
-        {
-            SetBit(false, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
-            BitMap[address] = false;
-            DiskProperties.NumberOfUsedBlocks--;
-            _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
-            _writer.Write(DiskProperties.NumberOfUsedBlocks);
-        }
-
+        /// <summary>
+        /// Moves a block from the src to dst address.
+        /// </summary>
         public void Move(int srcAddress, int dstAddress)
         {
             Free(srcAddress);
@@ -189,20 +231,6 @@ namespace VFS.VFS.Models
             _reader.Read(buffer, 0, DiskProperties.BlockSize);
             _writer.Seek(this, dstAddress);
             _writer.Write(buffer);
-        }
-        #endregion
-
-
-
-        public int BlockSize
-        {
-            get { return DiskProperties.BlockSize; }
-        }
-
-        public void Dispose()
-        {
-            _reader.Close();
-            _writer.Close();
         }
     }
 }
