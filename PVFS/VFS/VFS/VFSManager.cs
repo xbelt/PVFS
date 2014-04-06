@@ -869,7 +869,8 @@ namespace VFS.VFS
 
             if (password == null)
             {
-                return srcPath;
+                File.Copy(srcPath, dstPath);
+                return dstPath;
             }
 
             var input = new FileStream(srcPath, FileMode.Open, FileAccess.Read);
@@ -886,7 +887,7 @@ namespace VFS.VFS
                 CopyStream(input, encryptedStream);
             }
 
-            return srcPath;
+            return dstPath;
         }
 
         private static string DecryptFile(FileInfo src, String password)
@@ -1000,7 +1001,7 @@ namespace VFS.VFS
 
             //Delete the compressed file in host system (what kind of compression would it be to have the same file twice? :P)
             File.Delete(compressedSrc);
-            File.Delete(encryptedFile + ".enc");
+            File.Delete(encryptedFile);
         }
 
         private static void ImportDirectory(string src, VfsDirectory dstDir) 
