@@ -139,5 +139,19 @@ namespace UnitTest
             disk.Stream.Close();
             DiskFactory.Remove(path + ".v");
         }
+
+        public static VfsDisk createTestDisk(out string path, out string name, int size, int blocksize, string pw)
+        {
+            path = Environment.CurrentDirectory;
+            name = "b";
+            int i = 0;
+            while (File.Exists(path + "\\" + name + ".vdi"))
+            {
+                name = "b" + i++;
+            }
+            VfsDisk disk = DiskFactory.Create(new DiskInfo(path, name + ".vdi", size, blocksize), pw);
+            path += "\\" + name + ".vdi";
+            return disk;
+        }
     }
 }
