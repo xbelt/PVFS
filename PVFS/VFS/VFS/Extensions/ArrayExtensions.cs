@@ -1,6 +1,6 @@
 ﻿namespace VFS.VFS
 {
-    static class ArrayExtensions
+    public static class ArrayExtensions
     {
         public static int IndexOf<T>(this T[] arr, T value)
         {
