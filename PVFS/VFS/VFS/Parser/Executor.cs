@@ -7,47 +7,27 @@ namespace VFS.VFS.Parser
 {
     class Executor : ShellBaseListener
     {
-        public override void EnterLs(ShellParser.LsContext context)
+        private static double getSizeInBytes(double intSize, string type)
         {
-            if (context == null)
-                return;
-            string path = ""; // context.path.Text;
-            if (context.files == null && context.dirs == null)
+            switch (type)
             {
-                VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), true, true);
-                return;
+                case "kb":
+                case "KB":
+                    return 1024d * intSize;
+                case "mb":
+                case "MB":
+                    return 1024d * 1024 * intSize;
+                case "gb":
+                case "GB":
+                    return 1024d * 1024 * 1024 * intSize;
+                case "tb":
+                case "TB":
+                    return 1024d * 1024 * 1024 * 1024 * intSize;
             }
-            VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
+            throw new ArgumentException("only kb, mb, gb and tb are allowed as units", "type");
         }
 
-        public override void EnterCd(ShellParser.CdContext context)
-        {
-            if (context == null)
-                return;
-            if (context.path != null)
-            {
-                VfsManager.ChangeWorkingDirectory(context.path.Text);
-                return;
-            }
-            if (context.ident != null)
-            {
-                VfsManager.ChangeWorkingDirectory(context.ident.Text);
-                return;
-            }
-            if (context.dots != null)
-            {
-                VfsManager.NavigateUp();
-                return;
-            }
-            throw new ArgumentException("cd requires at least one argument");
-        }
 
-        public override void EnterCp(ShellParser.CpContext context)
-        {
-            if (context == null)
-                return;
-            VfsManager.Copy(context.src.Text, context.dst.Text);
-        }
 
         public override void EnterCdisk(ShellParser.CdiskContext context)
         {
@@ -121,59 +101,6 @@ namespace VFS.VFS.Parser
             VfsManager.CreateDisk(path,name,size,blockSize,pw);
         }
 
-        private static double getSizeInBytes(double intSize, string type)
-        {
-            switch (type)
-            {
-                case "kb":
-                case "KB":
-                    return 1024d * intSize;
-                case "mb":
-                case "MB":
-                    return 1024d * 1024 * intSize;
-                case "gb":
-                case "GB":
-                    return 1024d * 1024 * 1024 * intSize;
-                case "tb":
-                case "TB":
-                    return 1024d * 1024 * 1024 * 1024 * intSize;
-            }
-            throw new ArgumentException("only kb, mb, gb and tb are allowed as units", "type");
-        }
-
-        public override void EnterRmdisk(ShellParser.RmdiskContext context)
-        {
-            if (context == null)
-                return;
-            if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
-            {
-                string path = context.sys.Text;
-                var noFileEnding = path.Remove(path.LastIndexOf("."));
-                VfsManager.UnloadDisk(noFileEnding.Substring(noFileEnding.LastIndexOf("\\")));
-                DiskFactory.Remove(context.sys.Text);
-                return;
-            }
-            if (context.name != null)
-            {
-                var path = Directory.GetCurrentDirectory();
-                if (!path.EndsWith("\\"))
-                {
-                    path += "\\";
-                }
-                string name = context.name.Text;
-                if (!context.name.Text.EndsWith(".vdi"))
-                {
-                    VfsManager.UnloadDisk(name);
-                    name += ".vdi";
-                }
-                else
-                {
-                    VfsManager.UnloadDisk(name.Remove(name.LastIndexOf(".")));
-                }
-                DiskFactory.Remove(path + name);
-            }
-        }
-
         public override void EnterLdisk(ShellParser.LdiskContext context)
         {
             if (context == null)
@@ -207,6 +134,44 @@ namespace VFS.VFS.Parser
             }
         }
 
+        public override void EnterUdisk(ShellParser.LdiskContext context)
+        {
+            if (context == null)
+                return;
+            if (context.name != null)
+            {
+                string name = context.name.Text;
+                VfsManager.UnloadDisk(name);
+            }
+        }
+
+        public override void EnterRmdisk(ShellParser.RmdiskContext context)
+        {
+            if (context == null)
+                return;
+            if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
+            {
+                string path = context.sys.Text;
+                var noFileEnding = path.Remove(path.LastIndexOf("."));
+                if (!VfsManager.UnloadDisk(noFileEnding.Substring(noFileEnding.LastIndexOf("\\"))))
+                    return;
+                VfsManager.RemoveDisk(context.sys.Text);
+                return;
+            }
+            if (context.name != null)
+            {
+                var path = Directory.GetCurrentDirectory();
+                if (!path.EndsWith("\\"))
+                {
+                    path += "\\";
+                }
+                string name = context.name.Text;
+                if (!VfsManager.UnloadDisk(name))
+                    return;
+                VfsManager.RemoveDisk(path + name + ".vdi");
+            }
+        }        
+
         public override void EnterLdisks(ShellParser.LdisksContext context)
         {
             if (context == null)
@@ -225,6 +190,43 @@ namespace VFS.VFS.Parser
             {
                 VfsManager.ListDisks();
             }
+        }
+
+
+
+        public override void EnterLs(ShellParser.LsContext context)
+        {
+            if (context == null)
+                return;
+            string path = ""; // context.path.Text;
+            if (context.files == null && context.dirs == null)
+            {
+                VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), true, true);
+                return;
+            }
+            VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
+        }
+
+        public override void EnterCd(ShellParser.CdContext context)
+        {
+            if (context == null)
+                return;
+            if (context.path != null)
+            {
+                VfsManager.ChangeWorkingDirectory(context.path.Text);
+                return;
+            }
+            if (context.ident != null)
+            {
+                VfsManager.ChangeWorkingDirectory(context.ident.Text);
+                return;
+            }
+            if (context.dots != null)
+            {
+                VfsManager.NavigateUp();
+                return;
+            }
+            throw new ArgumentException("cd requires at least one argument");
         }
 
         public override void EnterMkdir(ShellParser.MkdirContext context)
@@ -269,18 +271,25 @@ namespace VFS.VFS.Parser
             }
         }
 
+        public override void EnterRn(ShellParser.RnContext context)
+        {
+            if (context == null)
+                return;
+            VfsManager.Rename(VfsManager.GetAbsolutePath(context.src.Text), context.dst.Text);
+        }
+
         public override void EnterMv(ShellParser.MvContext context)
         {
             if (context == null)
                 return;
             VfsManager.Move(context.src.Text, context.dst.Text);
         }
-
-        public override void EnterRn(ShellParser.RnContext context)
+        
+        public override void EnterCp(ShellParser.CpContext context)
         {
             if (context == null)
                 return;
-            VfsManager.Rename(VfsManager.GetAbsolutePath(context.src.Text), context.dst.Text);
+            VfsManager.Copy(context.src.Text, context.dst.Text);
         }
 
         public override void EnterIm(ShellParser.ImContext context)
@@ -296,6 +305,8 @@ namespace VFS.VFS.Parser
                 return;
             VfsManager.Export(context.inte.Text, context.ext.Text);
         }
+
+
 
         public override void EnterFree(ShellParser.FreeContext context)
         {
