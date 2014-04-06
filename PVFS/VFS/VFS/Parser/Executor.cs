@@ -34,7 +34,7 @@ namespace VFS.VFS.Parser
             if (context == null)
                 return;
             var path = Directory.GetCurrentDirectory();
-            var name = "disk" + DateTime.Now + ".vdi";
+            var name = "disk" + DateTime.Now;
             string pw = "";
             name = name.Replace(':', '_');
             name = name.Replace(' ', '_');
@@ -48,10 +48,6 @@ namespace VFS.VFS.Parser
                 if (context.par1.name != null)
                 {
                     name = context.par1.name.Text;
-                    if (!name.Contains("."))
-                    {
-                        name += ".vdi";
-                    }
                 }
                 if (context.par1.block != null)
                 {
@@ -71,10 +67,6 @@ namespace VFS.VFS.Parser
                 if (context.par2.name != null)
                 {
                     name = context.par2.name.Text;
-                    if (!name.EndsWith(".vdi"))
-                    {
-                        name += ".vdi";
-                    }
                 }
                 if (context.par2.block != null)
                 {
@@ -98,7 +90,7 @@ namespace VFS.VFS.Parser
                 size = getSizeInBytes(intSize, context.Size().Symbol.Text.Substring(context.Size().Symbol.Text.Length - 2));
             }
 
-            VfsManager.CreateDisk(path,name,size,blockSize,pw);
+            VfsManager.CreateDisk(path, name, size, blockSize, pw);
         }
 
         public override void EnterLdisk(ShellParser.LdiskContext context)
@@ -134,7 +126,7 @@ namespace VFS.VFS.Parser
             }
         }
 
-        public override void EnterUdisk(ShellParser.LdiskContext context)
+        public override void EnterUdisk(ShellParser.UdiskContext context)
         {
             if (context == null)
                 return;
@@ -239,7 +231,7 @@ namespace VFS.VFS.Parser
             }
             else
             {
-                VfsManager.Console.Error("Format: mkdir <DirectoryName>");
+                VfsManager.Console.ErrorMessage("Format: mkdir <DirectoryName>");
             }
         }
 
@@ -253,7 +245,7 @@ namespace VFS.VFS.Parser
             }
             else
             {
-                VfsManager.Console.Error("Format: mk <FileName>");
+                VfsManager.Console.ErrorMessage("Format: mk <FileName>");
             }
         }
 
