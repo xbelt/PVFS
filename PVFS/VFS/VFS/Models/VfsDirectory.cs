@@ -109,7 +109,7 @@ namespace VFS.VFS.Models
         {
             return GetEntries.FirstOrDefault(entry => entry.Name.Equals(name));
         }
-        
+
         /// <summary>
         /// Lists all SubDirectories.
         /// </summary>
@@ -160,7 +160,7 @@ namespace VFS.VFS.Models
             else
                 return null;
         }
-        
+
         /// <summary>
         /// Adds an element to this directory. If it was already contained this does nothing.
         /// Throws an exception if there is not enough space on the disk to add this element.
@@ -202,7 +202,7 @@ namespace VFS.VFS.Models
             {
                 // seek to end of used content
                 // TODO: Please check really hard for index errors, there are probably some in here.
-                int head = HeaderSize, noSubs, pos = (int) noEntries;
+                int head = HeaderSize, noSubs, pos = (int)noEntries;
                 Block current = Inodes.First();
                 while ((noSubs = (Disk.BlockSize - head) / 4) <= pos)// find block
                 {
@@ -296,6 +296,35 @@ namespace VFS.VFS.Models
             }
             writer.Flush();
             return true;
+        }
+
+        /// <summary>
+        /// Calculates how much space remains in the currently allocated blocks.
+        /// </summary>
+        /// <returns>Returns the number of free entry-spaces.</returns>
+        public int SpaceInAllocatedBlocks()
+        {
+            if (noEntries <= (Disk.BlockSize - HeaderSize) / 4)
+                return (Disk.BlockSize - HeaderSize) / 4 - (int)noEntries;
+            else
+            {
+                long remaining = noEntries - (Disk.BlockSize - HeaderSize)/4;
+                int space = (Disk.BlockSize - SmallHeaderSize)/4;
+
+                remaining -= space * (remaining / space);
+
+                return space - (int)remaining;
+            }
+        }
+
+        /// <summary>
+        /// Returns 1 if the directory needs to allocate a new block if noe many entries would be added to it, 0 otherwise.
+        /// </summary>
+        /// <param name="noe">The number of entries.</param>
+        /// <returns>1 or 0</returns>
+        public int SpaceIndicator(int noe)
+        {
+            return noe > SpaceInAllocatedBlocks() ? 1 : 0;
         }
 
         public override string ToString()
