@@ -15,6 +15,8 @@ namespace VFS.VFS
             {
                 return null;
             }
+            if (!info.Name.EndsWith(".vdi"))
+                info.Name += ".vdi";
             var disk = new VfsDisk(info.Path, new DiskProperties{BlockSize = info.BlockSize, MaximumSize = info.Size, Name = info.Name.Remove(info.Name.LastIndexOf(".")), NumberOfBlocks = (int)Math.Ceiling(info.Size/info.BlockSize), NumberOfUsedBlocks = 1}, pw);
             var writer = disk.GetWriter;
 
@@ -66,6 +68,8 @@ namespace VFS.VFS
 
         public static VfsDisk Load(string path, string pw)
         {
+            if (!path.EndsWith(".vdi"))
+                path += ".vdi";
             if (File.Exists(path))
             {
                 var stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite);
