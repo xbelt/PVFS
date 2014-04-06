@@ -240,6 +240,15 @@ namespace UnitTest
             VfsManager.CreateFile("/" + name + "/c");
             VfsManager.Remove("/" + name + "/a");
             VfsManager.Defrag();
+            var lastIndex = -1;
+            for (int i = 0; i < VfsManager.CurrentDisk.BitMap.Count; i++)
+            {
+                if (VfsManager.CurrentDisk.BitMap[i])
+                {
+                    Assert.AreEqual(lastIndex, i - 1);
+                    lastIndex = i;
+                }
+            }
         }
 
         [TestMethod]
