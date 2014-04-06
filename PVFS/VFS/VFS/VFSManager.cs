@@ -1246,14 +1246,11 @@ exit"
             Console.Message("Do you want to exist?");
         }
 
-
         /// <summary>
-        /// Defragments the current disk.
+        /// Defragmentates the current disk
         /// </summary>
         public static void Defrag()
         {
-            //TODO: this is not optimal in case: 1110000001 -> 1110000010
-            var numberOfUnusedBlocks = 0;
             var lastUsedBlockAddress = 0;
             for (var i = 0; i < CurrentDisk.BitMap.Count; i++)
             {
@@ -1262,39 +1259,30 @@ exit"
                     lastUsedBlockAddress = i;
                 }
             }
-            for (var i = 0; i < lastUsedBlockAddress; i++)
+
+            var currentAddress = 0;
+            while (lastUsedBlockAddress > currentAddress)
             {
-                if (!CurrentDisk.BitMap[i])
+                if (!CurrentDisk.BitMap[currentAddress])
                 {
-                    numberOfUnusedBlocks++;
+                    if (!CurrentDisk.Allocate(currentAddress))
+                    {
+                        currentAddress++;
+                        continue;
+                    }
+                    CurrentDisk.Move(lastUsedBlockAddress, currentAddress);
+                    for (int i = lastUsedBlockAddress; i > 0; i--)
+                    {
+                        if (CurrentDisk.BitMap[i])
+                        {
+                            lastUsedBlockAddress = i;
+                            break;
+                        }
+                    }
                 }
+                currentAddress++;
             }
-            int[] addresses;
-            CurrentDisk.Allocate(out addresses, numberOfUnusedBlocks);
-
-            numberOfUnusedBlocks--;
-
-            for (var i = lastUsedBlockAddress; i >= 0; i--)
-            {
-                if (numberOfUnusedBlocks < 0)
-                {
-                    break;
-                }
-                if (CurrentDisk.BitMap[i])
-                {
-                    CurrentDisk.Move(i, addresses[numberOfUnusedBlocks--]);
-                }
-            }
-
-            for (var i = 0; i < CurrentDisk.BitMap.Count; i++)
-            {
-                if (CurrentDisk.BitMap[i])
-                {
-                    lastUsedBlockAddress = i;
-                }
-            }
-
-            CurrentDisk.Stream.SetLength((lastUsedBlockAddress + 1)*(long) CurrentDisk.DiskProperties.BlockSize);
+            CurrentDisk.Stream.SetLength((lastUsedBlockAddress + 1) * (long)CurrentDisk.DiskProperties.BlockSize);
         }
     }
 }
