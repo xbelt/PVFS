@@ -106,7 +106,7 @@ namespace VFS.VFS.Models
         /// This method will seek the first free block and allocate it.
         /// </summary>
         /// <param name="address">the address of the allocated block</param>
-        /// <returns>Returns a boolean indicating wether the operation was successfull</returns>
+        /// <returns>Returns a boolean indicating wether the operation was successful</returns>
         public bool Allocate(out int address)
         {
             address = 0;
@@ -124,6 +124,23 @@ namespace VFS.VFS.Models
             }
             BitMap[address] = true;
             SetBit(true, address%8, DiskProperties.BitMapOffset + address/8, 0);
+            DiskProperties.NumberOfUsedBlocks++;
+            _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
+            _writer.Write(DiskProperties.NumberOfUsedBlocks);
+            return true;
+        }
+
+        /// <summary>
+        /// Allocates a give address
+        /// </summary>
+        /// <param name="address">the desired address</param>
+        /// <returns>Boolean indicating if the operation was successful</returns>
+        public bool Allocate(int address)
+        {
+            if (BitMap[address])
+                return false;
+            BitMap[address] = true;
+            SetBit(true, address % 8, DiskProperties.BitMapOffset + address / 8, 0);
             DiskProperties.NumberOfUsedBlocks++;
             _writer.Seek(this, 0, DiskOffset.NumberOfUsedBlocks);
             _writer.Write(DiskProperties.NumberOfUsedBlocks);
