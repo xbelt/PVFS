@@ -35,7 +35,7 @@ namespace UnitTest
 
             Debug.Assert(VfsFile.GetNoBlocks(disk, 1000) == 6);
             Debug.Assert(!file.ToString().Contains("(loaded)"));
-            Debug.Assert(file.GetAbsolutePath() == "/" + name + "/a");
+            Debug.Assert(file.AbsolutePath() == "/" + name + "/a");
             PrivateObject o = new PrivateObject(file);
             o.Invoke("Load", new object[]{ });
             Debug.Assert(file.ToString().Contains("(loaded)"));
@@ -67,7 +67,6 @@ namespace UnitTest
 
             var fileSize2 = file.FileSize;
             Assert.AreNotSame(null, fileSize2);
-            reader.Dispose();
             reader.Close();
             Assert.AreNotEqual(fileSize1, fileSize2);
         }
@@ -100,7 +99,6 @@ namespace UnitTest
 
             var fileSize2 = file.FileSize;
             Assert.AreNotSame(null, fileSize2);
-            reader.Dispose();
             reader.Close();
             Assert.AreNotEqual(fileSize1, fileSize2);
         }

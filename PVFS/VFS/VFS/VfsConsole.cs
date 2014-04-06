@@ -6,21 +6,21 @@ namespace VFS.VFS
     public class VfsConsole
     {
 
-        public virtual void Error(string message)
+        public virtual void ErrorMessage(string message)
         {
             Console.WriteLine(message);
         }
 
-        public virtual void Message(string message)
+        public virtual void Message(string info)
         {
-            Console.WriteLine(message);
+            Console.WriteLine(info);
         }
-        
-        public virtual void Message(string message, ConsoleColor textCol)
+
+        public virtual void Message(string info, ConsoleColor textCol)
         {
             var oldColor = Console.ForegroundColor;
             Console.ForegroundColor = textCol;
-            Console.WriteLine(message);
+            Console.WriteLine(info);
             Console.ForegroundColor = oldColor;
         }
 

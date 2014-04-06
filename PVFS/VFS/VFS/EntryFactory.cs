@@ -30,7 +30,7 @@ namespace VFS.VFS
         {
             if (disk == null) 
                 throw new ArgumentNullException("disk");
-            var reader = disk.GetReader();
+            var reader = disk.GetReader;
             reader.Seek(disk, address);
 
             var nextBlock = reader.ReadInt32();
@@ -67,7 +67,7 @@ namespace VFS.VFS
             if (!disk.Allocate(out addresses, VfsFile.GetNoBlocks(disk, size)))
                 throw new ArgumentException("There is not enough space on this disk!");
             var blocks = new List<Block>();
-            var writer = disk.GetWriter();
+            var writer = disk.GetWriter;
 
             // Write File Header
             writer.Seek(disk, addresses[0]);
@@ -114,7 +114,7 @@ namespace VFS.VFS
             if (parent == null)
                 throw new ArgumentNullException("parent");
 
-            var writer = disk.GetWriter();
+            var writer = disk.GetWriter;
 
             // Write Directory Header
             writer.Seek(disk, address);

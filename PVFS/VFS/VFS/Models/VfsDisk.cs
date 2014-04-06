@@ -142,9 +142,7 @@ namespace VFS.VFS.Models
             var returnValue = true;
             for (var i = 0; i < numberOfBlocks; i++)
             {
-                int newAddress;
-                returnValue = Allocate(out newAddress) && returnValue;
-                address[i] = newAddress;
+                returnValue = Allocate(out address[i]) && returnValue;
             }
             return returnValue;
         }

@@ -52,7 +52,7 @@ namespace VFS.VFS.Models
         }
 
         protected internal VfsDisk Disk { get; protected set; }
-        protected bool IsLoaded;
+        protected bool IsLoaded { get; set; }
         public int NoBlocks, NextBlock;
         public long FileSize;
         protected List<Block> Inodes;
@@ -115,7 +115,7 @@ namespace VFS.VFS.Models
         /// </summary>
         private void Load()
         {
-            var reader = Disk.GetReader();
+            var reader = Disk.GetReader;
             Inodes = new List<Block> { new Block(Address,  null) };
             var nextAddress = NextBlock;
 
@@ -142,8 +142,10 @@ namespace VFS.VFS.Models
         {
             if (this.IsDirectory)
                 throw new ArgumentException("Can't be called on a directory.");
+            if (reader == null)
+                throw new ArgumentNullException("reader");
 
-            var writer = Disk.GetWriter();
+            var writer = Disk.GetWriter;
 
             if (!IsLoaded)
                 Load();
@@ -205,7 +207,7 @@ namespace VFS.VFS.Models
         /// </summary>
         public void UpdateFileHeader()
         {
-            var writer = Disk.GetWriter();
+            var writer = Disk.GetWriter;
             // Write File Header
             writer.Seek(Disk, Address);
             writer.Write(NextBlock);
@@ -225,8 +227,10 @@ namespace VFS.VFS.Models
         {
             if (this.IsDirectory)
                 throw new ArgumentException("Can't be called on a directory.");
+            if (writer == null)
+                throw new ArgumentNullException("writer");
 
-            var reader = Disk.GetReader();
+            var reader = Disk.GetReader;
 
             if (!IsLoaded)
                 Load();
@@ -279,7 +283,7 @@ namespace VFS.VFS.Models
             if (name.Length > MaxNameLength)
                 throw new ArgumentException("Name was too long.");
 
-            BinaryWriter writer = Disk.GetWriter();
+            BinaryWriter writer = Disk.GetWriter;
             writer.Seek(Disk, Address, FileOffset.NameLength);
             writer.Write((byte)name.Length);
             writer.Write(name.ToCharArray());
@@ -293,13 +297,16 @@ namespace VFS.VFS.Models
         /// Directory Format: /DiskName/DirectoryName/.../DirectoryName
         /// </summary>
         /// <returns>Returns the absolute path to this file/directory.</returns>
-        public string GetAbsolutePath()
+        public string AbsolutePath
         {
-            if (Parent != null)
+            get
             {
-                return Parent.GetAbsolutePath() + "/" + Name;
+                if (Parent != null)
+                {
+                    return Parent.AbsolutePath + "/" + Name;
+                }
+                return "/" + this.Disk.DiskProperties.Name;
             }
-            return "/" + this.Disk.DiskProperties.Name;
         }
 
         /// <summary>
@@ -325,8 +332,8 @@ namespace VFS.VFS.Models
 
             VfsFile copy = EntryFactory.createFile(this.Disk, copyName, this.FileSize, destination);
 
-            BinaryReader reader = this.Disk.GetReader();
-            BinaryWriter writer = this.Disk.GetWriter();
+            BinaryReader reader = this.Disk.GetReader;
+            BinaryWriter writer = this.Disk.GetWriter;
             byte[] buffer = new byte[this.Disk.BlockSize - SmallHeaderSize];
             int head = HeaderSize;
 
@@ -352,6 +359,9 @@ namespace VFS.VFS.Models
         /// <returns>number of blocks (Startblock + Following blocks) needed for this file</returns>
         public static int GetNoBlocks(VfsDisk disk, long filesize)
         {
+            if (disk == null)
+                throw new ArgumentNullException("disk");
+
             var blockSize = disk.BlockSize;
             if (filesize > blockSize - HeaderSize)
             {

@@ -17,13 +17,17 @@ namespace VFS.VFS
     public class VfsManager
     {
         private readonly static List<VfsDisk> Disks = new List<VfsDisk>();
-        public static VfsDirectory WorkingDirectory;
-        public static VfsDisk CurrentDisk;
-        public static VfsConsole Console = new VfsConsole();
+        public static VfsDirectory WorkingDirectory { get; private set; }
+        public static VfsDisk CurrentDisk { get; private set; }
+        public static VfsConsole Console { get; set; }
         private readonly static string[] IdToSize = { "bytes", "kb", "mb", "gb", "tb" };
-        private static bool PassWordCorrect = false;
         private const string Salt = "d5fg4df5sg4ds5fg45sdfg4";
         private const int SizeOfBuffer = 1024 * 8;
+
+        static VfsManager()
+        {
+            Console = new VfsConsole();
+        }
 
         //----------------------Private Methods----------------------
 
@@ -170,8 +174,11 @@ namespace VFS.VFS
                 };
 
 
-
-                Console.Error("There are no open disks. (TODO)");
+                if (allowedCommands.Contains(command))
+                {
+                    Console.ErrorMessage("There are no open disks. (TODO)");
+                    return;
+                }
             }
 
             var input = new AntlrInputStream(command);
@@ -201,12 +208,12 @@ namespace VFS.VFS
                 throw new ArgumentNullException("path");
 
             if (path == "." || String.IsNullOrEmpty(path))
-                return WorkingDirectory.GetAbsolutePath();
+                return WorkingDirectory.AbsolutePath;
             if (path == "..")
-                return (WorkingDirectory.Parent ?? WorkingDirectory).GetAbsolutePath();
+                return (WorkingDirectory.Parent ?? WorkingDirectory).AbsolutePath;
             if (path.StartsWith("/"))
                 return path;
-            return WorkingDirectory.GetAbsolutePath() + "/" + path;
+            return WorkingDirectory.AbsolutePath + "/" + path;
         }
 
 
@@ -226,7 +233,7 @@ namespace VFS.VFS
 
             if (GetDisk(disk.DiskProperties.Name) != null)
             {
-                Console.Error("A disk with the same name was already in the system.");
+                Console.ErrorMessage("A disk with the same name was already in the system.");
             }
 
             Disks.Add(disk);
@@ -242,7 +249,7 @@ namespace VFS.VFS
 
             if (disk == null)
             {
-                Console.Error("This disk does not exist.");
+                Console.ErrorMessage("This disk does not exist.");
                 return false;
             }
 
@@ -269,28 +276,28 @@ namespace VFS.VFS
 
             if (Disks.Any(d => d.DiskProperties.Name == name))
             {
-                Console.Error("There is already a disk with that name in the VFS.");
+                Console.ErrorMessage("There is already a disk with that name in the VFS.");
                 return;
             }
 
             if (!Directory.Exists(path))
             {
-                Console.Error("Directory does not exist.");
+                Console.ErrorMessage("Directory does not exist.");
                 return;
             }
             if (File.Exists(path + name + ".vdi"))
             {
-                Console.Error("This disk already exists");
+                Console.ErrorMessage("This disk already exists");
                 return;
             }
             if (blockSize%4 != 0 || blockSize <= FileOffset.Header)
             {
-                Console.Error("Blocksize must be a multiple of 4 and larger than 128!");
+                Console.ErrorMessage("Blocksize must be a multiple of 4 and larger than 128!");
                 return;
             }
             if (size < blockSize || size/blockSize < 5)
             {
-                Console.Error("The disk must at least hold 5 blocks.");
+                Console.ErrorMessage("The disk must at least hold 5 blocks.");
                 return;
             }
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
@@ -301,7 +308,7 @@ namespace VFS.VFS
         {
             if (!File.Exists(path))
             {
-                Console.Error("This disk does not exist.");
+                Console.ErrorMessage("This disk does not exist.");
                 return;
             }
 
@@ -320,7 +327,7 @@ namespace VFS.VFS
 
             if (entry == null || !entry.IsDirectory)
             {
-                Console.Error("This path does not exist.");
+                Console.ErrorMessage("This path does not exist.");
                 return;
             }
 
@@ -335,7 +342,7 @@ namespace VFS.VFS
             if (WorkingDirectory.Parent != null)
                 WorkingDirectory = WorkingDirectory.Parent;
 
-            Console.Message("New working directory: " + WorkingDirectory.GetAbsolutePath());
+            Console.Message("New working directory: " + WorkingDirectory.AbsolutePath);
         }
 
         //----------------------Directory and File----------------------
@@ -354,13 +361,13 @@ namespace VFS.VFS
 
             if (entry == null)
             {
-                Console.Error("Directory not found.");
+                Console.ErrorMessage("Directory not found.");
                 return;
             }
 
             if (!entry.IsDirectory)
             {
-                Console.Error("This is not a directory.");
+                Console.ErrorMessage("This is not a directory.");
                 return;
             }
 
@@ -368,11 +375,11 @@ namespace VFS.VFS
 
             if (dirs)
             {
-                Console.Message(dir.GetDirectories().Aggregate("",(current, d)=>current + " " + d.Name).TrimEnd(' '));
+                Console.Message(dir.GetDirectories.Aggregate("",(current, d)=>current + " " + d.Name).TrimEnd(' '));
             }
             if (files)
             {
-                Console.Message(dir.GetFiles().Aggregate("", (current, d) => current + " " + d.Name).TrimEnd(' '), ConsoleColor.Blue);
+                Console.Message(dir.GetFiles.Aggregate("", (current, d) => current + " " + d.Name).TrimEnd(' '), ConsoleColor.Blue);
             }
         }
 
@@ -396,9 +403,9 @@ namespace VFS.VFS
                 if (last == null)
                 {
                     if (remaining.Any())
-                        Console.Error("The Disk " + remaining.First() + " does not exist!");
+                        Console.ErrorMessage("The Disk " + remaining.First() + " does not exist!");
                     else
-                        Console.Error("Please enter a valid path.");
+                        Console.ErrorMessage("Please enter a valid path.");
                     return false;
                 }
 
@@ -410,7 +417,7 @@ namespace VFS.VFS
                         // create
                         if (name.Length > VfsFile.MaxNameLength)
                         {
-                            Console.Error("The name of the directory was too long.");
+                            Console.ErrorMessage("The name of the directory was too long.");
                             return false;
                         }
                         VfsDirectory newDir = EntryFactory.createDirectory(last.Disk, name, last);
@@ -425,7 +432,7 @@ namespace VFS.VFS
                     else
                     {
                         // invalid path
-                        Console.Error("A file with the same name already existed.");
+                        Console.ErrorMessage("A file with the same name already existed.");
                         return false;
                     }
                 }
@@ -438,7 +445,7 @@ namespace VFS.VFS
                 Console.Message("This Directory already existed.");
                 return true;
             }
-            Console.Error("A file with the same name already existed.");
+            Console.ErrorMessage("A file with the same name already existed.");
             return false;
         }
 
@@ -454,20 +461,20 @@ namespace VFS.VFS
 
             if (entry != null)
             {
-                Console.Error("There already existed a file or directory with the same path.");
+                Console.ErrorMessage("There already existed a file or directory with the same path.");
                 return null;
             }
 
             if (last == null)
             {
-                Console.Error("The disk was not found.");
+                Console.ErrorMessage("The disk was not found.");
                 return null;
             }
 
             List<string> fileNames =  remaining.ToList();
             if (fileNames.Count > 1)
             {
-                Console.Error("Target directory was not found.");
+                Console.ErrorMessage("Target directory was not found.");
                 return null;
             }
 
@@ -486,20 +493,22 @@ namespace VFS.VFS
         /// <param name="dstPath">The absolute path to the target Directory.</param>
         public static void Move(string srcPath, string dstPath)
         {
-            if (srcPath == null || dstPath == null)
-                throw new ArgumentNullException("", "Argument null.");
+            if (srcPath == null)
+                throw new ArgumentNullException("srcPath");
+            if (dstPath == null)
+                throw new ArgumentNullException("dstPath");
 
             VfsEntry srcEntry = GetEntry(srcPath);
             VfsEntry dstEntry = GetEntry(dstPath);
 
             if (srcEntry == null || dstEntry == null)
             {
-                Console.Error("The source or the destination did not exist.");
+                Console.ErrorMessage("The source or the destination did not exist.");
                 return;
             }
             if (!dstEntry.IsDirectory)
             {
-                Console.Error("The destination must be a directory.");
+                Console.ErrorMessage("The destination must be a directory.");
                 return;
             }
 
@@ -509,18 +518,18 @@ namespace VFS.VFS
 
             if (src.Parent == null)
             {
-                Console.Error("Can't move root.");
+                Console.ErrorMessage("Can't move root.");
                 return;
             }
-            if (dst.GetAbsolutePath().StartsWith(src.GetAbsolutePath()))
+            if (dst.AbsolutePath.StartsWith(src.AbsolutePath))
             {
-                Console.Error("Can't move a directory into itself!");
+                Console.ErrorMessage("Can't move a directory into itself!");
                 return;
             }
 
             if (dst.GetEntry(src.Name) != null)
             {
-                Console.Error("There is already a file with that name in the target directory.");
+                Console.ErrorMessage("There is already a file with that name in the target directory.");
                 return;
             }
 
@@ -558,7 +567,7 @@ namespace VFS.VFS
 
             if (newName.Length > VfsFile.MaxNameLength)
             {
-                Console.Error("This name is too long.");
+                Console.ErrorMessage("This name is too long.");
                 return;
             }
 
@@ -568,19 +577,19 @@ namespace VFS.VFS
 
             if (entry == null)
             {
-                Console.Error("This file does not exist.");
+                Console.ErrorMessage("This file does not exist.");
                 return;
             }
 
             if (((VfsFile) entry).Parent == null)
             {
-                Console.Error("Can't rename root.");
+                Console.ErrorMessage("Can't rename root.");
                 return;
             }
 
             if (last.GetEntry(newName) != null)
             {
-                Console.Error("There already exists a file or directory with this name.");
+                Console.ErrorMessage("There already exists a file or directory with this name.");
                 return;
             }
 
@@ -605,12 +614,12 @@ namespace VFS.VFS
 
             if (srcEntry == null)
             {
-                Console.Error("Source did not exist.");
+                Console.ErrorMessage("Source did not exist.");
                 return;
             }
             if (dstEntry != null && !dstEntry.IsDirectory)
             {
-                Console.Error("Destination must be a directory.");
+                Console.ErrorMessage("Destination must be a directory.");
                 return;
             }
 
@@ -621,15 +630,15 @@ namespace VFS.VFS
                 dstEntry = GetEntry(dstPath);
                 if (dstEntry == null)
                 {
-                    Console.Error("The destination directory did not exist.");
+                    Console.ErrorMessage("The destination directory did not exist.");
                     return;
                 }
             }
             VfsDirectory dst = (VfsDirectory)dstEntry;
 
-            if (((VfsFile)srcEntry).Parent.GetAbsolutePath() == dst.GetAbsolutePath() ? !CopyHelper(srcEntry, dst, true) : !CopyHelper(srcEntry, dst, false))
+            if (((VfsFile)srcEntry).Parent.AbsolutePath == dst.AbsolutePath ? !CopyHelper(srcEntry, dst, true) : !CopyHelper(srcEntry, dst, false))
             {
-                Console.Error("Copying was canceled due to a too long file or directory name.");
+                Console.ErrorMessage("Copying was canceled due to a too long file or directory name.");
                 return;
             }
 
@@ -660,7 +669,7 @@ namespace VFS.VFS
                 // dir: create, recursive calls
                 VfsDirectory newDir = EntryFactory.createDirectory(dst.Disk, newName, dst);
                 dst.AddElement(newDir);
-                return ((VfsDirectory)src).GetEntries().ToList().TrueForAll(entry => CopyHelper(entry, newDir, false));
+                return ((VfsDirectory)src).GetEntries.ToList().TrueForAll(entry => CopyHelper(entry, newDir, false));
             }
             else
             {
@@ -681,7 +690,7 @@ namespace VFS.VFS
 
             if (entry == null)
             {
-                Console.Error("This file does not exist.");
+                Console.ErrorMessage("This file does not exist.");
                 return;
             }
 
@@ -693,15 +702,15 @@ namespace VFS.VFS
 
             if (entry.IsDirectory)
             {
-                var files = ((VfsDirectory)entry).GetFiles().ToList();
+                var files = ((VfsDirectory)entry).GetFiles.ToList();
                 foreach (var file in files)
                 {
                     file.Free();
                 }
-                var directories = ((VfsDirectory)entry).GetDirectories().ToList();
+                var directories = ((VfsDirectory)entry).GetDirectories.ToList();
                 foreach (var directory in directories)
                 {
-                    Remove(directory.GetAbsolutePath());
+                    Remove(directory.AbsolutePath);
                 }
             }
             entry.Parent.RemoveElement(entry);
@@ -774,13 +783,13 @@ namespace VFS.VFS
 
             if (dstEntry == null)
             {
-                Console.Error("The destination folder did not exist.");
+                Console.ErrorMessage("The destination folder did not exist.");
                 return;
             }
 
             if (!dstEntry.IsDirectory)
             {
-                Console.Error("Destination was a file.");
+                Console.ErrorMessage("Destination was a file.");
                 return;
             }
 
@@ -788,7 +797,7 @@ namespace VFS.VFS
 
             if (Disks.Any(d=>d.Path == src))
             {
-                Console.Error("Can't import a currently opened disk.");
+                Console.ErrorMessage("Can't import a currently opened disk.");
                 return;
             }
 
@@ -803,7 +812,7 @@ namespace VFS.VFS
             }
             else
             {
-                Console.Error("Your source path does not lead to a valid file or directory. Aborting import operation.");
+                Console.ErrorMessage("Your source path does not lead to a valid file or directory. Aborting import operation.");
             }
         }
 
@@ -862,11 +871,7 @@ namespace VFS.VFS
             }
             catch (CryptographicException)
             {
-                throw new InvalidDataException("Please supply a correct password");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
+                throw new InvalidDataException("Please supply the correct password");
             }
             return outputPath;
         }
@@ -914,12 +919,12 @@ namespace VFS.VFS
             var fileLengthLong = fileInfo.Length + FileOffset.Header - FileOffset.SmallHeader;
             if (fileLengthLong > ((long)dstDir.Disk.DiskProperties.BlockSize - (long)FileOffset.SmallHeader) * ((long)dstDir.Disk.DiskProperties.NumberOfBlocks - (long)dstDir.Disk.DiskProperties.NumberOfUsedBlocks))
             {
-                Console.Error("Filesize too large. Skipping import of: " + fileInfo.Name);
+                Console.ErrorMessage("Filesize too large. Skipping import of: " + fileInfo.Name);
                 return;
             }
             var fileLength = fileInfo.Length;
 
-            Console.Message("Importing " + fileName + " in " + dstDir.GetAbsolutePath());
+            Console.Message("Importing " + fileName + " in " + dstDir.AbsolutePath);
 
             //Check for duplicates
             var fileWithSamename = dstDir.GetFile(fileName);
@@ -929,12 +934,12 @@ namespace VFS.VFS
                 var answer = Console.Query("Do you want to overwrite it? Write 'Ok' or 'Cancel'. ", "Ok", "Cancel");
                 if (answer == 1)
                 {
-                    Console.Error("File has not been overwritten.");
+                    Console.ErrorMessage("File has not been overwritten.");
                     return;
                 }
                 //Delete file to create a new one.
                 Console.Message("Removing " + fileWithSamename.Name);
-                Remove(fileWithSamename.GetAbsolutePath()); //Works because of duplicate name.
+                Remove(fileWithSamename.AbsolutePath); //Works because of duplicate name.
             }
 
             //Create entry in which to write the file
@@ -945,7 +950,6 @@ namespace VFS.VFS
             importEntry.Write(reader);
 
             //Dispose resources and close reader
-            reader.Dispose();
             reader.Close();
 
             //Delete the compressed file in host system (what kind of compression would it be to have the same file twice? :P)
@@ -972,11 +976,11 @@ namespace VFS.VFS
                     return;
                 }
                 //Delete directory and content to create a new one
-                Remove(dirWithSameName.GetAbsolutePath()); //Work because of duplicate name
+                Remove(dirWithSameName.AbsolutePath); //Work because of duplicate name
             }
 
             //Create directory
-            Console.Message("Importing " + dirName + " in " + dstDir.GetAbsolutePath());
+            Console.Message("Importing " + dirName + " in " + dstDir.AbsolutePath);
             var newDir = EntryFactory.createDirectory(dstDir.Disk, dirName, dstDir);
             
             //If src contains files or subdirectories, we have to import those into newDir:
@@ -1011,7 +1015,7 @@ namespace VFS.VFS
             if (src == null) throw new ArgumentNullException("src");
             if (!Directory.Exists(dst))
             {
-                Console.Error("Destination does not lead to a directory: " + dst);
+                Console.ErrorMessage("Destination does not lead to a directory: " + dst);
                 return;
             }
 
@@ -1019,7 +1023,7 @@ namespace VFS.VFS
             var toExport = GetEntry(src);
             if (toExport == null)
             {
-                Console.Error("Invalid path to source entry: " + src);
+                Console.ErrorMessage("Invalid path to source entry: " + src);
                 return;
             }
 
@@ -1031,9 +1035,6 @@ namespace VFS.VFS
             {
                 ExportFile(dst, (VfsFile) toExport);
             }
-
-            //Reset to false for future exports
-            PassWordCorrect = false;
         }
 
         private static void ExportFile(string dst, VfsFile toExport) //TODO: finish this thing here
@@ -1080,8 +1081,8 @@ namespace VFS.VFS
 
         private static void ExportDirectory(string dst, VfsDirectory toExport, bool isFirstRecursion) 
         {
-            var filesInDir = toExport.GetFiles().ToList();
-            var subDirs = toExport.GetDirectories().ToList();
+            var filesInDir = toExport.GetFiles.ToList();
+            var subDirs = toExport.GetDirectories.ToList();
             var path = dst;
             //Export directory
             //TODO: check for correctness

@@ -49,7 +49,7 @@ namespace VFS.VFS.Models
             }
 
 
-            BinaryReader reader = Disk.GetReader();
+            BinaryReader reader = Disk.GetReader;
             Inodes = new List<Block> { new Block(Address, null) };
             List<int> elementAddresses = new List<int>();
             int head = HeaderSize, doneEntriesInCurrentBlock = 0, totalEntries = 0;
@@ -91,12 +91,15 @@ namespace VFS.VFS.Models
         /// Returns the entries contained in this directory and loads it if it was unloaded before.
         /// </summary>
         /// <returns>Returns the entries contained in this directory.</returns>
-        public IEnumerable<VfsEntry> GetEntries()
+        public IEnumerable<VfsEntry> GetEntries
         {
-            if (!IsLoaded)
-                Load();
+            get
+            {
+                if (!IsLoaded)
+                    Load();
 
-            return elements;
+                return elements;
+            }
         }
         /// <summary>
         /// Looks for an entry with a given name.
@@ -104,16 +107,19 @@ namespace VFS.VFS.Models
         /// <returns>VfsEntry if one existed, otherwise null.</returns>
         public VfsEntry GetEntry(string name)
         {
-            return GetEntries().FirstOrDefault(entry => entry.Name.Equals(name));
+            return GetEntries.FirstOrDefault(entry => entry.Name.Equals(name));
         }
         
         /// <summary>
         /// Lists all SubDirectories.
         /// </summary>
         /// <returns>An enumeration of the subdirectories.</returns>
-        public IEnumerable<VfsDirectory> GetDirectories()
+        public IEnumerable<VfsDirectory> GetDirectories
         {
-            return GetEntries().Where(el => el.IsDirectory).Cast<VfsDirectory>();
+            get
+            {
+                return GetEntries.Where(el => el.IsDirectory).Cast<VfsDirectory>();
+            }
         }
         /// <summary>
         /// Finds a directory with a given name.
@@ -122,20 +128,25 @@ namespace VFS.VFS.Models
         /// <returns>Returns the VfsDirectory, if there exists one with the given name, othewise null.</returns>
         public VfsDirectory GetDirectory(string name)
         {
-            VfsEntry e = GetDirectories().FirstOrDefault(entry => entry.Name == name);
+            VfsEntry e = GetEntries.FirstOrDefault(entry => entry.Name == name);
             if (e != null && e.IsDirectory)
                 return (VfsDirectory)e;
             else
                 return null;
         }
+
         /// <summary>
         /// Lists all contained files.
         /// </summary>
         /// <returns>An enumeration of the contained files.</returns>
-        public IEnumerable<VfsFile> GetFiles()
+        public IEnumerable<VfsFile> GetFiles
         {
-            return GetEntries().Where(el => !el.IsDirectory).Cast<VfsFile>();
+            get
+            {
+                return GetEntries.Where(el => !el.IsDirectory).Cast<VfsFile>();
+            }
         }
+
         /// <summary>
         /// Finds a file with a given name.
         /// </summary>
@@ -143,7 +154,7 @@ namespace VFS.VFS.Models
         /// <returns>Returns the VfsFile, if there exists one with the given name, otherwise null.</returns>
         public VfsFile GetFile(string name)
         {
-            VfsEntry e = GetEntries().FirstOrDefault(entry => entry.Name == name);
+            VfsEntry e = GetEntries.FirstOrDefault(entry => entry.Name == name);
             if (e != null && !e.IsDirectory)
                 return (VfsFile)e;
             else
@@ -170,7 +181,7 @@ namespace VFS.VFS.Models
             if (elements.Contains(element))
                 return false;
 
-            BinaryWriter writer = Disk.GetWriter();
+            BinaryWriter writer = Disk.GetWriter;
 
             if (GetNoBlocks(Disk, 4 * noEntries + 4) > NoBlocks)
             {// add a new block
@@ -228,12 +239,12 @@ namespace VFS.VFS.Models
             if (element == null)
                 throw new ArgumentException("Argument 'element' was null.");
 
-            int index = GetEntries().ToList().IndexOf(element);
+            int index = GetEntries.ToList().IndexOf(element);
 
             if (index == -1)
                 return false;
 
-            BinaryWriter writer = Disk.GetWriter();
+            BinaryWriter writer = Disk.GetWriter;
 
             if (GetNoBlocks(Disk, 4 * noEntries - 4) < NoBlocks)
             {

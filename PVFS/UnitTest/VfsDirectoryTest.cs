@@ -30,7 +30,7 @@ namespace UnitTest
 
             VfsDirectory dir = (VfsDirectory)e;
 
-            Debug.Assert(dir.GetEntries().ToList().Count == 100);
+            Debug.Assert(dir.GetEntries.ToList().Count == 100);
             for (int i = 0; i < 100; i++)
             {
                 Debug.Assert(dir.GetFile(""+i) != null);
@@ -61,7 +61,7 @@ namespace UnitTest
 
             VfsDirectory dir = (VfsDirectory)e;
 
-            Debug.Assert(dir.GetEntries().ToList().Count == 59);
+            Debug.Assert(dir.GetEntries.ToList().Count == 59);
             for (int i = 0; i < 100; i++)
             {
                 if (i>=33&& i<74) continue;
