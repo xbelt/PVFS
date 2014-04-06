@@ -116,7 +116,7 @@ namespace UnitTest
         public void TestCreateHugeDisk() {
             string path;
             string name;
-            createTestDisk(out path, out name, 100000*200, 200);
+            createTestDisk(out path, out name, 100000*200, 200).Stream.Close();
         }
 
         [TestMethod]
