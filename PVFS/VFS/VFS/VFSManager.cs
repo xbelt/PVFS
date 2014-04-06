@@ -1,14 +1,16 @@
-﻿using System;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.AccessControl;
-using VFS.VFS.Models;
 using System.Security.Cryptography;
 using System.Text;
+using VFS.VFS.Models;
+using VFS.VFS.Parser;
 
 namespace VFS.VFS
 {
@@ -151,6 +153,41 @@ namespace VFS.VFS
             return path;
         }
 
+        //----------------------Command----------------------
+
+
+        /// <summary>
+        /// Executes a commandline comand.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        public static void ExecuteCommand(string command)
+        {
+
+            if (Disks.Count == 0)
+            {
+                string[] allowedCommands =
+                {
+                    "createdisk", "loaddisk", "unloaddisk", "removedisk", "listdisks", "free",
+                    "occ", "help", "exit"
+                };
+
+
+
+                Console.Error("There are no open disks. (TODO)");
+            }
+
+            var input = new AntlrInputStream(command);
+            var lexer = new ShellLexer(input);
+            var tokens = new CommonTokenStream(lexer);
+            var parser = new ShellParser(tokens);
+
+            var entry = parser.compileUnit();
+
+            var walker = new ParseTreeWalker();
+            var exec = new Executor();
+            walker.Walk(exec, entry);
+        }
+
         //----------------------Helper----------------------
 
         /// <summary>
@@ -203,15 +240,22 @@ namespace VFS.VFS
         
         public static void UnloadDisk(string name)
         {
-            var unmountedDisks = Disks.Where(x => x.DiskProperties.Name == name).ToList();
-            foreach (var unmountedDisk in unmountedDisks)
-            {
-                unmountedDisk.GetReader().Close();
-                unmountedDisk.GetWriter().Close();
+            VfsDisk disk = GetDisk(name);
 
-                Console.Message("Closed disk " + unmountedDisk.DiskProperties.Name + ".");
-                Disks.Remove(unmountedDisk);
+            if (disk == null)
+            {
+                Console.Error("This disk does not exist.");
+                return;
             }
+
+            Disks.Remove(disk);
+            if (CurrentDisk == disk)
+            {
+                CurrentDisk = Disks.FirstOrDefault();
+                WorkingDirectory = CurrentDisk == null ? null : CurrentDisk.Root;
+            }
+            disk.Dispose();
+            Console.Message("Closed disk " + disk.DiskProperties.Name + ".");
         }
 
         public static void CreateDisk(string path, string name, double size, int blockSize, string pw)
