@@ -179,7 +179,6 @@ namespace UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void TestGetEntryArgException()
         {
             string path;
@@ -187,7 +186,8 @@ namespace UnitTest
             var disk = DiskFactoryTests.createTestDisk(out path, out name);
             VfsManager.LoadDisk(disk);
             VfsManager.CreateDirectory("/" + name + "/testFolder", true);
-            var readFile = VfsManager.GetEntry(disk, "");
+            var readFile = VfsManager.GetEntry("/"+name+"/");
+            Debug.Assert(readFile != null);
         }
 
         [TestMethod]
@@ -396,11 +396,47 @@ namespace UnitTest
             var disk = DiskFactoryTests.createTestDisk(out path, out name, 1000, 200);
             VfsManager.LoadDisk(disk);
             VfsManager.CreateFile("/" + name + "/a");
+            VfsManager.Console = new MockConsole {queryReturn = 0};
             VfsManager.Copy("/" + name + "/a", "/" + name + "/b");
             Assert.IsNotNull(VfsManager.GetEntry("/" + name + "/a"));
             Assert.IsNotNull(VfsManager.GetEntry("/" + name + "/b/a"));
         }
 
+        public class MockConsole : VfsConsole
+        {
+            public enum Command
+            {
+                Error,
+                Message,
+                Query,
+                Readline
+            };
 
+            public Command lastCommand;
+            public int queryReturn = 0;
+            public string readLineReturn = "";
+
+            public override void Error(string message)
+            {
+                lastCommand = Command.Error;
+            }
+
+            public override void Message(string message)
+            {
+                lastCommand=Command.Message;
+            }
+
+            public override int Query(string message, params string[] options)
+            {
+                lastCommand = Command.Query;
+                return queryReturn;
+            }
+
+            public override string Readline(string message)
+            {
+                lastCommand = Command.Readline;
+                return readLineReturn;
+            }
+        }
     }
 }
