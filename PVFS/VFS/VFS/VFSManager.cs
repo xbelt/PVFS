@@ -217,7 +217,7 @@ namespace VFS.VFS
 
             if (GetDisk(disk.DiskProperties.Name) != null)
             {
-                Console.ErrorMessage("A disk with the same name was already in the system.");
+                Console.ErrorMessage("A disk with the same name was already in the VFS.");
             }
 
             Disks.Add(disk);
