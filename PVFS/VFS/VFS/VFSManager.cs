@@ -422,7 +422,7 @@ namespace VFS.VFS
                     if (next == null)
                     {
                         // create
-                        if (VfsFile.ValidName(name))
+                        if (!VfsFile.ValidName(name))
                         {
                             Console.ErrorMessage("The name of the directory was not valid.");
                             return false;
@@ -617,7 +617,7 @@ namespace VFS.VFS
                 return;
             }
 
-            if (VfsFile.ValidName(newName))
+            if (!VfsFile.ValidName(newName))
             {
                 Console.ErrorMessage("This new name is not valid.");
                 return;

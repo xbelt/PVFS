@@ -57,7 +57,7 @@ namespace VFS.VFS
                 throw new ArgumentNullException("disk");
             if (name == null)
                 throw new ArgumentNullException("name");
-            if (VfsFile.ValidName(name))
+            if (!VfsFile.ValidName(name))
                 throw new ArgumentException("Invalid filename.");
             if (size < 0)
                 throw new ArgumentException("Can't create files larger than 1 Gb.");
@@ -106,7 +106,7 @@ namespace VFS.VFS
                 throw new ArgumentNullException("disk");
             if (name == null)
                 throw new ArgumentNullException("name");
-            if (VfsFile.ValidName(name))
+            if (!VfsFile.ValidName(name))
                 throw new ArgumentException("Invalid directory-name.");
             int address;
             if (!disk.Allocate(out address))
