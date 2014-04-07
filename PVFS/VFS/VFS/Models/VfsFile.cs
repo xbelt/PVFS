@@ -380,7 +380,7 @@ namespace VFS.VFS.Models
         /// <returns>Returns true if the name is valid, otherwise false.</returns>
         public static bool ValidName(string name)
         {
-            if (name.Length > MaxNameLength)
+            if (name.Length > MaxNameLength || name.Length == 0)
                 return false;
 
             return name.ToCharArray().All(c => (c >= 65 && c < 91) || (c >= 97 && c < 123) || c == 95);
