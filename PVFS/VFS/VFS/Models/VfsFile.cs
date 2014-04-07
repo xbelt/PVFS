@@ -35,7 +35,7 @@ namespace VFS.VFS.Models
         /// <summary>
         /// Maximal File/Directory Name Length
         /// </summary>
-        public const int MaxNameLength = 110;
+        private const int MaxNameLength = 110;
 
         #endregion
 
@@ -371,6 +371,19 @@ namespace VFS.VFS.Models
                 return (int)noBlocks + 1;
             }
             return 1;
+        }
+
+        /// <summary>
+        /// Checks wether a string is a valid filename or not.
+        /// </summary>
+        /// <param name="name">The name to check.</param>
+        /// <returns>Returns true if the name is valid, otherwise false.</returns>
+        public static bool ValidName(string name)
+        {
+            if (name.Length > MaxNameLength)
+                return false;
+
+            return name.ToCharArray().All(c => (c >= 65 && c < 91) || (c >= 97 && c < 123) || c == 95);
         }
 
         public override string ToString()
