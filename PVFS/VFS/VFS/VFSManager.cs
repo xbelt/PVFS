@@ -422,9 +422,9 @@ namespace VFS.VFS
                     if (next == null)
                     {
                         // create
-                        if (name.Length > VfsFile.MaxNameLength)
+                        if (VfsFile.ValidName(name))
                         {
-                            Console.ErrorMessage("The name of the directory was too long.");
+                            Console.ErrorMessage("The name of the directory was not valid.");
                             return false;
                         }
                         if (last.SpaceIndicator(1) + 1 > last.Disk.GetFreeBlocks)
@@ -492,9 +492,15 @@ namespace VFS.VFS
             }
 
             List<string> fileNames =  remaining.ToList();
-            if (fileNames.Count > 1)
+            if (fileNames.Count != 1)
             {
                 Console.ErrorMessage("Target directory was not found.");
+                return null;
+            }
+
+            if (!VfsFile.ValidName(fileNames[0]))
+            {
+                Console.ErrorMessage("This filename is not valid");
                 return null;
             }
 
@@ -611,9 +617,9 @@ namespace VFS.VFS
                 return;
             }
 
-            if (newName.Length > VfsFile.MaxNameLength)
+            if (VfsFile.ValidName(newName))
             {
-                Console.ErrorMessage("This name is too long.");
+                Console.ErrorMessage("This new name is not valid.");
                 return;
             }
 
@@ -719,7 +725,7 @@ namespace VFS.VFS
             while (dst.GetEntry(newName) != null)
                 newName = src.Name + "_copy_" + i++;
 
-            if (newName.Length > VfsFile.MaxNameLength)
+            if (!VfsFile.ValidName(newName))
                 return false;
 
             // check if file or dir
