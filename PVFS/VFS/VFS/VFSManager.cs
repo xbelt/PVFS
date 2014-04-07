@@ -258,6 +258,12 @@ namespace VFS.VFS
                 path += "\\";
             }
 
+            if (!VfsFile.ValidName(name))
+            {
+                Console.ErrorMessage("This disk name is not valid.");
+                return;
+            }
+
             if (Disks.Any(d => d.DiskProperties.Name == name))
             {
                 Console.ErrorMessage("There is already a disk with that name in the VFS.");
