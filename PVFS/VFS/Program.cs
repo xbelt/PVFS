@@ -7,10 +7,13 @@ namespace VFS
     {
         static void Main()
         {
+            VfsConsole console = new VfsConsole();
+            VfsManager.Console = console;
+
             while (true)
             {
                 var value = Console.ReadLine();
-                VfsManager.ExecuteCommand(value);
+                console.Command(value);
             }
         }
     }
