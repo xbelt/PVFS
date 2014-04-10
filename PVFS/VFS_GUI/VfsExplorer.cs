@@ -35,14 +35,55 @@ namespace VFS_GUI
             InitializeComponent();
 
             this.diskOFD = new OpenFileDialog();
-            this.diskOFD.Filter = "*.vdi";
+            this.diskOFD.Filter = "Virtual Disks|*.vdi|All Files|*.*";
             this.diskOFD.InitialDirectory = Environment.CurrentDirectory;
             this.diskOFD.Multiselect = false;
-            
+
             this.importOFD = new OpenFileDialog();
             this.importOFD.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             this.importOFD.Multiselect = true;
         }
+
+
+        private void setButtonStates()
+        {
+            Button[] NeedDisk =
+            {
+                closeDiskButton, deleteDiskButton, createDirectoryButton, createFileButton,
+                importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
+            };
+
+            // check over console.command("ldisks") whether there are some open disks.
+            // maybe not every time because this is runs a lot (probably after each user action)
+            if (Console.Query("Hello", "Yes", "No") == 0)
+            {
+                foreach (Button b in NeedDisk)
+                {
+                    b.Enabled = true;
+                }
+
+                this.exportButton.Enabled = this.selection.Count != 0;
+                this.moveButton.Enabled = this.selection.Count != 0;
+                this.copyButton.Enabled = this.selection.Count != 0;
+                this.deleteButton.Enabled = this.selection.Count != 0;
+
+                this.renameButton.Enabled = this.selection.Count == 1;
+
+                this.pasteButton.Enabled = this.markedFiles != null;
+            }
+            else
+            {
+                foreach (Button b in NeedDisk)
+                {
+                    b.Enabled = false;
+                }
+            }
+
+
+        }
+
+
+
 
         private void createDiskButton_Click(object sender, EventArgs e)
         {
@@ -91,6 +132,7 @@ namespace VFS_GUI
 
         private void importButton_Click(object sender, EventArgs e)
         {
+            // whoops this doesn't work with directories.
             if (this.importOFD.ShowDialog(this) == DialogResult.OK) {
 
                 foreach (string fileName in this.importOFD.FileNames)
@@ -171,6 +213,7 @@ namespace VFS_GUI
 
                     Console.Command(command);
                 }
+                // not clearing markedfiles = paste multiple copies.
             }
         }
 
