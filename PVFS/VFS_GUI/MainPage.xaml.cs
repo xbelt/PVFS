@@ -22,14 +22,15 @@ namespace VFS_GUI
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        private LocalConsole Console;
+
+
+
+
         public MainPage()
         {
             this.InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
     }
 }
