@@ -22,6 +22,7 @@ namespace VFS_GUI
         /// Store files here when copy or cut are pressed.
         /// </summary>
         private List<string> markedFiles;
+
         /// <summary>
         /// Store if cut or copy was pressed last.
         /// </summary>
@@ -42,6 +43,8 @@ namespace VFS_GUI
             this.importOFD = new OpenFileDialog();
             this.importOFD.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             this.importOFD.Multiselect = true;
+
+            setButtonStates();
         }
 
 
@@ -54,8 +57,8 @@ namespace VFS_GUI
             };
 
             // check over console.command("ldisks") whether there are some open disks.
-            // maybe not every time because this is runs a lot (probably after each user action)
-            if (Console.Query("Hello", "Yes", "No") == 0)
+            // maybe not every time because this runs a lot (probably after each user action)
+            if (Console.Query("Are there some open disks?", "Yes", "No") == 0)
             {
                 foreach (Button b in NeedDisk)
                 {
@@ -83,13 +86,12 @@ namespace VFS_GUI
         }
 
 
-
+        //---------------Buttons & Co.---------------
 
         private void createDiskButton_Click(object sender, EventArgs e)
         {
             // Show createDisk window
         }
-
         private void openDiskButton_Click(object sender, EventArgs e)
         {
             if (this.diskOFD.ShowDialog(this) == DialogResult.OK)
@@ -99,41 +101,38 @@ namespace VFS_GUI
                 Console.Command(command);
             }
         }
-
         private void closeDiskButton_Click(object sender, EventArgs e)
         {
 
         }
-
         private void deleteDiskButton_Click(object sender, EventArgs e)
         {
 
         }
-
+        
         private void createDirectoryButton_Click(object sender, EventArgs e)
         {
-            // show name dialog
+            // show name dialog or create a new thingy and allow for a namechange in the list view immediately
             string name = "test";
 
             string command = "mkdir " + Address + "/" + name;
 
             Console.Command(command);
         }
-
         private void createFileButton_Click(object sender, EventArgs e)
         {
-            // show name dialog
+            // show name dialog or create a new thingy and allow for a namechange in the list view immediately
             string name = "test.fail";
 
             string command = "mk " + Address + "/" + name;
 
             Console.Command(command);
         }
-
         private void importButton_Click(object sender, EventArgs e)
         {
             // whoops this doesn't work with directories.
-            if (this.importOFD.ShowDialog(this) == DialogResult.OK) {
+            if (this.importOFD.ShowDialog(this) == DialogResult.OK)
+            {
 
                 foreach (string fileName in this.importOFD.FileNames)
                 {
@@ -143,7 +142,6 @@ namespace VFS_GUI
                 }
             }
         }
-
         private void exportButton_Click(object sender, EventArgs e)
         {
             // show folder select dialog
@@ -156,21 +154,18 @@ namespace VFS_GUI
                 Console.Command(command);
             }
         }
-
         private void renameButton_Click(object sender, EventArgs e)
         {
             if (selection.Count != 1)
                 throw new ArgumentException("Button should not be pressable when not exactly 1 file is selected.");
 
-            // show name dialog
+            // show name dialog or allow for a namechange in the list view
             string newname = "test2.fail";
 
             string command = "rn " + selection[0] + " " + newname;
 
             Console.Command(command);
         }
-
-
         private void moveButton_Click(object sender, EventArgs e)
         {
             if (this.selection.Count == 0)
@@ -179,7 +174,6 @@ namespace VFS_GUI
             this.cut = true;
             this.markedFiles = new List<string>(this.selection);
         }
-
         private void copyButton_Click(object sender, EventArgs e)
         {
             if (this.selection.Count == 0)
@@ -188,7 +182,6 @@ namespace VFS_GUI
             this.cut = true;
             this.markedFiles = new List<string>(this.selection);
         }
-
         private void pasteButton_Click(object sender, EventArgs e)
         {
             if (this.markedFiles == null)
@@ -216,19 +209,14 @@ namespace VFS_GUI
                 // not clearing markedfiles = paste multiple copies.
             }
         }
-
         private void deleteButton_Click(object sender, EventArgs e)
         {
             if (this.selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            foreach (string file in this.selection)
-            {
-                string command = "rm " + file;
+            string command = this.selection.Aggregate("", (agg, file) => agg + "rm " + file + " ");
 
-                Console.Command(command);
-            }
+            Console.Command(command);
         }
-
     }
 }
