@@ -9,11 +9,11 @@ namespace VFS_GUI
     {
         private Thread workerThread;
         private Queue<VfsTask> tasks;
-        private MainWindow window;
+        private VfsExplorer explorer;
 
-        public LocalConsole(MainWindow window)
+        public LocalConsole(VfsExplorer explorer)
         {
-            this.window = window;
+            this.explorer = explorer;
         }
 
         public override void Command(string comm)
