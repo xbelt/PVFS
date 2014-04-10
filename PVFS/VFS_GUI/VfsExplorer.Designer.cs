@@ -90,6 +90,7 @@
             this.deleteButton.TabIndex = 11;
             this.deleteButton.Text = "deleteButton";
             this.deleteButton.UseVisualStyleBackColor = true;
+            this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
             // 
             // pasteButton
             // 
@@ -100,6 +101,7 @@
             this.pasteButton.TabIndex = 11;
             this.pasteButton.Text = "pasteButton";
             this.pasteButton.UseVisualStyleBackColor = true;
+            this.pasteButton.Click += new System.EventHandler(this.pasteButton_Click);
             // 
             // moveButton
             // 
@@ -110,6 +112,7 @@
             this.moveButton.TabIndex = 10;
             this.moveButton.Text = "moveButton";
             this.moveButton.UseVisualStyleBackColor = true;
+            this.moveButton.Click += new System.EventHandler(this.moveButton_Click);
             // 
             // copyButton
             // 
@@ -120,6 +123,7 @@
             this.copyButton.TabIndex = 8;
             this.copyButton.Text = "copyButton";
             this.copyButton.UseVisualStyleBackColor = true;
+            this.copyButton.Click += new System.EventHandler(this.copyButton_Click);
             // 
             // renameButton
             // 
@@ -130,6 +134,7 @@
             this.renameButton.TabIndex = 9;
             this.renameButton.Text = "renameButton";
             this.renameButton.UseVisualStyleBackColor = true;
+            this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
             // 
             // exportButton
             // 
@@ -140,6 +145,7 @@
             this.exportButton.TabIndex = 7;
             this.exportButton.Text = "exportButton";
             this.exportButton.UseVisualStyleBackColor = true;
+            this.exportButton.Click += new System.EventHandler(this.exportButton_Click);
             // 
             // createFileButton
             // 
@@ -150,6 +156,7 @@
             this.createFileButton.TabIndex = 6;
             this.createFileButton.Text = "createFileButton";
             this.createFileButton.UseVisualStyleBackColor = true;
+            this.createFileButton.Click += new System.EventHandler(this.createFileButton_Click);
             // 
             // importButton
             // 
@@ -160,6 +167,7 @@
             this.importButton.TabIndex = 5;
             this.importButton.Text = "importButton";
             this.importButton.UseVisualStyleBackColor = true;
+            this.importButton.Click += new System.EventHandler(this.importButton_Click);
             // 
             // createDirectoryButton
             // 
@@ -170,6 +178,7 @@
             this.createDirectoryButton.TabIndex = 4;
             this.createDirectoryButton.Text = "createDirectoryButton";
             this.createDirectoryButton.UseVisualStyleBackColor = true;
+            this.createDirectoryButton.Click += new System.EventHandler(this.createDirectoryButton_Click);
             // 
             // deleteDiskButton
             // 
@@ -180,6 +189,7 @@
             this.deleteDiskButton.TabIndex = 3;
             this.deleteDiskButton.Text = "deleteDiskButton";
             this.deleteDiskButton.UseVisualStyleBackColor = true;
+            this.deleteDiskButton.Click += new System.EventHandler(this.deleteDiskButton_Click);
             // 
             // closeDiskButton
             // 
@@ -190,6 +200,7 @@
             this.closeDiskButton.TabIndex = 2;
             this.closeDiskButton.Text = "closeDiskButton";
             this.closeDiskButton.UseVisualStyleBackColor = true;
+            this.closeDiskButton.Click += new System.EventHandler(this.closeDiskButton_Click);
             // 
             // openDiskButton
             // 
@@ -200,6 +211,7 @@
             this.openDiskButton.TabIndex = 1;
             this.openDiskButton.Text = "openDiskButton";
             this.openDiskButton.UseVisualStyleBackColor = true;
+            this.openDiskButton.Click += new System.EventHandler(this.openDiskButton_Click);
             // 
             // createDiskButton
             // 
@@ -210,6 +222,7 @@
             this.createDiskButton.TabIndex = 0;
             this.createDiskButton.Text = "createDiskButton";
             this.createDiskButton.UseVisualStyleBackColor = true;
+            this.createDiskButton.Click += new System.EventHandler(this.createDiskButton_Click);
             // 
             // mainPanel
             // 
