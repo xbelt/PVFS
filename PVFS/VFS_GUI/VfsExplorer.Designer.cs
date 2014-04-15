@@ -44,12 +44,12 @@
             this.createDiskButton = new System.Windows.Forms.Button();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.statusBar = new System.Windows.Forms.StatusStrip();
+            this.mainListView = new System.Windows.Forms.ListView();
             this.addressPanel = new System.Windows.Forms.Panel();
-            this.addressTextBox = new System.Windows.Forms.TextBox();
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.searchButton = new System.Windows.Forms.Button();
-            this.mainListView = new System.Windows.Forms.ListView();
+            this.addressTextBox = new System.Windows.Forms.TextBox();
+            this.statusBar = new System.Windows.Forms.StatusStrip();
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -78,15 +78,15 @@
             this.menuPanel.Location = new System.Drawing.Point(0, 0);
             this.menuPanel.Margin = new System.Windows.Forms.Padding(0);
             this.menuPanel.Name = "menuPanel";
-            this.menuPanel.Size = new System.Drawing.Size(1066, 80);
+            this.menuPanel.Size = new System.Drawing.Size(711, 52);
             this.menuPanel.TabIndex = 0;
             // 
             // deleteButton
             // 
-            this.deleteButton.Location = new System.Drawing.Point(990, 10);
+            this.deleteButton.Location = new System.Drawing.Point(660, 6);
             this.deleteButton.Margin = new System.Windows.Forms.Padding(0);
             this.deleteButton.Name = "deleteButton";
-            this.deleteButton.Size = new System.Drawing.Size(70, 70);
+            this.deleteButton.Size = new System.Drawing.Size(47, 45);
             this.deleteButton.TabIndex = 11;
             this.deleteButton.Text = "deleteButton";
             this.deleteButton.UseVisualStyleBackColor = true;
@@ -94,10 +94,10 @@
             // 
             // pasteButton
             // 
-            this.pasteButton.Location = new System.Drawing.Point(910, 10);
+            this.pasteButton.Location = new System.Drawing.Point(607, 6);
             this.pasteButton.Margin = new System.Windows.Forms.Padding(0);
             this.pasteButton.Name = "pasteButton";
-            this.pasteButton.Size = new System.Drawing.Size(70, 70);
+            this.pasteButton.Size = new System.Drawing.Size(47, 45);
             this.pasteButton.TabIndex = 11;
             this.pasteButton.Text = "pasteButton";
             this.pasteButton.UseVisualStyleBackColor = true;
@@ -105,10 +105,10 @@
             // 
             // moveButton
             // 
-            this.moveButton.Location = new System.Drawing.Point(750, 10);
+            this.moveButton.Location = new System.Drawing.Point(500, 6);
             this.moveButton.Margin = new System.Windows.Forms.Padding(0);
             this.moveButton.Name = "moveButton";
-            this.moveButton.Size = new System.Drawing.Size(70, 70);
+            this.moveButton.Size = new System.Drawing.Size(47, 45);
             this.moveButton.TabIndex = 10;
             this.moveButton.Text = "moveButton";
             this.moveButton.UseVisualStyleBackColor = true;
@@ -116,10 +116,10 @@
             // 
             // copyButton
             // 
-            this.copyButton.Location = new System.Drawing.Point(830, 10);
+            this.copyButton.Location = new System.Drawing.Point(553, 6);
             this.copyButton.Margin = new System.Windows.Forms.Padding(0);
             this.copyButton.Name = "copyButton";
-            this.copyButton.Size = new System.Drawing.Size(70, 70);
+            this.copyButton.Size = new System.Drawing.Size(47, 45);
             this.copyButton.TabIndex = 8;
             this.copyButton.Text = "copyButton";
             this.copyButton.UseVisualStyleBackColor = true;
@@ -127,10 +127,10 @@
             // 
             // renameButton
             // 
-            this.renameButton.Location = new System.Drawing.Point(670, 10);
+            this.renameButton.Location = new System.Drawing.Point(447, 6);
             this.renameButton.Margin = new System.Windows.Forms.Padding(0);
             this.renameButton.Name = "renameButton";
-            this.renameButton.Size = new System.Drawing.Size(70, 70);
+            this.renameButton.Size = new System.Drawing.Size(47, 45);
             this.renameButton.TabIndex = 9;
             this.renameButton.Text = "renameButton";
             this.renameButton.UseVisualStyleBackColor = true;
@@ -138,10 +138,10 @@
             // 
             // exportButton
             // 
-            this.exportButton.Location = new System.Drawing.Point(590, 10);
+            this.exportButton.Location = new System.Drawing.Point(393, 6);
             this.exportButton.Margin = new System.Windows.Forms.Padding(0);
             this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(70, 70);
+            this.exportButton.Size = new System.Drawing.Size(47, 45);
             this.exportButton.TabIndex = 7;
             this.exportButton.Text = "exportButton";
             this.exportButton.UseVisualStyleBackColor = true;
@@ -149,10 +149,10 @@
             // 
             // createFileButton
             // 
-            this.createFileButton.Location = new System.Drawing.Point(430, 10);
+            this.createFileButton.Location = new System.Drawing.Point(287, 6);
             this.createFileButton.Margin = new System.Windows.Forms.Padding(0);
             this.createFileButton.Name = "createFileButton";
-            this.createFileButton.Size = new System.Drawing.Size(70, 70);
+            this.createFileButton.Size = new System.Drawing.Size(47, 45);
             this.createFileButton.TabIndex = 6;
             this.createFileButton.Text = "createFileButton";
             this.createFileButton.UseVisualStyleBackColor = true;
@@ -160,10 +160,10 @@
             // 
             // importButton
             // 
-            this.importButton.Location = new System.Drawing.Point(510, 10);
+            this.importButton.Location = new System.Drawing.Point(340, 6);
             this.importButton.Margin = new System.Windows.Forms.Padding(0);
             this.importButton.Name = "importButton";
-            this.importButton.Size = new System.Drawing.Size(70, 70);
+            this.importButton.Size = new System.Drawing.Size(47, 45);
             this.importButton.TabIndex = 5;
             this.importButton.Text = "importButton";
             this.importButton.UseVisualStyleBackColor = true;
@@ -171,10 +171,10 @@
             // 
             // createDirectoryButton
             // 
-            this.createDirectoryButton.Location = new System.Drawing.Point(350, 10);
+            this.createDirectoryButton.Location = new System.Drawing.Point(233, 6);
             this.createDirectoryButton.Margin = new System.Windows.Forms.Padding(0);
             this.createDirectoryButton.Name = "createDirectoryButton";
-            this.createDirectoryButton.Size = new System.Drawing.Size(70, 70);
+            this.createDirectoryButton.Size = new System.Drawing.Size(47, 45);
             this.createDirectoryButton.TabIndex = 4;
             this.createDirectoryButton.Text = "createDirectoryButton";
             this.createDirectoryButton.UseVisualStyleBackColor = true;
@@ -182,10 +182,10 @@
             // 
             // deleteDiskButton
             // 
-            this.deleteDiskButton.Location = new System.Drawing.Point(250, 10);
+            this.deleteDiskButton.Location = new System.Drawing.Point(167, 6);
             this.deleteDiskButton.Margin = new System.Windows.Forms.Padding(0);
             this.deleteDiskButton.Name = "deleteDiskButton";
-            this.deleteDiskButton.Size = new System.Drawing.Size(70, 70);
+            this.deleteDiskButton.Size = new System.Drawing.Size(47, 45);
             this.deleteDiskButton.TabIndex = 3;
             this.deleteDiskButton.Text = "deleteDiskButton";
             this.deleteDiskButton.UseVisualStyleBackColor = true;
@@ -193,10 +193,10 @@
             // 
             // closeDiskButton
             // 
-            this.closeDiskButton.Location = new System.Drawing.Point(170, 10);
+            this.closeDiskButton.Location = new System.Drawing.Point(113, 6);
             this.closeDiskButton.Margin = new System.Windows.Forms.Padding(0);
             this.closeDiskButton.Name = "closeDiskButton";
-            this.closeDiskButton.Size = new System.Drawing.Size(70, 70);
+            this.closeDiskButton.Size = new System.Drawing.Size(47, 45);
             this.closeDiskButton.TabIndex = 2;
             this.closeDiskButton.Text = "closeDiskButton";
             this.closeDiskButton.UseVisualStyleBackColor = true;
@@ -204,10 +204,10 @@
             // 
             // openDiskButton
             // 
-            this.openDiskButton.Location = new System.Drawing.Point(90, 10);
+            this.openDiskButton.Location = new System.Drawing.Point(60, 6);
             this.openDiskButton.Margin = new System.Windows.Forms.Padding(0);
             this.openDiskButton.Name = "openDiskButton";
-            this.openDiskButton.Size = new System.Drawing.Size(70, 70);
+            this.openDiskButton.Size = new System.Drawing.Size(47, 45);
             this.openDiskButton.TabIndex = 1;
             this.openDiskButton.Text = "openDiskButton";
             this.openDiskButton.UseVisualStyleBackColor = true;
@@ -215,10 +215,10 @@
             // 
             // createDiskButton
             // 
-            this.createDiskButton.Location = new System.Drawing.Point(10, 10);
+            this.createDiskButton.Location = new System.Drawing.Point(7, 6);
             this.createDiskButton.Margin = new System.Windows.Forms.Padding(0);
             this.createDiskButton.Name = "createDiskButton";
-            this.createDiskButton.Size = new System.Drawing.Size(70, 70);
+            this.createDiskButton.Size = new System.Drawing.Size(47, 45);
             this.createDiskButton.TabIndex = 0;
             this.createDiskButton.Text = "createDiskButton";
             this.createDiskButton.UseVisualStyleBackColor = true;
@@ -230,9 +230,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.mainPanel.Controls.Add(this.mainSplitContainer);
-            this.mainPanel.Location = new System.Drawing.Point(0, 90);
+            this.mainPanel.Location = new System.Drawing.Point(0, 58);
+            this.mainPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.mainPanel.Name = "mainPanel";
-            this.mainPanel.Size = new System.Drawing.Size(1066, 436);
+            this.mainPanel.Size = new System.Drawing.Size(711, 278);
             this.mainPanel.TabIndex = 1;
             // 
             // mainSplitContainer
@@ -246,17 +247,22 @@
             // 
             this.mainSplitContainer.Panel2.Controls.Add(this.mainListView);
             this.mainSplitContainer.Panel2.Controls.Add(this.addressPanel);
-            this.mainSplitContainer.Size = new System.Drawing.Size(1066, 436);
-            this.mainSplitContainer.SplitterDistance = 266;
+            this.mainSplitContainer.Size = new System.Drawing.Size(711, 278);
+            this.mainSplitContainer.SplitterDistance = 177;
+            this.mainSplitContainer.SplitterWidth = 3;
             this.mainSplitContainer.TabIndex = 0;
             // 
-            // statusBar
+            // mainListView
             // 
-            this.statusBar.Location = new System.Drawing.Point(0, 527);
-            this.statusBar.Name = "statusBar";
-            this.statusBar.Size = new System.Drawing.Size(1066, 22);
-            this.statusBar.TabIndex = 2;
-            this.statusBar.Text = "Hello World";
+            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainListView.Location = new System.Drawing.Point(2, 26);
+            this.mainListView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.mainListView.Name = "mainListView";
+            this.mainListView.Size = new System.Drawing.Size(529, 252);
+            this.mainListView.TabIndex = 1;
+            this.mainListView.UseCompatibleStateImageBehavior = false;
             // 
             // addressPanel
             // 
@@ -265,62 +271,66 @@
             this.addressPanel.Controls.Add(this.addressTextBox);
             this.addressPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.addressPanel.Location = new System.Drawing.Point(0, 0);
+            this.addressPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.addressPanel.Name = "addressPanel";
-            this.addressPanel.Size = new System.Drawing.Size(796, 40);
+            this.addressPanel.Size = new System.Drawing.Size(531, 26);
             this.addressPanel.TabIndex = 0;
-            // 
-            // addressTextBox
-            // 
-            this.addressTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.addressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addressTextBox.Location = new System.Drawing.Point(3, 3);
-            this.addressTextBox.Name = "addressTextBox";
-            this.addressTextBox.Size = new System.Drawing.Size(544, 32);
-            this.addressTextBox.TabIndex = 0;
-            this.addressTextBox.Text = "addressTextBox";
             // 
             // searchTextBox
             // 
             this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.searchTextBox.Location = new System.Drawing.Point(553, 3);
+            this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.searchTextBox.Location = new System.Drawing.Point(369, 2);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.searchTextBox.Name = "searchTextBox";
-            this.searchTextBox.Size = new System.Drawing.Size(205, 32);
+            this.searchTextBox.Size = new System.Drawing.Size(131, 20);
             this.searchTextBox.TabIndex = 1;
             this.searchTextBox.Text = "searchTextBox";
             // 
             // searchButton
             // 
             this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchButton.Location = new System.Drawing.Point(756, 2);
+            this.searchButton.Location = new System.Drawing.Point(504, 1);
+            this.searchButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.searchButton.Name = "searchButton";
-            this.searchButton.Size = new System.Drawing.Size(34, 34);
+            this.searchButton.Size = new System.Drawing.Size(23, 22);
             this.searchButton.TabIndex = 2;
             this.searchButton.Text = "searchButton";
             this.searchButton.UseVisualStyleBackColor = true;
             // 
-            // mainListView
+            // addressTextBox
             // 
-            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.addressTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.mainListView.Location = new System.Drawing.Point(3, 40);
-            this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(790, 393);
-            this.mainListView.TabIndex = 1;
-            this.mainListView.UseCompatibleStateImageBehavior = false;
+            this.addressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.addressTextBox.Location = new System.Drawing.Point(2, 2);
+            this.addressTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.addressTextBox.Name = "addressTextBox";
+            this.addressTextBox.Size = new System.Drawing.Size(364, 20);
+            this.addressTextBox.TabIndex = 0;
+            this.addressTextBox.Text = "addressTextBox";
+            // 
+            // statusBar
+            // 
+            this.statusBar.Location = new System.Drawing.Point(0, 335);
+            this.statusBar.Name = "statusBar";
+            this.statusBar.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
+            this.statusBar.Size = new System.Drawing.Size(711, 22);
+            this.statusBar.TabIndex = 2;
+            this.statusBar.Text = "Hello World";
             // 
             // VfsExplorer
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1066, 549);
+            this.ClientSize = new System.Drawing.Size(711, 357);
             this.Controls.Add(this.statusBar);
             this.Controls.Add(this.mainPanel);
             this.Controls.Add(this.menuPanel);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.MinimumSize = new System.Drawing.Size(727, 300);
             this.Name = "VfsExplorer";
             this.Text = "Virtual File System";
             this.menuPanel.ResumeLayout(false);

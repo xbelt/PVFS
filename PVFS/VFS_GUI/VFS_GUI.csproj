@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Search\Index.cs" />
     <Compile Include="VfsExplorer.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -33,6 +33,9 @@ namespace VFS_GUI
 
         public VfsExplorer()
         {
+            this.Console = new LocalConsole(this);
+            this.selection = new List<string>();
+
             InitializeComponent();
 
             this.diskOFD = new OpenFileDialog();
