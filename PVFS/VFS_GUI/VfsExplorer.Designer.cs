@@ -333,6 +333,7 @@
             this.MinimumSize = new System.Drawing.Size(727, 300);
             this.Name = "VfsExplorer";
             this.Text = "Virtual File System";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.VfsExplorer_FormClosing);
             this.menuPanel.ResumeLayout(false);
             this.mainPanel.ResumeLayout(false);
             this.mainSplitContainer.Panel2.ResumeLayout(false);

@@ -52,7 +52,7 @@ namespace VFS.VFS.Models
         }
 
         protected internal VfsDisk Disk { get; protected set; }
-        protected bool IsLoaded { get; set; }
+        public bool IsLoaded { get; protected set; }
         public int NoBlocks, NextBlock;
         public long FileSize;
         protected List<Block> Inodes;

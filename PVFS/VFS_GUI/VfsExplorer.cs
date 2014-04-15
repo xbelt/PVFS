@@ -89,6 +89,13 @@ namespace VFS_GUI
         }
 
 
+        public void setContent(string path, List<string> directories, List<string> files)
+        {
+            //1. check path == current path
+            // YES: fill main list view
+            // NO:  return;
+        }
+
         //---------------Buttons & Co.---------------
 
         private void createDiskButton_Click(object sender, EventArgs e)
@@ -221,6 +228,11 @@ namespace VFS_GUI
             string command = this.selection.Aggregate("", (agg, file) => agg + "rm " + file + " ");
 
             Console.Command(command);
+        }
+
+        private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Console.Command("quit");
         }
     }
 }
