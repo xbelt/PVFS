@@ -383,11 +383,11 @@ namespace VFS.VFS
 
             if (dirs)
             {
-                Console.Message(dir.GetDirectories.Aggregate("",(current, d)=>current + " " + d.Name).TrimEnd(' '));
+                Console.Message(dir.GetDirectories.Select(d => d.Name).Concat(" "));
             }
             if (files)
             {
-                Console.Message(dir.GetFiles.Aggregate("", (current, d) => current + " " + d.Name).TrimEnd(' '), ConsoleColor.Blue);
+                Console.Message(dir.GetFiles.Select(d => d.Name).Concat(" "), ConsoleColor.Blue);
             }
         }
 
