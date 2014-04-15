@@ -13,7 +13,7 @@ namespace VFS_GUI
 {
     public partial class VfsExplorer : Form
     {
-        public LocalConsole Console { get; private set; }
+        public static LocalConsole Console { get; private set; }
         public string Address { get; private set; }
 
         private List<string> selection;
@@ -93,7 +93,8 @@ namespace VFS_GUI
 
         private void createDiskButton_Click(object sender, EventArgs e)
         {
-            // Show createDisk window
+            var window = new VfsCreateDisk();
+            window.Show();
         }
         private void openDiskButton_Click(object sender, EventArgs e)
         {
