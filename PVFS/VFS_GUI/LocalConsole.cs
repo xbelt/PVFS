@@ -53,7 +53,10 @@ namespace VFS_GUI
                 if (res == 0)
                     explorer.setContent("", dirs, files);
                 else
+                {
+                    explorer.setContent("", new List<string>() { "Loading..." }, new List<string>());
                     tasks.Enqueue(new VfsTask() { Command = comm });
+                }
             }
             else if (comm == "free" || comm == "occ")
             {
@@ -73,7 +76,7 @@ namespace VFS_GUI
         public override void Message(string info)
         {
             // check if this is a result of ls
-            // Yes: explorer.setContent(path, dirs, files)
+            // Yes: explorer.Invoke(() => explorer.setContent(path, dirs, files));
             // No: explorer.Invoke(() => statusBar.Text = info);
         }
 

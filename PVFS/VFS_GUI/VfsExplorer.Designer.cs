@@ -50,12 +50,16 @@
             this.searchButton = new System.Windows.Forms.Button();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.statusBar = new System.Windows.Forms.StatusStrip();
+            this.mainTreeView = new System.Windows.Forms.TreeView();
+            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
+            this.mainSplitContainer.Panel1.SuspendLayout();
             this.mainSplitContainer.Panel2.SuspendLayout();
             this.mainSplitContainer.SuspendLayout();
             this.addressPanel.SuspendLayout();
+            this.statusBar.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuPanel
@@ -231,7 +235,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.mainPanel.Controls.Add(this.mainSplitContainer);
             this.mainPanel.Location = new System.Drawing.Point(0, 58);
-            this.mainPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.mainPanel.Margin = new System.Windows.Forms.Padding(2);
             this.mainPanel.Name = "mainPanel";
             this.mainPanel.Size = new System.Drawing.Size(711, 278);
             this.mainPanel.TabIndex = 1;
@@ -242,6 +246,10 @@
             this.mainSplitContainer.Location = new System.Drawing.Point(0, 0);
             this.mainSplitContainer.Margin = new System.Windows.Forms.Padding(0);
             this.mainSplitContainer.Name = "mainSplitContainer";
+            // 
+            // mainSplitContainer.Panel1
+            // 
+            this.mainSplitContainer.Panel1.Controls.Add(this.mainTreeView);
             // 
             // mainSplitContainer.Panel2
             // 
@@ -258,9 +266,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.mainListView.Location = new System.Drawing.Point(2, 26);
-            this.mainListView.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(529, 252);
+            this.mainListView.Size = new System.Drawing.Size(530, 252);
             this.mainListView.TabIndex = 1;
             this.mainListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -271,7 +279,7 @@
             this.addressPanel.Controls.Add(this.addressTextBox);
             this.addressPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.addressPanel.Location = new System.Drawing.Point(0, 0);
-            this.addressPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.addressPanel.Margin = new System.Windows.Forms.Padding(2);
             this.addressPanel.Name = "addressPanel";
             this.addressPanel.Size = new System.Drawing.Size(531, 26);
             this.addressPanel.TabIndex = 0;
@@ -281,7 +289,7 @@
             this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.searchTextBox.Location = new System.Drawing.Point(369, 2);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(131, 20);
             this.searchTextBox.TabIndex = 1;
@@ -291,7 +299,7 @@
             // 
             this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.searchButton.Location = new System.Drawing.Point(504, 1);
-            this.searchButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.searchButton.Margin = new System.Windows.Forms.Padding(2);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(23, 22);
             this.searchButton.TabIndex = 2;
@@ -305,7 +313,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.addressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.addressTextBox.Location = new System.Drawing.Point(2, 2);
-            this.addressTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.addressTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.addressTextBox.Name = "addressTextBox";
             this.addressTextBox.Size = new System.Drawing.Size(364, 20);
             this.addressTextBox.TabIndex = 0;
@@ -313,12 +321,29 @@
             // 
             // statusBar
             // 
+            this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusBarText});
             this.statusBar.Location = new System.Drawing.Point(0, 335);
             this.statusBar.Name = "statusBar";
             this.statusBar.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
             this.statusBar.Size = new System.Drawing.Size(711, 22);
             this.statusBar.TabIndex = 2;
             this.statusBar.Text = "Hello World";
+            // 
+            // mainTreeView
+            // 
+            this.mainTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainTreeView.Location = new System.Drawing.Point(0, 0);
+            this.mainTreeView.Name = "mainTreeView";
+            this.mainTreeView.PathSeparator = "/";
+            this.mainTreeView.Size = new System.Drawing.Size(177, 278);
+            this.mainTreeView.TabIndex = 0;
+            // 
+            // statusBarText
+            // 
+            this.statusBarText.Name = "statusBarText";
+            this.statusBarText.Size = new System.Drawing.Size(77, 17);
+            this.statusBarText.Text = "statusBarText";
             // 
             // VfsExplorer
             // 
@@ -329,18 +354,21 @@
             this.Controls.Add(this.statusBar);
             this.Controls.Add(this.mainPanel);
             this.Controls.Add(this.menuPanel);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(727, 300);
             this.Name = "VfsExplorer";
             this.Text = "Virtual File System";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.VfsExplorer_FormClosing);
             this.menuPanel.ResumeLayout(false);
             this.mainPanel.ResumeLayout(false);
+            this.mainSplitContainer.Panel1.ResumeLayout(false);
             this.mainSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).EndInit();
             this.mainSplitContainer.ResumeLayout(false);
             this.addressPanel.ResumeLayout(false);
             this.addressPanel.PerformLayout();
+            this.statusBar.ResumeLayout(false);
+            this.statusBar.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -370,6 +398,8 @@
         private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.Button searchButton;
         private System.Windows.Forms.TextBox addressTextBox;
+        private System.Windows.Forms.TreeView mainTreeView;
+        private System.Windows.Forms.ToolStripStatusLabel statusBarText;
     }
 }
 
