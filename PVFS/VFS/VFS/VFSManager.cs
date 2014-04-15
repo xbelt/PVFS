@@ -157,6 +157,130 @@ namespace VFS.VFS
             return path;
         }
 
+        //----------------------Concurrent----------------------
+
+        /// <summary>
+        /// Looks for a VfsEntry concurrently.
+        /// Does not load any entries and therefore not move any readers/writers to the disk.
+        /// Can be used concurrently to other operations.
+        /// </summary>
+        /// <param name="path">The path to look for.</param>
+        /// <param name="entry">The VfsEntry if found, null otherwise</param>
+        /// <returns>0 if it was ok, 1 if this path does not exist, 2 if this entry can't be loaded concurrently</returns>
+        private static int GetEntryConcurrent(string path, out VfsEntry entry)
+        {
+            path = GetAbsolutePath(path);
+
+            int i = path.IndexOf('/', 1);
+            if (i == -1)
+            {
+                var diskRoot = GetDisk(path.Substring(1));
+                if (diskRoot == null)
+                {
+                    entry = null;
+                    return 1;
+                }
+                entry = diskRoot.Root;
+                return 0;
+            }
+
+            var disk = GetDisk(path.Substring(1, i - 1));
+            if (disk != null)
+            {
+                VfsDirectory current = disk.Root;
+                string[] names = path.Substring(i + 1).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+                if (names.Length == 0)
+                {
+                    entry = current;
+                    return 0;
+                }
+                for (int j = 0; j < names.Length - 1; j++)
+                {
+                    if (!current.IsLoaded)
+                    {
+                        entry = null;
+                        return 2;
+                    }
+                    current = current.GetDirectory(names[j]);
+                    if (current == null)
+                    {
+                        entry = null;
+                        return 1; // not found
+                    }
+                }
+                if (!current.IsLoaded)
+                {
+                    entry = null;
+                    return 2;
+                }
+                entry = current.GetEntry(names.Last());
+                return 0;
+            }
+            else
+            {
+                entry = null;
+                return 1;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of all directories and files contained in a specified target directory concurrently.
+        /// This is a readonly operation and can be run while other operations are executing paralelly.
+        /// </summary>
+        /// <param name="path">The path to the directory.</param>
+        /// <param name="directories">The subdirectories of that directory.</param>
+        /// <param name="files">The files of that directory.</param>
+        /// <returns>0 if it was ok, 1 if this path does not exist, 2 if this entry can't be loaded concurrently</returns>
+        public static int ListEntriesConcurrent(string path, out List<string> directories, out List<string> files)
+        {
+            if (Disks.Count == 0)
+            {
+                directories = null;
+                files = null;
+                return 1;
+            }
+
+            VfsEntry entry;
+            int res = GetEntryConcurrent(path, out entry);
+
+            if (res != 0)
+            {
+                directories = null;
+                files = null;
+                return res;
+            }
+
+
+            if (entry == null)
+            {
+                directories = null;
+                files = null;
+                return 1;
+            }
+
+            if (!entry.IsDirectory)
+            {
+                directories = null;
+                files = null;
+                return 1;
+            }
+
+
+            VfsDirectory dir = (VfsDirectory)entry;
+
+            if (!dir.IsLoaded)
+            {
+                directories = null;
+                files = null;
+                return 2;
+            }
+
+            directories = dir.GetDirectories.Select(d => d.Name).ToList();
+            files = dir.GetFiles.Select(d => d.Name).ToList();
+            return 0;
+        }
+
+
         //----------------------Command----------------------
 
         /// <summary>
@@ -379,7 +503,7 @@ namespace VFS.VFS
                 return;
             }
 
-            VfsDirectory dir = (VfsDirectory) entry;
+            VfsDirectory dir = (VfsDirectory)entry;
 
             if (dirs)
             {
@@ -390,7 +514,7 @@ namespace VFS.VFS
                 Console.Message(dir.GetFiles.Select(d => d.Name).Concat(" "), ConsoleColor.Blue);
             }
         }
-
+        
         /// <summary>
         /// Creates directories such that the whole path given exists. If the path contains a file this does nothing.
         /// </summary>
