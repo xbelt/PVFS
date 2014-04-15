@@ -136,6 +136,7 @@
             // 
             // siezComboBox
             // 
+            this.siezComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.siezComboBox.FormattingEnabled = true;
             this.siezComboBox.Items.AddRange(new object[] {
             "kb",

@@ -13,7 +13,7 @@ namespace VFS_GUI
 {
     public partial class VfsCreateDisk : Form
     {
-        private bool _isPathChange = true;
+        private bool _isPathChange = false;
 
         public VfsCreateDisk()
         {
@@ -21,6 +21,12 @@ namespace VFS_GUI
             pathTextBox.Text = Environment.CurrentDirectory;
             blockSizeNumericUpDown.Value = 2048;
             pathTextBox.GotFocus += OpenPathDialog;
+            siezComboBox.SelectedItem = "kb";
+            new Thread(() =>
+            {
+                Thread.Sleep(100);
+                _isPathChange = true;
+            }).Start();
         }
 
         private void OpenPathDialog(object sender, EventArgs e)
@@ -85,7 +91,7 @@ namespace VFS_GUI
                 return;
             }
 
-            VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + sizeNumericUpDown.Value + siezComboBox.SelectedValue);
+            VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + sizeNumericUpDown.Value + siezComboBox.SelectedItem);
 
         }
     }
