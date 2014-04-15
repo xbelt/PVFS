@@ -383,7 +383,7 @@ namespace VFS.VFS.Models
             if (name.Length > MaxNameLength || name.Length == 0)
                 return false;
 
-            return name.ToCharArray().All(c => (c >= 65 && c < 91) || (c >= 97 && c < 123) || c == '_' || c == '.');
+            return name.ToCharArray().All(c => Char.IsLetterOrDigit(c) || c == '_' || c == '.');
         }
 
         public override string ToString()
