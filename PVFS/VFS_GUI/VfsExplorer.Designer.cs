@@ -31,11 +31,22 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VfsExplorer));
             this.menuPanel = new System.Windows.Forms.Panel();
-            this.deleteButton = new System.Windows.Forms.Button();
             this.pasteButton = new System.Windows.Forms.Button();
+            this.renameButton = new System.Windows.Forms.Button();
+            this.mainPanel = new System.Windows.Forms.Panel();
+            this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.mainTreeView = new System.Windows.Forms.TreeView();
+            this.mainListView = new System.Windows.Forms.ListView();
+            this.smallImageList = new System.Windows.Forms.ImageList(this.components);
+            this.addressPanel = new System.Windows.Forms.Panel();
+            this.searchTextBox = new System.Windows.Forms.TextBox();
+            this.searchButton = new System.Windows.Forms.Button();
+            this.addressTextBox = new System.Windows.Forms.TextBox();
+            this.statusBar = new System.Windows.Forms.StatusStrip();
+            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.deleteButton = new System.Windows.Forms.Button();
             this.moveButton = new System.Windows.Forms.Button();
             this.copyButton = new System.Windows.Forms.Button();
-            this.renameButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
             this.createFileButton = new System.Windows.Forms.Button();
             this.importButton = new System.Windows.Forms.Button();
@@ -44,17 +55,6 @@
             this.closeDiskButton = new System.Windows.Forms.Button();
             this.openDiskButton = new System.Windows.Forms.Button();
             this.createDiskButton = new System.Windows.Forms.Button();
-            this.mainPanel = new System.Windows.Forms.Panel();
-            this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.mainTreeView = new System.Windows.Forms.TreeView();
-            this.addressPanel = new System.Windows.Forms.Panel();
-            this.searchTextBox = new System.Windows.Forms.TextBox();
-            this.searchButton = new System.Windows.Forms.Button();
-            this.addressTextBox = new System.Windows.Forms.TextBox();
-            this.statusBar = new System.Windows.Forms.StatusStrip();
-            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
-            this.mainListView = new System.Windows.Forms.ListView();
-            this.smallImageList = new System.Windows.Forms.ImageList(this.components);
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -88,17 +88,6 @@
             this.menuPanel.Size = new System.Drawing.Size(711, 52);
             this.menuPanel.TabIndex = 0;
             // 
-            // deleteButton
-            // 
-            this.deleteButton.Location = new System.Drawing.Point(660, 6);
-            this.deleteButton.Margin = new System.Windows.Forms.Padding(0);
-            this.deleteButton.Name = "deleteButton";
-            this.deleteButton.Size = new System.Drawing.Size(47, 45);
-            this.deleteButton.TabIndex = 11;
-            this.deleteButton.Text = "deleteButton";
-            this.deleteButton.UseVisualStyleBackColor = true;
-            this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
-            // 
             // pasteButton
             // 
             this.pasteButton.Location = new System.Drawing.Point(607, 6);
@@ -110,28 +99,6 @@
             this.pasteButton.UseVisualStyleBackColor = true;
             this.pasteButton.Click += new System.EventHandler(this.pasteButton_Click);
             // 
-            // moveButton
-            // 
-            this.moveButton.Location = new System.Drawing.Point(500, 6);
-            this.moveButton.Margin = new System.Windows.Forms.Padding(0);
-            this.moveButton.Name = "moveButton";
-            this.moveButton.Size = new System.Drawing.Size(47, 45);
-            this.moveButton.TabIndex = 10;
-            this.moveButton.Text = "moveButton";
-            this.moveButton.UseVisualStyleBackColor = true;
-            this.moveButton.Click += new System.EventHandler(this.moveButton_Click);
-            // 
-            // copyButton
-            // 
-            this.copyButton.Location = new System.Drawing.Point(553, 6);
-            this.copyButton.Margin = new System.Windows.Forms.Padding(0);
-            this.copyButton.Name = "copyButton";
-            this.copyButton.Size = new System.Drawing.Size(47, 45);
-            this.copyButton.TabIndex = 8;
-            this.copyButton.Text = "copyButton";
-            this.copyButton.UseVisualStyleBackColor = true;
-            this.copyButton.Click += new System.EventHandler(this.copyButton_Click);
-            // 
             // renameButton
             // 
             this.renameButton.Location = new System.Drawing.Point(447, 6);
@@ -142,93 +109,6 @@
             this.renameButton.Text = "renameButton";
             this.renameButton.UseVisualStyleBackColor = true;
             this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
-            // 
-            // exportButton
-            // 
-            this.exportButton.Location = new System.Drawing.Point(393, 6);
-            this.exportButton.Margin = new System.Windows.Forms.Padding(0);
-            this.exportButton.Name = "exportButton";
-            this.exportButton.Size = new System.Drawing.Size(47, 45);
-            this.exportButton.TabIndex = 7;
-            this.exportButton.Text = "exportButton";
-            this.exportButton.UseVisualStyleBackColor = true;
-            this.exportButton.Click += new System.EventHandler(this.exportButton_Click);
-            // 
-            // createFileButton
-            // 
-            this.createFileButton.Location = new System.Drawing.Point(287, 6);
-            this.createFileButton.Margin = new System.Windows.Forms.Padding(0);
-            this.createFileButton.Name = "createFileButton";
-            this.createFileButton.Size = new System.Drawing.Size(47, 45);
-            this.createFileButton.TabIndex = 6;
-            this.createFileButton.Text = "createFileButton";
-            this.createFileButton.UseVisualStyleBackColor = true;
-            this.createFileButton.Click += new System.EventHandler(this.createFileButton_Click);
-            // 
-            // importButton
-            // 
-            this.importButton.Location = new System.Drawing.Point(340, 6);
-            this.importButton.Margin = new System.Windows.Forms.Padding(0);
-            this.importButton.Name = "importButton";
-            this.importButton.Size = new System.Drawing.Size(47, 45);
-            this.importButton.TabIndex = 5;
-            this.importButton.Text = "importButton";
-            this.importButton.UseVisualStyleBackColor = true;
-            this.importButton.Click += new System.EventHandler(this.importButton_Click);
-            // 
-            // createDirectoryButton
-            // 
-            this.createDirectoryButton.Location = new System.Drawing.Point(233, 6);
-            this.createDirectoryButton.Margin = new System.Windows.Forms.Padding(0);
-            this.createDirectoryButton.Name = "createDirectoryButton";
-            this.createDirectoryButton.Size = new System.Drawing.Size(47, 45);
-            this.createDirectoryButton.TabIndex = 4;
-            this.createDirectoryButton.Text = "createDirectoryButton";
-            this.createDirectoryButton.UseVisualStyleBackColor = true;
-            this.createDirectoryButton.Click += new System.EventHandler(this.createDirectoryButton_Click);
-            // 
-            // deleteDiskButton
-            // 
-            this.deleteDiskButton.Location = new System.Drawing.Point(167, 6);
-            this.deleteDiskButton.Margin = new System.Windows.Forms.Padding(0);
-            this.deleteDiskButton.Name = "deleteDiskButton";
-            this.deleteDiskButton.Size = new System.Drawing.Size(47, 45);
-            this.deleteDiskButton.TabIndex = 3;
-            this.deleteDiskButton.Text = "deleteDiskButton";
-            this.deleteDiskButton.UseVisualStyleBackColor = true;
-            this.deleteDiskButton.Click += new System.EventHandler(this.deleteDiskButton_Click);
-            // 
-            // closeDiskButton
-            // 
-            this.closeDiskButton.Location = new System.Drawing.Point(113, 6);
-            this.closeDiskButton.Margin = new System.Windows.Forms.Padding(0);
-            this.closeDiskButton.Name = "closeDiskButton";
-            this.closeDiskButton.Size = new System.Drawing.Size(47, 45);
-            this.closeDiskButton.TabIndex = 2;
-            this.closeDiskButton.Text = "closeDiskButton";
-            this.closeDiskButton.UseVisualStyleBackColor = true;
-            this.closeDiskButton.Click += new System.EventHandler(this.closeDiskButton_Click);
-            // 
-            // openDiskButton
-            // 
-            this.openDiskButton.Location = new System.Drawing.Point(60, 6);
-            this.openDiskButton.Margin = new System.Windows.Forms.Padding(0);
-            this.openDiskButton.Name = "openDiskButton";
-            this.openDiskButton.Size = new System.Drawing.Size(47, 45);
-            this.openDiskButton.TabIndex = 1;
-            this.openDiskButton.Text = "openDiskButton";
-            this.openDiskButton.UseVisualStyleBackColor = true;
-            this.openDiskButton.Click += new System.EventHandler(this.openDiskButton_Click);
-            // 
-            // createDiskButton
-            // 
-            this.createDiskButton.Location = new System.Drawing.Point(7, 6);
-            this.createDiskButton.Margin = new System.Windows.Forms.Padding(0);
-            this.createDiskButton.Name = "createDiskButton";
-            this.createDiskButton.Size = new System.Drawing.Size(47, 45);
-            this.createDiskButton.TabIndex = 0;
-            this.createDiskButton.UseVisualStyleBackColor = true;
-            this.createDiskButton.Click += new System.EventHandler(this.createDiskButton_Click);
             // 
             // mainPanel
             // 
@@ -258,7 +138,7 @@
             this.mainSplitContainer.Panel2.Controls.Add(this.mainListView);
             this.mainSplitContainer.Panel2.Controls.Add(this.addressPanel);
             this.mainSplitContainer.Size = new System.Drawing.Size(711, 278);
-            this.mainSplitContainer.SplitterDistance = 177;
+            this.mainSplitContainer.SplitterDistance = 184;
             this.mainSplitContainer.SplitterWidth = 3;
             this.mainSplitContainer.TabIndex = 0;
             // 
@@ -268,8 +148,31 @@
             this.mainTreeView.Location = new System.Drawing.Point(0, 0);
             this.mainTreeView.Name = "mainTreeView";
             this.mainTreeView.PathSeparator = "/";
-            this.mainTreeView.Size = new System.Drawing.Size(177, 278);
+            this.mainTreeView.Size = new System.Drawing.Size(184, 278);
             this.mainTreeView.TabIndex = 0;
+            // 
+            // mainListView
+            // 
+            this.mainListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainListView.GridLines = true;
+            this.mainListView.Location = new System.Drawing.Point(2, 26);
+            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
+            this.mainListView.Name = "mainListView";
+            this.mainListView.Size = new System.Drawing.Size(526, 252);
+            this.mainListView.SmallImageList = this.smallImageList;
+            this.mainListView.TabIndex = 1;
+            this.mainListView.UseCompatibleStateImageBehavior = false;
+            this.mainListView.View = System.Windows.Forms.View.SmallIcon;
+            // 
+            // smallImageList
+            // 
+            this.smallImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("smallImageList.ImageStream")));
+            this.smallImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.smallImageList.Images.SetKeyName(0, "Folder.png");
+            this.smallImageList.Images.SetKeyName(1, "File.png");
             // 
             // addressPanel
             // 
@@ -280,14 +183,14 @@
             this.addressPanel.Location = new System.Drawing.Point(0, 0);
             this.addressPanel.Margin = new System.Windows.Forms.Padding(2);
             this.addressPanel.Name = "addressPanel";
-            this.addressPanel.Size = new System.Drawing.Size(531, 26);
+            this.addressPanel.Size = new System.Drawing.Size(524, 26);
             this.addressPanel.TabIndex = 0;
             // 
             // searchTextBox
             // 
             this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.searchTextBox.Location = new System.Drawing.Point(369, 2);
+            this.searchTextBox.Location = new System.Drawing.Point(362, 2);
             this.searchTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(131, 20);
@@ -297,7 +200,7 @@
             // searchButton
             // 
             this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchButton.Location = new System.Drawing.Point(504, 1);
+            this.searchButton.Location = new System.Drawing.Point(497, 1);
             this.searchButton.Margin = new System.Windows.Forms.Padding(2);
             this.searchButton.Name = "searchButton";
             this.searchButton.Size = new System.Drawing.Size(23, 22);
@@ -314,7 +217,7 @@
             this.addressTextBox.Location = new System.Drawing.Point(2, 2);
             this.addressTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.addressTextBox.Name = "addressTextBox";
-            this.addressTextBox.Size = new System.Drawing.Size(364, 20);
+            this.addressTextBox.Size = new System.Drawing.Size(357, 20);
             this.addressTextBox.TabIndex = 0;
             this.addressTextBox.Text = "/";
             // 
@@ -335,28 +238,126 @@
             this.statusBarText.Size = new System.Drawing.Size(77, 17);
             this.statusBarText.Text = "statusBarText";
             // 
-            // mainListView
+            // deleteButton
             // 
-            this.mainListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
-            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mainListView.GridLines = true;
-            this.mainListView.Location = new System.Drawing.Point(2, 26);
-            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
-            this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(532, 252);
-            this.mainListView.SmallImageList = this.smallImageList;
-            this.mainListView.TabIndex = 1;
-            this.mainListView.UseCompatibleStateImageBehavior = false;
-            this.mainListView.View = System.Windows.Forms.View.SmallIcon;
+            this.deleteButton.Image = global::VFS_GUI.Properties.Resources.Remove;
+            this.deleteButton.Location = new System.Drawing.Point(660, 6);
+            this.deleteButton.Margin = new System.Windows.Forms.Padding(0);
+            this.deleteButton.Name = "deleteButton";
+            this.deleteButton.Size = new System.Drawing.Size(47, 45);
+            this.deleteButton.TabIndex = 11;
+            this.deleteButton.UseVisualStyleBackColor = true;
+            this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
             // 
-            // smallImageList
+            // moveButton
             // 
-            this.smallImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("smallImageList.ImageStream")));
-            this.smallImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.smallImageList.Images.SetKeyName(0, "Folder.png");
-            this.smallImageList.Images.SetKeyName(1, "File.png");
+            this.moveButton.Image = global::VFS_GUI.Properties.Resources.move;
+            this.moveButton.Location = new System.Drawing.Point(500, 6);
+            this.moveButton.Margin = new System.Windows.Forms.Padding(0);
+            this.moveButton.Name = "moveButton";
+            this.moveButton.Size = new System.Drawing.Size(47, 45);
+            this.moveButton.TabIndex = 10;
+            this.moveButton.UseVisualStyleBackColor = true;
+            this.moveButton.Click += new System.EventHandler(this.moveButton_Click);
+            // 
+            // copyButton
+            // 
+            this.copyButton.Image = global::VFS_GUI.Properties.Resources.copy;
+            this.copyButton.Location = new System.Drawing.Point(553, 6);
+            this.copyButton.Margin = new System.Windows.Forms.Padding(0);
+            this.copyButton.Name = "copyButton";
+            this.copyButton.Size = new System.Drawing.Size(47, 45);
+            this.copyButton.TabIndex = 8;
+            this.copyButton.UseVisualStyleBackColor = true;
+            this.copyButton.Click += new System.EventHandler(this.copyButton_Click);
+            // 
+            // exportButton
+            // 
+            this.exportButton.Image = global::VFS_GUI.Properties.Resources.Export;
+            this.exportButton.Location = new System.Drawing.Point(393, 6);
+            this.exportButton.Margin = new System.Windows.Forms.Padding(0);
+            this.exportButton.Name = "exportButton";
+            this.exportButton.Size = new System.Drawing.Size(47, 45);
+            this.exportButton.TabIndex = 7;
+            this.exportButton.UseVisualStyleBackColor = true;
+            this.exportButton.Click += new System.EventHandler(this.exportButton_Click);
+            // 
+            // createFileButton
+            // 
+            this.createFileButton.Image = global::VFS_GUI.Properties.Resources.AddFile;
+            this.createFileButton.Location = new System.Drawing.Point(287, 6);
+            this.createFileButton.Margin = new System.Windows.Forms.Padding(0);
+            this.createFileButton.Name = "createFileButton";
+            this.createFileButton.Size = new System.Drawing.Size(47, 45);
+            this.createFileButton.TabIndex = 6;
+            this.createFileButton.UseVisualStyleBackColor = true;
+            this.createFileButton.Click += new System.EventHandler(this.createFileButton_Click);
+            // 
+            // importButton
+            // 
+            this.importButton.Image = global::VFS_GUI.Properties.Resources.Import;
+            this.importButton.Location = new System.Drawing.Point(340, 6);
+            this.importButton.Margin = new System.Windows.Forms.Padding(0);
+            this.importButton.Name = "importButton";
+            this.importButton.Size = new System.Drawing.Size(47, 45);
+            this.importButton.TabIndex = 5;
+            this.importButton.UseVisualStyleBackColor = true;
+            this.importButton.Click += new System.EventHandler(this.importButton_Click);
+            // 
+            // createDirectoryButton
+            // 
+            this.createDirectoryButton.Image = global::VFS_GUI.Properties.Resources.AddFolder;
+            this.createDirectoryButton.Location = new System.Drawing.Point(233, 6);
+            this.createDirectoryButton.Margin = new System.Windows.Forms.Padding(0);
+            this.createDirectoryButton.Name = "createDirectoryButton";
+            this.createDirectoryButton.Size = new System.Drawing.Size(47, 45);
+            this.createDirectoryButton.TabIndex = 4;
+            this.createDirectoryButton.UseVisualStyleBackColor = true;
+            this.createDirectoryButton.Click += new System.EventHandler(this.createDirectoryButton_Click);
+            // 
+            // deleteDiskButton
+            // 
+            this.deleteDiskButton.Image = global::VFS_GUI.Properties.Resources.removeDisk;
+            this.deleteDiskButton.Location = new System.Drawing.Point(142, 6);
+            this.deleteDiskButton.Margin = new System.Windows.Forms.Padding(0);
+            this.deleteDiskButton.Name = "deleteDiskButton";
+            this.deleteDiskButton.Size = new System.Drawing.Size(45, 45);
+            this.deleteDiskButton.TabIndex = 3;
+            this.deleteDiskButton.UseVisualStyleBackColor = true;
+            this.deleteDiskButton.Click += new System.EventHandler(this.deleteDiskButton_Click);
+            // 
+            // closeDiskButton
+            // 
+            this.closeDiskButton.Image = global::VFS_GUI.Properties.Resources.UnloadDisk;
+            this.closeDiskButton.Location = new System.Drawing.Point(97, 6);
+            this.closeDiskButton.Margin = new System.Windows.Forms.Padding(0);
+            this.closeDiskButton.Name = "closeDiskButton";
+            this.closeDiskButton.Size = new System.Drawing.Size(45, 45);
+            this.closeDiskButton.TabIndex = 2;
+            this.closeDiskButton.UseVisualStyleBackColor = true;
+            this.closeDiskButton.Click += new System.EventHandler(this.closeDiskButton_Click);
+            // 
+            // openDiskButton
+            // 
+            this.openDiskButton.Image = global::VFS_GUI.Properties.Resources.LoadDisk;
+            this.openDiskButton.Location = new System.Drawing.Point(52, 6);
+            this.openDiskButton.Margin = new System.Windows.Forms.Padding(0);
+            this.openDiskButton.Name = "openDiskButton";
+            this.openDiskButton.Size = new System.Drawing.Size(45, 45);
+            this.openDiskButton.TabIndex = 1;
+            this.openDiskButton.UseVisualStyleBackColor = true;
+            this.openDiskButton.Click += new System.EventHandler(this.openDiskButton_Click);
+            // 
+            // createDiskButton
+            // 
+            this.createDiskButton.Image = global::VFS_GUI.Properties.Resources.AddDisk;
+            this.createDiskButton.Location = new System.Drawing.Point(7, 6);
+            this.createDiskButton.Margin = new System.Windows.Forms.Padding(0);
+            this.createDiskButton.Name = "createDiskButton";
+            this.createDiskButton.Size = new System.Drawing.Size(45, 45);
+            this.createDiskButton.TabIndex = 0;
+            this.createDiskButton.UseVisualStyleBackColor = true;
+            this.createDiskButton.Click += new System.EventHandler(this.createDiskButton_Click);
             // 
             // VfsExplorer
             // 

@@ -50,6 +50,11 @@
     <Compile Include="EnterName.Designer.cs">
       <DependentUpon>EnterName.cs</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Search\Index.cs" />
     <Compile Include="VfsCreateDisk.cs">
       <SubType>Form</SubType>
@@ -79,6 +84,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -100,9 +106,32 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Folder.png" />
+    <Content Include="Resources\AddDisk.ico" />
+    <Content Include="Resources\AddDisk.png" />
+    <None Include="Resources\UnloadDisk1.png" />
+    <None Include="Resources\AddDisk1.png" />
+    <Content Include="Resources\AddFile.png" />
+    <None Include="Resources\AddFile1.png" />
+    <Content Include="Resources\AddFolder.png" />
+    <None Include="Resources\AddFolder1.png" />
+    <Content Include="Resources\copy.png" />
+    <None Include="Resources\copy1.png" />
+    <Content Include="Resources\Export.png" />
+    <None Include="Resources\Export1.png" />
     <Content Include="Resources\File.png" />
-    <Content Include="Resources\shell32_258.png" />
+    <Content Include="Resources\Folder.png" />
+    <Content Include="Resources\Import.png" />
+    <None Include="Resources\Import1.png" />
+    <Content Include="Resources\LoadDisk.png" />
+    <None Include="Resources\LoadDisk1.png" />
+    <Content Include="Resources\move.png" />
+    <None Include="Resources\move1.png" />
+    <Content Include="Resources\Remove.png" />
+    <None Include="Resources\Remove1.png" />
+    <Content Include="Resources\removeDisk.png" />
+    <None Include="Resources\removeDisk1.png" />
+    <Content Include="Resources\shell32.dll" />
+    <Content Include="Resources\UnloadDisk.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
