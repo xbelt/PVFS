@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VFS.VFS;
@@ -29,6 +30,7 @@ namespace VFS_GUI
         private bool cut;
 
         private OpenFileDialog importOFD, diskOFD;
+        public TreeNode CurrentNode { get; set; }
 
 
         public VfsExplorer()
@@ -48,6 +50,34 @@ namespace VFS_GUI
             this.importOFD.Multiselect = true;
 
             setButtonStates();
+
+            mainTreeView.AfterExpand += handleTreeViewExpand;
+            mainTreeView.NodeMouseClick += handleTreeViewMouseClick;
+        }
+
+        private void handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            CurrentNode = e.Node;
+            Address = "/" + e.Node.FullPath;
+            addressTextBox.Text = Address;
+            Console.Command("cd " + Address);
+        }
+
+
+        private void handleTreeViewExpand(object sender, TreeViewEventArgs e)
+        {
+            for (int i = 0; i < e.Node.Nodes.Count; i++)
+            {
+                List<string> dirs;
+                List<string> files;
+
+                VfsManager.ListEntries("/" + e.Node.Nodes[i].FullPath, out dirs, out files);
+
+                foreach (var dir in dirs)
+                {
+                    e.Node.Nodes[i].Nodes.Add(dir);
+                }
+            }
         }
 
 
@@ -100,7 +130,7 @@ namespace VFS_GUI
 
         private void createDiskButton_Click(object sender, EventArgs e)
         {
-            var window = new VfsCreateDisk();
+            var window = new VfsCreateDisk(this);
             window.Show();
         }
         private void openDiskButton_Click(object sender, EventArgs e)
@@ -110,6 +140,22 @@ namespace VFS_GUI
                 string command = "ldisk " + this.diskOFD.FileName;
 
                 Console.Command(command);
+
+                List<string> dirs;
+                List<string> files;
+                
+                while(VfsManager.CurrentDisk == null) {}
+
+                VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
+                var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
+
+                Address = VfsManager.CurrentDisk.Root.AbsolutePath;
+                addressTextBox.Text = Address;
+                foreach (var dir in dirs)
+                {
+                    parentNode.Nodes.Add(dir);
+                }
+
             }
         }
         private void closeDiskButton_Click(object sender, EventArgs e)
@@ -124,20 +170,28 @@ namespace VFS_GUI
         private void createDirectoryButton_Click(object sender, EventArgs e)
         {
             // show name dialog or create a new thingy and allow for a namechange in the list view immediately
-            string name = "test";
+            var window = new EnterName();
+            window.ShowDialog();
+            if (window.Cancelled == false)
+            {
+                string command = "mkdir " + Address + "/" + window.Result;
 
-            string command = "mkdir " + Address + "/" + name;
+                Console.Command(command);
 
-            Console.Command(command);
+                CurrentNode.Nodes.Add(window.Result);
+            }
         }
         private void createFileButton_Click(object sender, EventArgs e)
         {
             // show name dialog or create a new thingy and allow for a namechange in the list view immediately
-            string name = "test.fail";
+            var window = new EnterName();
+            window.ShowDialog();
+            if (window.Cancelled == false)
+            {
+                string command = "mk " + Address + "/" + window.Result;
 
-            string command = "mk " + Address + "/" + name;
-
-            Console.Command(command);
+                Console.Command(command);
+            }
         }
         private void importButton_Click(object sender, EventArgs e)
         {
@@ -147,7 +201,7 @@ namespace VFS_GUI
 
                 foreach (string fileName in this.importOFD.FileNames)
                 {
-                    string command = "im " + fileName + " " + this.Address;
+                    string command = "im " + fileName + " " + Address;
 
                     Console.Command(command);
                 }
