@@ -7,15 +7,21 @@ using VFS.VFS;
 
 namespace VFS_GUI
 {
+    /// <summary>
+    /// This is the console which speaks to the VfsManager.
+    /// </summary>
     public class LocalConsole : VfsConsole
     {
-        private VfsExplorer explorer;
+        private RemoteConsole remote;
+
         private ConcurrentQueue<VfsTask> tasks;
         private Thread workerThread;
+        private string lastCommand;
 
-        public LocalConsole(VfsExplorer explorer)
+        public LocalConsole(RemoteConsole remote)
         {
-            this.explorer = explorer;
+            this.remote = remote;
+            remote.setConsole(this);
 
             this.tasks = new ConcurrentQueue<VfsTask>();
 
@@ -52,10 +58,10 @@ namespace VFS_GUI
                     return;
                 }
                 if (res == 0)
-                    explorer.SetContent(dirs, files);
+                    remote.setContent(dirs, files);
                 else
                 {
-                    explorer.SetContent(new List<string>() { "Loading..." }, new List<string>());
+                    remote.setContent(new List<string>() { "Loading..." }, new List<string>());
                     tasks.Enqueue(new VfsTask() { Command = comm });
                 }
             }
@@ -71,7 +77,7 @@ namespace VFS_GUI
 
         public override void ErrorMessage(string message)
         {
-            MessageBox.Show(message);
+            remote.ErrorMessage(message);
         }
 
         public override void Message(string info)
@@ -79,7 +85,7 @@ namespace VFS_GUI
             // check if this is a result of ls
             // Yes: explorer.Invoke(() => explorer.setContent(path, dirs, files));
             // No: explorer.Invoke(() => statusBar.Text = info);
-            explorer.statusBar.Text = info;
+            remote.Message(info);
         }
 
         public override void Message(string info, ConsoleColor textCol)
@@ -90,13 +96,7 @@ namespace VFS_GUI
         public override int Query(string message, params string[] options)
         {
             // show a popup query (maybe windows MessageBox?)
-            return 0;
-        }
-
-        public override string Readline(string message)
-        {
-            // is this still needed?
-            return "";
+            return remote.Query(message, options);
         }
     }
 }
