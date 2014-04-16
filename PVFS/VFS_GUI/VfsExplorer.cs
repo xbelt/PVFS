@@ -14,7 +14,7 @@ namespace VFS_GUI
 {
     public partial class VfsExplorer : Form
     {
-        public static LocalConsole Console { get; private set; }
+        public static RemoteConsole Console { get; private set; }
         public string Address { get; private set; }
 
         private List<string> selection;
@@ -35,7 +35,9 @@ namespace VFS_GUI
 
         public VfsExplorer()
         {
-            Console = new LocalConsole(this);
+            Console = new RemoteConsole(this);
+            new LocalConsole(Console);
+
             this.selection = new List<string>();
 
             InitializeComponent();
@@ -142,7 +144,7 @@ namespace VFS_GUI
 
             // check over console.command("ldisks") whether there are some open disks.
             // maybe not every time because this runs a lot (probably after each user action)
-            if (Console.Query("Are there some open disks?", "Yes", "No") == 0)
+            if (false)//Console.Query("Are there some open disks?", "Yes", "No") == 0)
             {
                 foreach (Button b in NeedDisk)
                 {
@@ -182,6 +184,11 @@ namespace VFS_GUI
             {
                 var item = mainListView.Items.Add(file, 1);
             }
+        }
+
+        public void setStatus(string status)
+        {
+            this.statusBarText.Text = status;
         }
 
         //---------------Buttons & Co.---------------
@@ -345,6 +352,7 @@ namespace VFS_GUI
                 // not clearing markedfiles = paste multiple copies.
             }
         }
+        
         private void deleteButton_Click(object sender, EventArgs e)
         {
             if (this.selection.Count == 0)
