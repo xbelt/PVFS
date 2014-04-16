@@ -55,6 +55,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RemoteConsole.cs" />
     <Compile Include="Search\Index.cs" />
     <Compile Include="VfsCreateDisk.cs">
       <SubType>Form</SubType>
