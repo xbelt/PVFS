@@ -227,7 +227,6 @@
             this.createDiskButton.Name = "createDiskButton";
             this.createDiskButton.Size = new System.Drawing.Size(47, 45);
             this.createDiskButton.TabIndex = 0;
-            this.createDiskButton.Text = "createDiskButton";
             this.createDiskButton.UseVisualStyleBackColor = true;
             this.createDiskButton.Click += new System.EventHandler(this.createDiskButton_Click);
             // 

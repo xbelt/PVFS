@@ -53,6 +53,28 @@ namespace VFS_GUI
 
             mainTreeView.AfterExpand += handleTreeViewExpand;
             mainTreeView.NodeMouseClick += handleTreeViewMouseClick;
+
+            mainListView.DoubleClick += handleItemDoubleClick;
+        }
+
+        private void handleItemDoubleClick(object sender, EventArgs e)
+        {
+            if (mainListView.SelectedItems.Count == 1)
+            {
+                Address = Address + "/" + mainListView.SelectedItems[0].Text;
+                addressTextBox.Text = Address;
+                Console.Command("cd " + Address);
+
+                for (int i = 0; i < CurrentNode.Nodes.Count; i++)
+                {
+                    if (CurrentNode.Nodes[i].Text == mainListView.SelectedItems[0].Text)
+                    {
+                        CurrentNode = CurrentNode.Nodes[i];
+                    }
+                }
+
+                UpdateContent();
+            }
         }
 
         private void handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
