@@ -52,10 +52,10 @@ namespace VFS_GUI
                     return;
                 }
                 if (res == 0)
-                    explorer.setContent(dirs, files);
+                    explorer.SetContent(dirs, files);
                 else
                 {
-                    explorer.setContent(new List<string>() { "Loading..." }, new List<string>());
+                    explorer.SetContent(new List<string>() { "Loading..." }, new List<string>());
                     tasks.Enqueue(new VfsTask() { Command = comm });
                 }
             }
