@@ -215,6 +215,10 @@ namespace VFS.VFS.Parser
             {
                 VfsManager.CreateDirectory(VfsManager.GetAbsolutePath(context.id.Text), false);
             }
+            else if (context.path != null)
+            {
+                VfsManager.CreateDirectory(context.path.Text, false);
+            }
             else
             {
                 VfsManager.Console.ErrorMessage("Format: mkdir <DirectoryName>");
@@ -228,6 +232,10 @@ namespace VFS.VFS.Parser
             if (context.id != null)
             {
                 VfsManager.CreateFile(VfsManager.GetAbsolutePath(context.id.Text));
+            }
+            else if (context.path != null)
+            {
+                VfsManager.CreateFile(context.path.Text);
             }
             else
             {
