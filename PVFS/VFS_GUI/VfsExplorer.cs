@@ -55,6 +55,23 @@ namespace VFS_GUI
             mainTreeView.NodeMouseClick += handleTreeViewMouseClick;
 
             mainListView.DoubleClick += handleItemDoubleClick;
+
+            var toolTips = new ToolTip {AutoPopDelay = 5000, InitialDelay = 1000, ReshowDelay = 500, ShowAlways = true};
+
+            // Set up the ToolTip text for the Button and Checkbox.
+            toolTips.SetToolTip(createDiskButton, "Create a new Disk");
+            toolTips.SetToolTip(openDiskButton, "Open a disk");
+            toolTips.SetToolTip(closeDiskButton, "Unload a disk");
+            toolTips.SetToolTip(deleteDiskButton, "Delete a disk");
+            toolTips.SetToolTip(createDirectoryButton, "Create a new directory");
+            toolTips.SetToolTip(createFileButton, "Create a new file");
+            toolTips.SetToolTip(importButton, "Import a file from the host filesystem");
+            toolTips.SetToolTip(exportButton, "Export a file to the host filesystem");
+            toolTips.SetToolTip(renameButton, "Rename an entry");
+            toolTips.SetToolTip(moveButton, "Move an entry");
+            toolTips.SetToolTip(copyButton, "Copy an entry");
+            toolTips.SetToolTip(pasteButton, "Paste an entry");
+            toolTips.SetToolTip(deleteButton, "Delete an entry");
         }
 
         private void handleItemDoubleClick(object sender, EventArgs e)
