@@ -398,7 +398,7 @@
         private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.Button searchButton;
         private System.Windows.Forms.TextBox addressTextBox;
-        private System.Windows.Forms.TreeView mainTreeView;
+        public System.Windows.Forms.TreeView mainTreeView;
         private System.Windows.Forms.ToolStripStatusLabel statusBarText;
     }
 }
