@@ -71,7 +71,7 @@ namespace VFS_GUI
 
         internal void setContent(List<string> dirs, List<string> files)
         {
-            explorer.Invoke(new Action(() => explorer.setContent(dirs, files)));
+            explorer.Invoke(new Action(() => explorer.SetContent(dirs, files)));
         }
     }
 }
