@@ -40,10 +40,10 @@
             this.smallImageList = new System.Windows.Forms.ImageList(this.components);
             this.addressPanel = new System.Windows.Forms.Panel();
             this.searchTextBox = new System.Windows.Forms.TextBox();
-            this.searchButton = new System.Windows.Forms.Button();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.searchButton = new System.Windows.Forms.Button();
             this.deleteButton = new System.Windows.Forms.Button();
             this.moveButton = new System.Windows.Forms.Button();
             this.copyButton = new System.Windows.Forms.Button();
@@ -197,17 +197,6 @@
             this.searchTextBox.TabIndex = 1;
             this.searchTextBox.Text = "Search";
             // 
-            // searchButton
-            // 
-            this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchButton.Location = new System.Drawing.Point(497, 1);
-            this.searchButton.Margin = new System.Windows.Forms.Padding(2);
-            this.searchButton.Name = "searchButton";
-            this.searchButton.Size = new System.Drawing.Size(23, 22);
-            this.searchButton.TabIndex = 2;
-            this.searchButton.Text = "searchButton";
-            this.searchButton.UseVisualStyleBackColor = true;
-            // 
             // addressTextBox
             // 
             this.addressTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -237,6 +226,17 @@
             this.statusBarText.Name = "statusBarText";
             this.statusBarText.Size = new System.Drawing.Size(77, 17);
             this.statusBarText.Text = "statusBarText";
+            // 
+            // searchButton
+            // 
+            this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchButton.Image = global::VFS_GUI.Properties.Resources.search;
+            this.searchButton.Location = new System.Drawing.Point(497, 1);
+            this.searchButton.Margin = new System.Windows.Forms.Padding(2);
+            this.searchButton.Name = "searchButton";
+            this.searchButton.Size = new System.Drawing.Size(23, 22);
+            this.searchButton.TabIndex = 2;
+            this.searchButton.UseVisualStyleBackColor = true;
             // 
             // deleteButton
             // 
