@@ -72,7 +72,7 @@ namespace VFS_GUI
 
             VfsManager.ListEntries(Address, out dirs, out files);
 
-            setContent(dirs, files);
+            SetContent(dirs, files);
         }
 
 
@@ -131,17 +131,17 @@ namespace VFS_GUI
         }
 
 
-        public void setContent(List<string> directories, List<string> files)
+        public void SetContent(List<string> directories, List<string> files)
         {
             mainListView.Items.Clear();
             foreach (var directory in directories)
             {
-                mainListView.Items.Add(directory);
+                var item = mainListView.Items.Add(directory, 0);
             }
 
             foreach (var file in files)
             {
-                mainListView.Items.Add(file);
+                var item = mainListView.Items.Add(file, 1);
             }
         }
 

@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VfsExplorer));
             this.menuPanel = new System.Windows.Forms.Panel();
             this.deleteButton = new System.Windows.Forms.Button();
             this.pasteButton = new System.Windows.Forms.Button();
@@ -45,13 +47,14 @@
             this.mainPanel = new System.Windows.Forms.Panel();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.mainTreeView = new System.Windows.Forms.TreeView();
-            this.mainListView = new System.Windows.Forms.ListView();
             this.addressPanel = new System.Windows.Forms.Panel();
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.searchButton = new System.Windows.Forms.Button();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.mainListView = new System.Windows.Forms.ListView();
+            this.smallImageList = new System.Windows.Forms.ImageList(this.components);
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -269,19 +272,6 @@
             this.mainTreeView.Size = new System.Drawing.Size(177, 278);
             this.mainTreeView.TabIndex = 0;
             // 
-            // mainListView
-            // 
-            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mainListView.GridLines = true;
-            this.mainListView.Location = new System.Drawing.Point(2, 26);
-            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
-            this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(531, 252);
-            this.mainListView.TabIndex = 1;
-            this.mainListView.UseCompatibleStateImageBehavior = false;
-            // 
             // addressPanel
             // 
             this.addressPanel.Controls.Add(this.searchTextBox);
@@ -346,6 +336,29 @@
             this.statusBarText.Size = new System.Drawing.Size(77, 17);
             this.statusBarText.Text = "statusBarText";
             // 
+            // mainListView
+            // 
+            this.mainListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainListView.GridLines = true;
+            this.mainListView.Location = new System.Drawing.Point(2, 26);
+            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
+            this.mainListView.Name = "mainListView";
+            this.mainListView.Size = new System.Drawing.Size(532, 252);
+            this.mainListView.SmallImageList = this.smallImageList;
+            this.mainListView.TabIndex = 1;
+            this.mainListView.UseCompatibleStateImageBehavior = false;
+            this.mainListView.View = System.Windows.Forms.View.SmallIcon;
+            // 
+            // smallImageList
+            // 
+            this.smallImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("smallImageList.ImageStream")));
+            this.smallImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.smallImageList.Images.SetKeyName(0, "Folder.png");
+            this.smallImageList.Images.SetKeyName(1, "File.png");
+            // 
             // VfsExplorer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -394,13 +407,14 @@
         private System.Windows.Forms.Panel mainPanel;
         private System.Windows.Forms.SplitContainer mainSplitContainer;
         public System.Windows.Forms.StatusStrip statusBar;
-        private System.Windows.Forms.ListView mainListView;
         private System.Windows.Forms.Panel addressPanel;
         private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.Button searchButton;
         private System.Windows.Forms.TextBox addressTextBox;
         public System.Windows.Forms.TreeView mainTreeView;
         private System.Windows.Forms.ToolStripStatusLabel statusBarText;
+        private System.Windows.Forms.ListView mainListView;
+        private System.Windows.Forms.ImageList smallImageList;
     }
 }
 
