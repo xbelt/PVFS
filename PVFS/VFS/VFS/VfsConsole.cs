@@ -41,12 +41,6 @@ namespace VFS.VFS
             return opts.IndexOf(answer);
         }
 
-        public virtual string Readline(string message)
-        {
-            Console.WriteLine(message);
-            return Console.ReadLine();
-        }
-
         public virtual void Command(string comm)
         {
             VfsManager.ExecuteCommand(comm);
