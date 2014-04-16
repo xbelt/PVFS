@@ -13,10 +13,12 @@ namespace VFS_GUI
 {
     public partial class VfsCreateDisk : Form
     {
+        private readonly VfsExplorer _explorer;
         private bool _isPathChange = false;
 
-        public VfsCreateDisk()
+        public VfsCreateDisk(VfsExplorer explorer)
         {
+            _explorer = explorer;
             InitializeComponent();
             pathTextBox.Text = Environment.CurrentDirectory;
             blockSizeNumericUpDown.Value = 2048;
@@ -93,6 +95,11 @@ namespace VFS_GUI
             }
 
             VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + sizeNumericUpDown.Value + siezComboBox.SelectedItem);
+
+            _explorer.mainTreeView.BeginUpdate();
+            var node = _explorer.mainTreeView.Nodes.Add(name.Substring(4));
+            _explorer.mainTreeView.EndUpdate();
+            _explorer.CurrentNode = node;
             Close();
         }
     }
