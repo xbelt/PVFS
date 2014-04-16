@@ -143,6 +143,16 @@ namespace VFS_GUI.Properties {
         /// <summary>
         ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap past {
+            get {
+                object obj = ResourceManager.GetObject("past", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Remove {
             get {
                 object obj = ResourceManager.GetObject("Remove", resourceCulture);
@@ -156,6 +166,16 @@ namespace VFS_GUI.Properties {
         internal static System.Drawing.Bitmap removeDisk {
             get {
                 object obj = ResourceManager.GetObject("removeDisk", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rename {
+            get {
+                object obj = ResourceManager.GetObject("rename", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

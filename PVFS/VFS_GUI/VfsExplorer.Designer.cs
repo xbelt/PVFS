@@ -31,8 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VfsExplorer));
             this.menuPanel = new System.Windows.Forms.Panel();
-            this.pasteButton = new System.Windows.Forms.Button();
-            this.renameButton = new System.Windows.Forms.Button();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.mainTreeView = new System.Windows.Forms.TreeView();
@@ -45,8 +43,10 @@
             this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.searchButton = new System.Windows.Forms.Button();
             this.deleteButton = new System.Windows.Forms.Button();
+            this.pasteButton = new System.Windows.Forms.Button();
             this.moveButton = new System.Windows.Forms.Button();
             this.copyButton = new System.Windows.Forms.Button();
+            this.renameButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
             this.createFileButton = new System.Windows.Forms.Button();
             this.importButton = new System.Windows.Forms.Button();
@@ -87,28 +87,6 @@
             this.menuPanel.Name = "menuPanel";
             this.menuPanel.Size = new System.Drawing.Size(711, 52);
             this.menuPanel.TabIndex = 0;
-            // 
-            // pasteButton
-            // 
-            this.pasteButton.Location = new System.Drawing.Point(607, 6);
-            this.pasteButton.Margin = new System.Windows.Forms.Padding(0);
-            this.pasteButton.Name = "pasteButton";
-            this.pasteButton.Size = new System.Drawing.Size(47, 45);
-            this.pasteButton.TabIndex = 11;
-            this.pasteButton.Text = "pasteButton";
-            this.pasteButton.UseVisualStyleBackColor = true;
-            this.pasteButton.Click += new System.EventHandler(this.pasteButton_Click);
-            // 
-            // renameButton
-            // 
-            this.renameButton.Location = new System.Drawing.Point(447, 6);
-            this.renameButton.Margin = new System.Windows.Forms.Padding(0);
-            this.renameButton.Name = "renameButton";
-            this.renameButton.Size = new System.Drawing.Size(47, 45);
-            this.renameButton.TabIndex = 9;
-            this.renameButton.Text = "renameButton";
-            this.renameButton.UseVisualStyleBackColor = true;
-            this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
             // 
             // mainPanel
             // 
@@ -249,6 +227,17 @@
             this.deleteButton.UseVisualStyleBackColor = true;
             this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
             // 
+            // pasteButton
+            // 
+            this.pasteButton.Image = global::VFS_GUI.Properties.Resources.past;
+            this.pasteButton.Location = new System.Drawing.Point(607, 6);
+            this.pasteButton.Margin = new System.Windows.Forms.Padding(0);
+            this.pasteButton.Name = "pasteButton";
+            this.pasteButton.Size = new System.Drawing.Size(47, 45);
+            this.pasteButton.TabIndex = 11;
+            this.pasteButton.UseVisualStyleBackColor = true;
+            this.pasteButton.Click += new System.EventHandler(this.pasteButton_Click);
+            // 
             // moveButton
             // 
             this.moveButton.Image = global::VFS_GUI.Properties.Resources.move;
@@ -270,6 +259,17 @@
             this.copyButton.TabIndex = 8;
             this.copyButton.UseVisualStyleBackColor = true;
             this.copyButton.Click += new System.EventHandler(this.copyButton_Click);
+            // 
+            // renameButton
+            // 
+            this.renameButton.Image = global::VFS_GUI.Properties.Resources.rename;
+            this.renameButton.Location = new System.Drawing.Point(447, 6);
+            this.renameButton.Margin = new System.Windows.Forms.Padding(0);
+            this.renameButton.Name = "renameButton";
+            this.renameButton.Size = new System.Drawing.Size(47, 45);
+            this.renameButton.TabIndex = 9;
+            this.renameButton.UseVisualStyleBackColor = true;
+            this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
             // 
             // exportButton
             // 
