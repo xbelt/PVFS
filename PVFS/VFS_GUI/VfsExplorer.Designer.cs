@@ -31,17 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VfsExplorer));
             this.menuPanel = new System.Windows.Forms.Panel();
-            this.mainPanel = new System.Windows.Forms.Panel();
-            this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.mainTreeView = new System.Windows.Forms.TreeView();
-            this.mainListView = new System.Windows.Forms.ListView();
-            this.smallImageList = new System.Windows.Forms.ImageList(this.components);
-            this.addressPanel = new System.Windows.Forms.Panel();
-            this.searchTextBox = new System.Windows.Forms.TextBox();
-            this.addressTextBox = new System.Windows.Forms.TextBox();
-            this.statusBar = new System.Windows.Forms.StatusStrip();
-            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
-            this.searchButton = new System.Windows.Forms.Button();
             this.deleteButton = new System.Windows.Forms.Button();
             this.pasteButton = new System.Windows.Forms.Button();
             this.moveButton = new System.Windows.Forms.Button();
@@ -55,6 +44,17 @@
             this.closeDiskButton = new System.Windows.Forms.Button();
             this.openDiskButton = new System.Windows.Forms.Button();
             this.createDiskButton = new System.Windows.Forms.Button();
+            this.mainPanel = new System.Windows.Forms.Panel();
+            this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.mainTreeView = new System.Windows.Forms.TreeView();
+            this.mainListView = new System.Windows.Forms.ListView();
+            this.smallImageList = new System.Windows.Forms.ImageList(this.components);
+            this.addressPanel = new System.Windows.Forms.Panel();
+            this.searchTextBox = new System.Windows.Forms.TextBox();
+            this.searchButton = new System.Windows.Forms.Button();
+            this.addressTextBox = new System.Windows.Forms.TextBox();
+            this.statusBar = new System.Windows.Forms.StatusStrip();
+            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -87,134 +87,6 @@
             this.menuPanel.Name = "menuPanel";
             this.menuPanel.Size = new System.Drawing.Size(711, 52);
             this.menuPanel.TabIndex = 0;
-            // 
-            // mainPanel
-            // 
-            this.mainPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mainPanel.Controls.Add(this.mainSplitContainer);
-            this.mainPanel.Location = new System.Drawing.Point(0, 58);
-            this.mainPanel.Margin = new System.Windows.Forms.Padding(2);
-            this.mainPanel.Name = "mainPanel";
-            this.mainPanel.Size = new System.Drawing.Size(711, 278);
-            this.mainPanel.TabIndex = 1;
-            // 
-            // mainSplitContainer
-            // 
-            this.mainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.mainSplitContainer.Margin = new System.Windows.Forms.Padding(0);
-            this.mainSplitContainer.Name = "mainSplitContainer";
-            // 
-            // mainSplitContainer.Panel1
-            // 
-            this.mainSplitContainer.Panel1.Controls.Add(this.mainTreeView);
-            // 
-            // mainSplitContainer.Panel2
-            // 
-            this.mainSplitContainer.Panel2.Controls.Add(this.mainListView);
-            this.mainSplitContainer.Panel2.Controls.Add(this.addressPanel);
-            this.mainSplitContainer.Size = new System.Drawing.Size(711, 278);
-            this.mainSplitContainer.SplitterDistance = 184;
-            this.mainSplitContainer.SplitterWidth = 3;
-            this.mainSplitContainer.TabIndex = 0;
-            // 
-            // mainTreeView
-            // 
-            this.mainTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainTreeView.Location = new System.Drawing.Point(0, 0);
-            this.mainTreeView.Name = "mainTreeView";
-            this.mainTreeView.PathSeparator = "/";
-            this.mainTreeView.Size = new System.Drawing.Size(184, 278);
-            this.mainTreeView.TabIndex = 0;
-            // 
-            // mainListView
-            // 
-            this.mainListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
-            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mainListView.GridLines = true;
-            this.mainListView.Location = new System.Drawing.Point(2, 26);
-            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
-            this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(526, 252);
-            this.mainListView.SmallImageList = this.smallImageList;
-            this.mainListView.TabIndex = 1;
-            this.mainListView.UseCompatibleStateImageBehavior = false;
-            this.mainListView.View = System.Windows.Forms.View.SmallIcon;
-            // 
-            // smallImageList
-            // 
-            this.smallImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("smallImageList.ImageStream")));
-            this.smallImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.smallImageList.Images.SetKeyName(0, "Folder.png");
-            this.smallImageList.Images.SetKeyName(1, "File.png");
-            // 
-            // addressPanel
-            // 
-            this.addressPanel.Controls.Add(this.searchTextBox);
-            this.addressPanel.Controls.Add(this.searchButton);
-            this.addressPanel.Controls.Add(this.addressTextBox);
-            this.addressPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.addressPanel.Location = new System.Drawing.Point(0, 0);
-            this.addressPanel.Margin = new System.Windows.Forms.Padding(2);
-            this.addressPanel.Name = "addressPanel";
-            this.addressPanel.Size = new System.Drawing.Size(524, 26);
-            this.addressPanel.TabIndex = 0;
-            // 
-            // searchTextBox
-            // 
-            this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.searchTextBox.Location = new System.Drawing.Point(362, 2);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.searchTextBox.Name = "searchTextBox";
-            this.searchTextBox.Size = new System.Drawing.Size(131, 20);
-            this.searchTextBox.TabIndex = 1;
-            this.searchTextBox.Text = "Search";
-            // 
-            // addressTextBox
-            // 
-            this.addressTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.addressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addressTextBox.Location = new System.Drawing.Point(2, 2);
-            this.addressTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.addressTextBox.Name = "addressTextBox";
-            this.addressTextBox.Size = new System.Drawing.Size(357, 20);
-            this.addressTextBox.TabIndex = 0;
-            this.addressTextBox.Text = "/";
-            // 
-            // statusBar
-            // 
-            this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.statusBarText});
-            this.statusBar.Location = new System.Drawing.Point(0, 335);
-            this.statusBar.Name = "statusBar";
-            this.statusBar.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
-            this.statusBar.Size = new System.Drawing.Size(711, 22);
-            this.statusBar.TabIndex = 2;
-            this.statusBar.Text = "Hello World";
-            // 
-            // statusBarText
-            // 
-            this.statusBarText.Name = "statusBarText";
-            this.statusBarText.Size = new System.Drawing.Size(77, 17);
-            this.statusBarText.Text = "statusBarText";
-            // 
-            // searchButton
-            // 
-            this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.searchButton.Image = global::VFS_GUI.Properties.Resources.search;
-            this.searchButton.Location = new System.Drawing.Point(497, 1);
-            this.searchButton.Margin = new System.Windows.Forms.Padding(2);
-            this.searchButton.Name = "searchButton";
-            this.searchButton.Size = new System.Drawing.Size(23, 22);
-            this.searchButton.TabIndex = 2;
-            this.searchButton.UseVisualStyleBackColor = true;
             // 
             // deleteButton
             // 
@@ -358,6 +230,133 @@
             this.createDiskButton.TabIndex = 0;
             this.createDiskButton.UseVisualStyleBackColor = true;
             this.createDiskButton.Click += new System.EventHandler(this.createDiskButton_Click);
+            // 
+            // mainPanel
+            // 
+            this.mainPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainPanel.Controls.Add(this.mainSplitContainer);
+            this.mainPanel.Location = new System.Drawing.Point(0, 58);
+            this.mainPanel.Margin = new System.Windows.Forms.Padding(2);
+            this.mainPanel.Name = "mainPanel";
+            this.mainPanel.Size = new System.Drawing.Size(711, 278);
+            this.mainPanel.TabIndex = 1;
+            // 
+            // mainSplitContainer
+            // 
+            this.mainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.mainSplitContainer.Margin = new System.Windows.Forms.Padding(0);
+            this.mainSplitContainer.Name = "mainSplitContainer";
+            // 
+            // mainSplitContainer.Panel1
+            // 
+            this.mainSplitContainer.Panel1.Controls.Add(this.mainTreeView);
+            // 
+            // mainSplitContainer.Panel2
+            // 
+            this.mainSplitContainer.Panel2.Controls.Add(this.mainListView);
+            this.mainSplitContainer.Panel2.Controls.Add(this.addressPanel);
+            this.mainSplitContainer.Size = new System.Drawing.Size(711, 278);
+            this.mainSplitContainer.SplitterDistance = 184;
+            this.mainSplitContainer.SplitterWidth = 3;
+            this.mainSplitContainer.TabIndex = 0;
+            // 
+            // mainTreeView
+            // 
+            this.mainTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainTreeView.Location = new System.Drawing.Point(0, 0);
+            this.mainTreeView.Name = "mainTreeView";
+            this.mainTreeView.PathSeparator = "/";
+            this.mainTreeView.Size = new System.Drawing.Size(184, 278);
+            this.mainTreeView.TabIndex = 0;
+            // 
+            // mainListView
+            // 
+            this.mainListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+            this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainListView.GridLines = true;
+            this.mainListView.Location = new System.Drawing.Point(2, 26);
+            this.mainListView.Margin = new System.Windows.Forms.Padding(2);
+            this.mainListView.Name = "mainListView";
+            this.mainListView.Size = new System.Drawing.Size(527, 252);
+            this.mainListView.SmallImageList = this.smallImageList;
+            this.mainListView.TabIndex = 1;
+            this.mainListView.UseCompatibleStateImageBehavior = false;
+            this.mainListView.View = System.Windows.Forms.View.SmallIcon;
+            // 
+            // smallImageList
+            // 
+            this.smallImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("smallImageList.ImageStream")));
+            this.smallImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.smallImageList.Images.SetKeyName(0, "Folder.png");
+            this.smallImageList.Images.SetKeyName(1, "File.png");
+            // 
+            // addressPanel
+            // 
+            this.addressPanel.Controls.Add(this.searchTextBox);
+            this.addressPanel.Controls.Add(this.searchButton);
+            this.addressPanel.Controls.Add(this.addressTextBox);
+            this.addressPanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.addressPanel.Location = new System.Drawing.Point(0, 0);
+            this.addressPanel.Margin = new System.Windows.Forms.Padding(2);
+            this.addressPanel.Name = "addressPanel";
+            this.addressPanel.Size = new System.Drawing.Size(524, 26);
+            this.addressPanel.TabIndex = 0;
+            // 
+            // searchTextBox
+            // 
+            this.searchTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.searchTextBox.Location = new System.Drawing.Point(362, 2);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.searchTextBox.Name = "searchTextBox";
+            this.searchTextBox.Size = new System.Drawing.Size(131, 20);
+            this.searchTextBox.TabIndex = 1;
+            this.searchTextBox.Text = "Search";
+            // 
+            // searchButton
+            // 
+            this.searchButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.searchButton.Image = global::VFS_GUI.Properties.Resources.search;
+            this.searchButton.Location = new System.Drawing.Point(497, 1);
+            this.searchButton.Margin = new System.Windows.Forms.Padding(2);
+            this.searchButton.Name = "searchButton";
+            this.searchButton.Size = new System.Drawing.Size(23, 22);
+            this.searchButton.TabIndex = 2;
+            this.searchButton.UseVisualStyleBackColor = true;
+            // 
+            // addressTextBox
+            // 
+            this.addressTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.addressTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.addressTextBox.Location = new System.Drawing.Point(2, 2);
+            this.addressTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.addressTextBox.Name = "addressTextBox";
+            this.addressTextBox.Size = new System.Drawing.Size(357, 20);
+            this.addressTextBox.TabIndex = 0;
+            this.addressTextBox.Text = "/";
+            // 
+            // statusBar
+            // 
+            this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusBarText});
+            this.statusBar.Location = new System.Drawing.Point(0, 335);
+            this.statusBar.Name = "statusBar";
+            this.statusBar.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
+            this.statusBar.Size = new System.Drawing.Size(711, 22);
+            this.statusBar.TabIndex = 2;
+            this.statusBar.Text = "Hello World";
+            // 
+            // statusBarText
+            // 
+            this.statusBarText.Name = "statusBarText";
+            this.statusBarText.Size = new System.Drawing.Size(0, 17);
             // 
             // VfsExplorer
             // 

@@ -58,6 +58,7 @@ namespace VFS_GUI
             mainTreeView.NodeMouseClick += handleTreeViewMouseClick;
 
             mainListView.DoubleClick += handleItemDoubleClick;
+            mainListView.ItemSelectionChanged += handleItemSelectionClick;
 
             var toolTips = new ToolTip {AutoPopDelay = 5000, InitialDelay = 1000, ReshowDelay = 500, ShowAlways = true};
 
@@ -75,6 +76,22 @@ namespace VFS_GUI
             toolTips.SetToolTip(copyButton, "Copy an entry");
             toolTips.SetToolTip(pasteButton, "Paste an entry");
             toolTips.SetToolTip(deleteButton, "Delete an entry");
+        }
+
+        private void handleItemSelectionClick(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            if (e.IsSelected)
+            {
+                if (!selection.Contains(e.Item.Text))
+                {
+                    selection.Add(e.Item.Text);
+                }
+            }
+            else
+            {
+                selection.Remove(e.Item.Text);
+            }
+            setButtonStates();
         }
 
         private void handleItemDoubleClick(object sender, EventArgs e)
@@ -143,9 +160,11 @@ namespace VFS_GUI
                 importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
             };
 
+            List<string> disks;
+            VfsManager.ListDisks(out disks);
             // check over console.command("ldisks") whether there are some open disks.
             // maybe not every time because this runs a lot (probably after each user action)
-            if (true)//Console.Query("Are there some open disks?", "Yes", "No") == 0)
+            if (disks.Count > 0)//Console.Query("Are there some open disks?", "Yes", "No") == 0)
             {
                 foreach (Button b in NeedDisk)
                 {
@@ -212,22 +231,19 @@ namespace VFS_GUI
                 List<string> files;
 
                 var diskName = diskOFD.ToString().Substring(diskOFD.ToString().LastIndexOf("\\") + 1, diskOFD.ToString().Length - 5 - diskOFD.ToString().LastIndexOf("\\"));
-                new Thread(() =>
+                VfsEntry entry;
+                while (VfsManager.GetEntryConcurrent("/" + diskName, out entry) != 0) { }
+                Address = VfsManager.CurrentDisk.Root.AbsolutePath;
+                addressTextBox.Text = Address;
+                UpdateContent();
+
+                VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
+                var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
+
+                foreach (var dir in dirs)
                 {
-                    VfsEntry entry;
-                    while (VfsManager.GetEntryConcurrent("/" + diskName, out entry) != 0) { }
-                    UpdateContent();
-
-                    VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
-                    var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
-
-                    Address = VfsManager.CurrentDisk.Root.AbsolutePath;
-                    addressTextBox.Text = Address;
-                    foreach (var dir in dirs)
-                    {
-                        parentNode.Nodes.Add(dir);
-                    }
-                }).Start();
+                    parentNode.Nodes.Add(dir);
+                }
             }
         }
 
