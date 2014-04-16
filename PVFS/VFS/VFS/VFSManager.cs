@@ -38,7 +38,10 @@ namespace VFS.VFS
         /// <returns>Returns a VfsDisk if it was found, otherwise null.</returns>
         private static VfsDisk GetDisk(string name)
         {
-            return Disks.FirstOrDefault(d => d.DiskProperties.Name.Equals(name));
+            lock (Disks)
+            {
+                return Disks.FirstOrDefault(d => d.DiskProperties.Name.Equals(name));
+            }
         }
 
         /// <summary>
@@ -335,6 +338,11 @@ namespace VFS.VFS
             Console.Message(Disks.Aggregate("", (curr, d) => curr + " " + d.DiskProperties.Name));
         }
 
+        public static void ListDisks(out List<string> disks)
+        {
+            disks = Disks.Select(x => x.DiskProperties.Name).ToList();
+        }
+
         public static void LoadDisk(VfsDisk disk)
         {
             if (disk == null) throw new ArgumentNullException("disk");
@@ -343,8 +351,10 @@ namespace VFS.VFS
             {
                 Console.ErrorMessage("A disk with the same name was already in the VFS.");
             }
-
-            Disks.Add(disk);
+            lock (Disks)
+            {
+                Disks.Add(disk);
+            }
             CurrentDisk = disk;
             WorkingDirectory = disk.Root;
 
