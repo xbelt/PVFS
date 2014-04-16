@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VFS.VFS;
+using VFS.VFS.Models;
 
 namespace VFS_GUI
 {
@@ -106,7 +107,7 @@ namespace VFS_GUI
             UpdateContent();
         }
 
-        private void UpdateContent()
+        public void UpdateContent()
         {
             List<string> dirs;
             List<string> files;
@@ -209,19 +210,24 @@ namespace VFS_GUI
 
                 List<string> dirs;
                 List<string> files;
-                
-                while(VfsManager.CurrentDisk == null) {}
 
-                VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
-                var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
-
-                Address = VfsManager.CurrentDisk.Root.AbsolutePath;
-                addressTextBox.Text = Address;
-                foreach (var dir in dirs)
+                var diskName = diskOFD.ToString().Substring(diskOFD.ToString().LastIndexOf("\\") + 1, diskOFD.ToString().Length - 5 - diskOFD.ToString().LastIndexOf("\\"));
+                new Thread(() =>
                 {
-                    parentNode.Nodes.Add(dir);
-                }
+                    VfsEntry entry;
+                    while (VfsManager.GetEntryConcurrent("/" + diskName, out entry) != 0) { }
+                    UpdateContent();
 
+                    VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
+                    var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
+
+                    Address = VfsManager.CurrentDisk.Root.AbsolutePath;
+                    addressTextBox.Text = Address;
+                    foreach (var dir in dirs)
+                    {
+                        parentNode.Nodes.Add(dir);
+                    }
+                }).Start();
             }
         }
 

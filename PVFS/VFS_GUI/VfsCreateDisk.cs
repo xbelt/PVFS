@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VFS.VFS;
+using VFS.VFS.Models;
 
 namespace VFS_GUI
 {
@@ -100,6 +102,12 @@ namespace VFS_GUI
             var node = _explorer.mainTreeView.Nodes.Add(name.Substring(4));
             _explorer.mainTreeView.EndUpdate();
             _explorer.CurrentNode = node;
+            new Thread(() =>
+            {
+                VfsEntry entry;
+                while (VfsManager.GetEntryConcurrent("/" + name.Substring(4), out entry) != 0) { }
+                _explorer.UpdateContent();
+            }).Start();
             Close();
         }
     }
