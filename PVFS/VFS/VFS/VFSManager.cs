@@ -167,7 +167,7 @@ namespace VFS.VFS
         /// <param name="path">The path to look for.</param>
         /// <param name="entry">The VfsEntry if found, null otherwise</param>
         /// <returns>0 if it was ok, 1 if this path does not exist, 2 if this entry can't be loaded concurrently</returns>
-        private static int GetEntryConcurrent(string path, out VfsEntry entry)
+        public static int GetEntryConcurrent(string path, out VfsEntry entry)
         {
             path = GetAbsolutePath(path);
 
