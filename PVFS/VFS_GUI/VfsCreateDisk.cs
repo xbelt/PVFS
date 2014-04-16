@@ -20,6 +20,7 @@ namespace VFS_GUI
             InitializeComponent();
             pathTextBox.Text = Environment.CurrentDirectory;
             blockSizeNumericUpDown.Value = 2048;
+            sizeNumericUpDown.Focus();
             pathTextBox.GotFocus += OpenPathDialog;
             siezComboBox.SelectedItem = "kb";
             new Thread(() =>
@@ -92,7 +93,7 @@ namespace VFS_GUI
             }
 
             VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + sizeNumericUpDown.Value + siezComboBox.SelectedItem);
-
+            Close();
         }
     }
 }
