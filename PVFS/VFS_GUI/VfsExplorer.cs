@@ -61,6 +61,18 @@ namespace VFS_GUI
             Address = "/" + e.Node.FullPath;
             addressTextBox.Text = Address;
             Console.Command("cd " + Address);
+
+            UpdateContent();
+        }
+
+        private void UpdateContent()
+        {
+            List<string> dirs;
+            List<string> files;
+
+            VfsManager.ListEntries(Address, out dirs, out files);
+
+            setContent(dirs, files);
         }
 
 
@@ -119,11 +131,18 @@ namespace VFS_GUI
         }
 
 
-        public void setContent(string path, List<string> directories, List<string> files)
+        public void setContent(List<string> directories, List<string> files)
         {
-            //1. check path == current path
-            // YES: fill main list view
-            // NO:  return;
+            mainListView.Items.Clear();
+            foreach (var directory in directories)
+            {
+                mainListView.Items.Add(directory);
+            }
+
+            foreach (var file in files)
+            {
+                mainListView.Items.Add(file);
+            }
         }
 
         //---------------Buttons & Co.---------------
@@ -133,6 +152,7 @@ namespace VFS_GUI
             var window = new VfsCreateDisk(this);
             window.Show();
         }
+
         private void openDiskButton_Click(object sender, EventArgs e)
         {
             if (this.diskOFD.ShowDialog(this) == DialogResult.OK)
@@ -158,10 +178,12 @@ namespace VFS_GUI
 
             }
         }
+
         private void closeDiskButton_Click(object sender, EventArgs e)
         {
 
         }
+
         private void deleteDiskButton_Click(object sender, EventArgs e)
         {
 
@@ -181,6 +203,7 @@ namespace VFS_GUI
                 CurrentNode.Nodes.Add(window.Result);
             }
         }
+
         private void createFileButton_Click(object sender, EventArgs e)
         {
             // show name dialog or create a new thingy and allow for a namechange in the list view immediately
@@ -193,6 +216,7 @@ namespace VFS_GUI
                 Console.Command(command);
             }
         }
+
         private void importButton_Click(object sender, EventArgs e)
         {
             // whoops this doesn't work with directories.
@@ -207,6 +231,7 @@ namespace VFS_GUI
                 }
             }
         }
+
         private void exportButton_Click(object sender, EventArgs e)
         {
             // show folder select dialog
@@ -219,18 +244,23 @@ namespace VFS_GUI
                 Console.Command(command);
             }
         }
+
         private void renameButton_Click(object sender, EventArgs e)
         {
             if (selection.Count != 1)
                 throw new ArgumentException("Button should not be pressable when not exactly 1 file is selected.");
 
             // show name dialog or allow for a namechange in the list view
-            string newname = "test2.fail";
+            var window = new EnterName();
+            window.ShowDialog();
+            if (window.Cancelled == false)
+            {
+                string command = "rn " + selection[0] + " " + window.Result;
 
-            string command = "rn " + selection[0] + " " + newname;
-
-            Console.Command(command);
+                Console.Command(command);
+            }
         }
+
         private void moveButton_Click(object sender, EventArgs e)
         {
             if (this.selection.Count == 0)
@@ -239,6 +269,7 @@ namespace VFS_GUI
             this.cut = true;
             this.markedFiles = new List<string>(this.selection);
         }
+
         private void copyButton_Click(object sender, EventArgs e)
         {
             if (this.selection.Count == 0)
@@ -247,6 +278,7 @@ namespace VFS_GUI
             this.cut = true;
             this.markedFiles = new List<string>(this.selection);
         }
+
         private void pasteButton_Click(object sender, EventArgs e)
         {
             if (this.markedFiles == null)

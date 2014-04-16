@@ -44,13 +44,13 @@
             this.createDiskButton = new System.Windows.Forms.Button();
             this.mainPanel = new System.Windows.Forms.Panel();
             this.mainSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.mainTreeView = new System.Windows.Forms.TreeView();
             this.mainListView = new System.Windows.Forms.ListView();
             this.addressPanel = new System.Windows.Forms.Panel();
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.searchButton = new System.Windows.Forms.Button();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.statusBar = new System.Windows.Forms.StatusStrip();
-            this.mainTreeView = new System.Windows.Forms.TreeView();
             this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
@@ -260,15 +260,25 @@
             this.mainSplitContainer.SplitterWidth = 3;
             this.mainSplitContainer.TabIndex = 0;
             // 
+            // mainTreeView
+            // 
+            this.mainTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainTreeView.Location = new System.Drawing.Point(0, 0);
+            this.mainTreeView.Name = "mainTreeView";
+            this.mainTreeView.PathSeparator = "/";
+            this.mainTreeView.Size = new System.Drawing.Size(177, 278);
+            this.mainTreeView.TabIndex = 0;
+            // 
             // mainListView
             // 
             this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.mainListView.GridLines = true;
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(530, 252);
+            this.mainListView.Size = new System.Drawing.Size(531, 252);
             this.mainListView.TabIndex = 1;
             this.mainListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -293,7 +303,7 @@
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(131, 20);
             this.searchTextBox.TabIndex = 1;
-            this.searchTextBox.Text = "searchTextBox";
+            this.searchTextBox.Text = "Search";
             // 
             // searchButton
             // 
@@ -317,7 +327,7 @@
             this.addressTextBox.Name = "addressTextBox";
             this.addressTextBox.Size = new System.Drawing.Size(364, 20);
             this.addressTextBox.TabIndex = 0;
-            this.addressTextBox.Text = "addressTextBox";
+            this.addressTextBox.Text = "/";
             // 
             // statusBar
             // 
@@ -329,15 +339,6 @@
             this.statusBar.Size = new System.Drawing.Size(711, 22);
             this.statusBar.TabIndex = 2;
             this.statusBar.Text = "Hello World";
-            // 
-            // mainTreeView
-            // 
-            this.mainTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainTreeView.Location = new System.Drawing.Point(0, 0);
-            this.mainTreeView.Name = "mainTreeView";
-            this.mainTreeView.PathSeparator = "/";
-            this.mainTreeView.Size = new System.Drawing.Size(177, 278);
-            this.mainTreeView.TabIndex = 0;
             // 
             // statusBarText
             // 
@@ -392,7 +393,7 @@
         private System.Windows.Forms.Button createDiskButton;
         private System.Windows.Forms.Panel mainPanel;
         private System.Windows.Forms.SplitContainer mainSplitContainer;
-        private System.Windows.Forms.StatusStrip statusBar;
+        public System.Windows.Forms.StatusStrip statusBar;
         private System.Windows.Forms.ListView mainListView;
         private System.Windows.Forms.Panel addressPanel;
         private System.Windows.Forms.TextBox searchTextBox;
