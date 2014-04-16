@@ -44,6 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnterName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EnterName.Designer.cs">
+      <DependentUpon>EnterName.cs</DependentUpon>
+    </Compile>
     <Compile Include="Search\Index.cs" />
     <Compile Include="VfsCreateDisk.cs">
       <SubType>Form</SubType>
@@ -61,6 +67,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VfsTask.cs" />
+    <EmbeddedResource Include="EnterName.resx">
+      <DependentUpon>EnterName.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="VfsCreateDisk.resx">
       <DependentUpon>VfsCreateDisk.cs</DependentUpon>
     </EmbeddedResource>
