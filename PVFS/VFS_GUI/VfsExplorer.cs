@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using VFS.VFS;
 using VFS.VFS.Models;
@@ -16,9 +10,9 @@ namespace VFS_GUI
     public partial class VfsExplorer : Form
     {
         public static RemoteConsole Console { get; private set; }
-        public string Address { get; private set; }
+        private string Address { get; set; }
 
-        private List<string> selection;
+        private readonly List<string> _selection;
 
         /// <summary>
         /// Store files here when copy or cut are pressed.
@@ -39,18 +33,18 @@ namespace VFS_GUI
             Console = new RemoteConsole(this);
             new LocalConsole(Console);
 
-            this.selection = new List<string>();
+            _selection = new List<string>();
 
             InitializeComponent();
 
-            this.diskOFD = new OpenFileDialog();
-            this.diskOFD.Filter = "Virtual Disks|*.vdi|All Files|*.*";
-            this.diskOFD.InitialDirectory = Environment.CurrentDirectory;
-            this.diskOFD.Multiselect = false;
+            diskOFD = new OpenFileDialog();
+            diskOFD.Filter = "Virtual Disks|*.vdi|All Files|*.*";
+            diskOFD.InitialDirectory = Environment.CurrentDirectory;
+            diskOFD.Multiselect = false;
 
-            this.importOFD = new OpenFileDialog();
-            this.importOFD.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            this.importOFD.Multiselect = true;
+            importOFD = new OpenFileDialog();
+            importOFD.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            importOFD.Multiselect = true;
 
             setButtonStates();
 
@@ -82,14 +76,14 @@ namespace VFS_GUI
         {
             if (e.IsSelected)
             {
-                if (!selection.Contains(e.Item.Text))
+                if (!_selection.Contains(e.Item.Text))
                 {
-                    selection.Add(e.Item.Text);
+                    _selection.Add(e.Item.Text);
                 }
             }
             else
             {
-                selection.Remove(e.Item.Text);
+                _selection.Remove(e.Item.Text);
             }
             setButtonStates();
         }
@@ -122,6 +116,7 @@ namespace VFS_GUI
             Console.Command("cd " + Address);
 
             UpdateContent();
+            setButtonStates();
         }
 
         public void UpdateContent()
@@ -171,14 +166,14 @@ namespace VFS_GUI
                     b.Enabled = true;
                 }
 
-                this.exportButton.Enabled = this.selection.Count != 0;
-                this.moveButton.Enabled = this.selection.Count != 0;
-                this.copyButton.Enabled = this.selection.Count != 0;
-                this.deleteButton.Enabled = this.selection.Count != 0;
+                exportButton.Enabled = _selection.Count != 0;
+                moveButton.Enabled = _selection.Count != 0;
+                copyButton.Enabled = _selection.Count != 0;
+                deleteButton.Enabled = _selection.Count != 0;
 
-                this.renameButton.Enabled = this.selection.Count == 1;
+                renameButton.Enabled = _selection.Count == 1;
 
-                this.pasteButton.Enabled = this.markedFiles != null;
+                pasteButton.Enabled = cut;
             }
             else
             {
@@ -208,7 +203,7 @@ namespace VFS_GUI
 
         public void setStatus(string status)
         {
-            this.statusBarText.Text = status;
+            statusBarText.Text = status;
         }
 
         //---------------Buttons & Co.---------------
@@ -221,9 +216,9 @@ namespace VFS_GUI
 
         private void openDiskButton_Click(object sender, EventArgs e)
         {
-            if (this.diskOFD.ShowDialog(this) == DialogResult.OK)
+            if (diskOFD.ShowDialog(this) == DialogResult.OK)
             {
-                string command = "ldisk " + this.diskOFD.FileName;
+                string command = "ldisk " + diskOFD.FileName;
 
                 Console.Command(command);
 
@@ -244,17 +239,62 @@ namespace VFS_GUI
                 {
                     parentNode.Nodes.Add(dir);
                 }
+                setButtonStates();
             }
         }
 
         private void closeDiskButton_Click(object sender, EventArgs e)
         {
-
+            var diskName = "";
+            var indexOf = Address.IndexOf("/", 1);
+            if (indexOf == -1)
+            {
+                diskName = Address.Substring(1);
+            }
+            else
+            {
+                diskName = Address.Substring(1, indexOf - 1);
+            }
+            Console.Command("udisk " + diskName);
+            TreeNode node = null;
+            for (int i = 0; i < mainTreeView.Nodes.Count; i++)
+            {
+                if (diskName == mainTreeView.Nodes[i].Text)
+                {
+                    node = mainTreeView.Nodes[i];
+                }
+            }
+            if (node != null)
+            {
+                mainTreeView.Nodes.Remove(node);
+            }
         }
 
         private void deleteDiskButton_Click(object sender, EventArgs e)
         {
-
+            var diskName = "";
+            var indexOf = Address.IndexOf("/", 1);
+            if (indexOf == -1)
+            {
+                diskName = Address.Substring(1);
+            }
+            else
+            {
+                diskName = Address.Substring(1, indexOf - 1);
+            }
+            Console.Command("rmdisk " + diskName);
+            TreeNode node = null;
+            for (int i = 0; i < mainTreeView.Nodes.Count; i++)
+            {
+                if (diskName == mainTreeView.Nodes[i].Text)
+                {
+                    node = mainTreeView.Nodes[i];
+                }
+            }
+            if (node != null)
+            {
+                mainTreeView.Nodes.Remove(node);
+            }
         }
         
         private void createDirectoryButton_Click(object sender, EventArgs e)
@@ -286,10 +326,10 @@ namespace VFS_GUI
         private void importButton_Click(object sender, EventArgs e)
         {
             // whoops this doesn't work with directories.
-            if (this.importOFD.ShowDialog(this) == DialogResult.OK)
+            if (importOFD.ShowDialog(this) == DialogResult.OK)
             {
 
-                foreach (string fileName in this.importOFD.FileNames)
+                foreach (string fileName in importOFD.FileNames)
                 {
                     string command = "im " + fileName + " " + Address;
 
@@ -303,7 +343,7 @@ namespace VFS_GUI
             // show folder select dialog
             string dst = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-            foreach (string file in this.selection)
+            foreach (string file in _selection)
             {
                 string command = "ex " + file + " " + dst;
 
@@ -313,14 +353,14 @@ namespace VFS_GUI
 
         private void renameButton_Click(object sender, EventArgs e)
         {
-            if (selection.Count != 1)
+            if (_selection.Count != 1)
                 throw new ArgumentException("Button should not be pressable when not exactly 1 file is selected.");
 
             // show name dialog or allow for a namechange in the list view
             var window = new EnterName();
             if (window.ShowDialog() == DialogResult.OK)
             {
-                string command = "rn " + selection[0] + " " + window.Result;
+                string command = "rn " + _selection[0] + " " + window.Result;
 
                 Console.Command(command);
             }
@@ -328,41 +368,41 @@ namespace VFS_GUI
 
         private void moveButton_Click(object sender, EventArgs e)
         {
-            if (this.selection.Count == 0)
+            if (_selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            this.cut = true;
-            this.markedFiles = new List<string>(this.selection);
+            cut = true;
+            markedFiles = new List<string>(_selection);
         }
 
         private void copyButton_Click(object sender, EventArgs e)
         {
-            if (this.selection.Count == 0)
+            if (_selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            this.cut = true;
-            this.markedFiles = new List<string>(this.selection);
+            cut = true;
+            markedFiles = new List<string>(_selection);
         }
 
         private void pasteButton_Click(object sender, EventArgs e)
         {
-            if (this.markedFiles == null)
+            if (markedFiles == null)
                 throw new ArgumentException("Button sould not be pressable when nothing was copied/cut.");
 
-            if (this.cut)
+            if (cut)
             {
-                foreach (string file in this.markedFiles)
+                foreach (string file in markedFiles)
                 {
                     string command = "mv " + file + " " + Address;
 
                     Console.Command(command);
                 }
 
-                this.markedFiles = null;
+                markedFiles = null;
             }
             else
             {
-                foreach (string file in this.markedFiles)
+                foreach (string file in markedFiles)
                 {
                     string command = "cp " + file + " " + Address;
 
@@ -374,10 +414,10 @@ namespace VFS_GUI
         
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            if (this.selection.Count == 0)
+            if (_selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            string command = this.selection.Aggregate("", (agg, file) => agg + "rm " + file + " ");
+            string command = _selection.Aggregate("", (agg, file) => agg + "rm " + file + " ");
 
             Console.Command(command);
         }
