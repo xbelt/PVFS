@@ -144,7 +144,7 @@ namespace VFS_GUI
 
             // check over console.command("ldisks") whether there are some open disks.
             // maybe not every time because this runs a lot (probably after each user action)
-            if (false)//Console.Query("Are there some open disks?", "Yes", "No") == 0)
+            if (true)//Console.Query("Are there some open disks?", "Yes", "No") == 0)
             {
                 foreach (Button b in NeedDisk)
                 {
@@ -239,8 +239,7 @@ namespace VFS_GUI
         {
             // show name dialog or create a new thingy and allow for a namechange in the list view immediately
             var window = new EnterName();
-            window.ShowDialog();
-            if (window.Cancelled == false)
+            if (window.ShowDialog() == DialogResult.OK)
             {
                 string command = "mkdir " + Address + "/" + window.Result;
 
@@ -254,8 +253,7 @@ namespace VFS_GUI
         {
             // show name dialog or create a new thingy and allow for a namechange in the list view immediately
             var window = new EnterName();
-            window.ShowDialog();
-            if (window.Cancelled == false)
+            if (window.ShowDialog() == DialogResult.OK)
             {
                 string command = "mk " + Address + "/" + window.Result;
 
@@ -298,8 +296,7 @@ namespace VFS_GUI
 
             // show name dialog or allow for a namechange in the list view
             var window = new EnterName();
-            window.ShowDialog();
-            if (window.Cancelled == false)
+            if (window.ShowDialog() == DialogResult.OK)
             {
                 string command = "rn " + selection[0] + " " + window.Result;
 

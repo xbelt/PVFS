@@ -79,7 +79,11 @@
             this.Controls.Add(this.okButton);
             this.Controls.Add(this.nameLabel);
             this.Controls.Add(this.nameTextBox);
-            this.Text = "EnterName";
+            this.MaximumSize = new System.Drawing.Size(300, 112);
+            this.MinimumSize = new System.Drawing.Size(300, 112);
+            this.Name = "EnterName";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.Text = "Virtual File System";
             this.ResumeLayout(false);
             this.PerformLayout();
 
