@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Forms;
 using VFS.VFS;
 
 namespace VFS_GUI
@@ -51,10 +52,10 @@ namespace VFS_GUI
                     return;
                 }
                 if (res == 0)
-                    explorer.setContent("", dirs, files);
+                    explorer.setContent(dirs, files);
                 else
                 {
-                    explorer.setContent("", new List<string>() { "Loading..." }, new List<string>());
+                    explorer.setContent(new List<string>() { "Loading..." }, new List<string>());
                     tasks.Enqueue(new VfsTask() { Command = comm });
                 }
             }
@@ -70,7 +71,7 @@ namespace VFS_GUI
 
         public override void ErrorMessage(string message)
         {
-            // show a popup error message
+            MessageBox.Show(message);
         }
 
         public override void Message(string info)
@@ -78,6 +79,7 @@ namespace VFS_GUI
             // check if this is a result of ls
             // Yes: explorer.Invoke(() => explorer.setContent(path, dirs, files));
             // No: explorer.Invoke(() => statusBar.Text = info);
+            explorer.statusBar.Text = info;
         }
 
         public override void Message(string info, ConsoleColor textCol)
