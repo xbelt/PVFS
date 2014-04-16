@@ -161,7 +161,7 @@ namespace VFS.VFS
 
         /// <summary>
         /// Looks for a VfsEntry concurrently.
-        /// Does not load any entries and therefore not move any readers/writers to the disk.
+        /// Does not load any entries and therefore not move any readers/writers of the disk.
         /// Can be used concurrently to other operations.
         /// </summary>
         /// <param name="path">The path to look for.</param>
@@ -230,7 +230,7 @@ namespace VFS.VFS
         /// <param name="path">The path to the directory.</param>
         /// <param name="directories">The subdirectories of that directory.</param>
         /// <param name="files">The files of that directory.</param>
-        /// <returns>0 if it was ok, 1 if this path does not exist, 2 if this entry can't be loaded concurrently</returns>
+        /// <returns>0 if it was ok, 1 if this path does not exist, 2 if this operation can't be done concurrently</returns>
         public static int ListEntriesConcurrent(string path, out List<string> directories, out List<string> files)
         {
             if (Disks.Count == 0)
