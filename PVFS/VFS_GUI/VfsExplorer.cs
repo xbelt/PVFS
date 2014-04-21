@@ -23,7 +23,7 @@ namespace VFS_GUI
         /// Store if cut or copy was pressed last.
         /// </summary>
         private bool cut;
-
+        private bool enablePaste;
         private OpenFileDialog importOFD, diskOFD;
         public TreeNode CurrentNode { get; set; }
 
@@ -173,7 +173,7 @@ namespace VFS_GUI
 
                 renameButton.Enabled = _selection.Count == 1;
 
-                pasteButton.Enabled = cut;
+                pasteButton.Enabled = enablePaste;
             }
             else
             {
@@ -182,8 +182,6 @@ namespace VFS_GUI
                     b.Enabled = false;
                 }
             }
-
-
         }
 
 
@@ -325,14 +323,13 @@ namespace VFS_GUI
 
         private void importButton_Click(object sender, EventArgs e)
         {
-            // whoops this doesn't work with directories.
+            // whoops this doesn't work with directories and files with spaces in their name.
             if (importOFD.ShowDialog(this) == DialogResult.OK)
             {
 
                 foreach (string fileName in importOFD.FileNames)
                 {
                     string command = "im " + fileName + " " + Address;
-
                     Console.Command(command);
                 }
             }
@@ -372,6 +369,7 @@ namespace VFS_GUI
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             cut = true;
+            enablePaste = true;
             markedFiles = new List<string>(_selection);
         }
 
@@ -380,7 +378,7 @@ namespace VFS_GUI
             if (_selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            cut = true;
+            cut = false;
             markedFiles = new List<string>(_selection);
         }
 
@@ -397,7 +395,7 @@ namespace VFS_GUI
 
                     Console.Command(command);
                 }
-
+                enablePaste = false;
                 markedFiles = null;
 
                 //TODO: shouldn't cut be set to false here?
