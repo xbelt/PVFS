@@ -1003,8 +1003,6 @@ namespace VFS.VFS
         /// <param name="dst">The (not necesseraly) absolute path to the directory where we import.</param>
         public static void Import(string src, string dst) 
         {
-            //TODO: add compression and encryption
-
             if (src == null) throw new ArgumentNullException("src");
             if (dst == null) throw new ArgumentNullException("dst");
 
