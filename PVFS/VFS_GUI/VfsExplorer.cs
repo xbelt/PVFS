@@ -78,7 +78,7 @@ namespace VFS_GUI
             {
                 if (!_selection.Contains(e.Item.Text))
                 {
-                    _selection.Add(e.Item.Text);
+                    _selection.Add(VfsManager.WorkingDirectory.AbsolutePath + "/" + e.Item.Text);
                 }
             }
             else
