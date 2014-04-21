@@ -92,16 +92,21 @@ namespace VFS_GUI
         {
             if (mainListView.SelectedItems.Count == 1)
             {
-                Address = Address + "/" + mainListView.SelectedItems[0].Text;
-                addressTextBox.Text = Address;
-                Console.Command("cd " + Address);
-                _selection.Clear();
-                for (int i = 0; i < CurrentNode.Nodes.Count; i++)
+                string testPath = Address + "/" + mainListView.SelectedItems[0].Text;
+                VfsEntry testEntry = VfsManager.GetEntry(testPath);
+                if ( testEntry != null && testEntry.IsDirectory)
                 {
-                    if (CurrentNode.Nodes[i].Text == mainListView.SelectedItems[0].Text)
+                    Address = testPath;
+                    addressTextBox.Text = Address;
+                    Console.Command("cd " + Address);
+                    _selection.Clear();
+                    for (int i = 0; i < CurrentNode.Nodes.Count; i++)
                     {
-                        CurrentNode = CurrentNode.Nodes[i];
-                    }
+                        if (CurrentNode.Nodes[i].Text == mainListView.SelectedItems[0].Text)
+                        {
+                            CurrentNode = CurrentNode.Nodes[i];
+                        }
+                    } 
                 }
 
                 UpdateContent();
@@ -114,7 +119,8 @@ namespace VFS_GUI
             Address = "/" + e.Node.FullPath;
             addressTextBox.Text = Address;
             Console.Command("cd " + Address);
-
+            
+            _selection.Clear();
             UpdateContent();
             setButtonStates();
         }
