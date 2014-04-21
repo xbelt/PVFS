@@ -95,7 +95,7 @@ namespace VFS_GUI
                 Address = Address + "/" + mainListView.SelectedItems[0].Text;
                 addressTextBox.Text = Address;
                 Console.Command("cd " + Address);
-
+                _selection.Clear();
                 for (int i = 0; i < CurrentNode.Nodes.Count; i++)
                 {
                     if (CurrentNode.Nodes[i].Text == mainListView.SelectedItems[0].Text)
@@ -379,6 +379,7 @@ namespace VFS_GUI
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             cut = false;
+            enablePaste = true;
             markedFiles = new List<string>(_selection);
         }
 
@@ -397,15 +398,12 @@ namespace VFS_GUI
                 }
                 enablePaste = false;
                 markedFiles = null;
-
-                //TODO: shouldn't cut be set to false here?
             }
             else
             {
                 foreach (string file in markedFiles)
                 {
                     string command = "cp " + file + " " + Address;
-
                     Console.Command(command);
                 }
                 // not clearing markedfiles = paste multiple copies.
@@ -417,9 +415,13 @@ namespace VFS_GUI
             if (_selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            string command = _selection.Aggregate("", (agg, file) => agg + "rm " + file + " ");
-
-            Console.Command(command);
+            while(_selection.Count > 0)
+            {
+                string command = "rm " + _selection[0];
+                _selection.Remove(_selection[0]);
+                Console.Command(command);
+                //TODO: Remove nodes from tree
+            }
         }
 
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
