@@ -371,6 +371,7 @@ namespace VFS_GUI
             cut = true;
             enablePaste = true;
             markedFiles = new List<string>(_selection);
+            _selection.Clear();
         }
 
         private void copyButton_Click(object sender, EventArgs e)
@@ -381,6 +382,7 @@ namespace VFS_GUI
             cut = false;
             enablePaste = true;
             markedFiles = new List<string>(_selection);
+            _selection.Clear();
         }
 
         private void pasteButton_Click(object sender, EventArgs e)
