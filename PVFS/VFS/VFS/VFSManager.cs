@@ -510,7 +510,8 @@ namespace VFS.VFS
         {
             files = new List<string>();
             dirs = new List<string>();
-            if (path == null) throw new ArgumentNullException("path");
+            var diskName = CurrentDisk.DiskProperties.Name;
+            if (path == null) path = "/" + diskName;
 
             if (Disks.Count == 0)
             {
