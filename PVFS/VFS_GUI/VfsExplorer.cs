@@ -304,10 +304,10 @@ namespace VFS_GUI
             if (window.ShowDialog() == DialogResult.OK)
             {
                 string command = "mkdir " + Address + "/" + window.Result;
-
                 Console.Command(command);
-
-                CurrentNode.Nodes.Add(window.Result);
+                //Add only to treeview, if directory was valid and didn't exist already.
+                if (VfsManager.GetEntry(Address + "/" + window.Result) != null)
+                    CurrentNode.Nodes.Add(window.Result);
             }
         }
 
@@ -399,6 +399,8 @@ namespace VFS_GUI
                 }
 
                 markedFiles = null;
+
+                //TODO: shouldn't cut be set to false here?
             }
             else
             {
