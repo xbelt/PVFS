@@ -23,7 +23,6 @@ namespace VFS_GUI
         /// Store if cut or copy was pressed last.
         /// </summary>
         private bool cut;
-        private bool enablePaste;
         private OpenFileDialog importOFD, diskOFD;
         public TreeNode CurrentNode { get; set; }
 
@@ -179,7 +178,7 @@ namespace VFS_GUI
 
                 renameButton.Enabled = _selection.Count == 1;
 
-                pasteButton.Enabled = enablePaste;
+                pasteButton.Enabled = markedFiles != null;
             }
             else
             {
@@ -375,7 +374,6 @@ namespace VFS_GUI
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             cut = true;
-            enablePaste = true;
             markedFiles = new List<string>(_selection);
             _selection.Clear();
         }
@@ -386,7 +384,6 @@ namespace VFS_GUI
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             cut = false;
-            enablePaste = true;
             markedFiles = new List<string>(_selection);
             _selection.Clear();
         }
@@ -404,7 +401,6 @@ namespace VFS_GUI
 
                     Console.Command(command);
                 }
-                enablePaste = false;
                 markedFiles = null;
             }
             else
