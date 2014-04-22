@@ -50,6 +50,12 @@
     <Compile Include="EnterName.Designer.cs">
       <DependentUpon>EnterName.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImportSelectionDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ImportSelectionDialog.Designer.cs">
+      <DependentUpon>ImportSelectionDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -75,6 +81,9 @@
     <Compile Include="VfsTask.cs" />
     <EmbeddedResource Include="EnterName.resx">
       <DependentUpon>EnterName.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImportSelectionDialog.resx">
+      <DependentUpon>ImportSelectionDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VfsCreateDisk.resx">
       <DependentUpon>VfsCreateDisk.cs</DependentUpon>
