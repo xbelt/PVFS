@@ -30,7 +30,7 @@ namespace VFS_GUI
         public VfsExplorer()
         {
             Console = new RemoteConsole(this);
-            new LocalConsole(Console);
+            VfsManager.Console = new LocalConsole(Console);
 
             _selection = new List<string>();
 
@@ -108,8 +108,13 @@ namespace VFS_GUI
                     } 
                 }
 
-                UpdateContent();
+                UpdateExplorer();
             }
+        }
+
+        private void Navigate(string Path)
+        {
+
         }
 
         private void handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -120,12 +125,18 @@ namespace VFS_GUI
             Console.Command("cd " + Address);
             
             _selection.Clear();
-            UpdateContent();
+            UpdateExplorer();
             setButtonStates();
         }
 
-        public void UpdateContent()
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public void UpdateExplorer()
         {
+            // ls -> manager
+            // 
+
             List<string> dirs;
             List<string> files;
 
@@ -243,16 +254,7 @@ namespace VFS_GUI
 
                 VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + window.ResultSize);
 
-                mainTreeView.BeginUpdate();
-                var node = mainTreeView.Nodes.Add(name.Substring(4));
-                mainTreeView.EndUpdate();
-                CurrentNode = node;
-                new System.Threading.Thread(() =>
-                {
-                    VfsEntry entry;
-                    while (VfsManager.GetEntryConcurrent("/" + name.Substring(4), out entry) != 0) { }
-                    UpdateContent();
-                }).Start();
+                UpdateExplorer();
             }
         }
 
@@ -272,7 +274,7 @@ namespace VFS_GUI
                 while (VfsManager.GetEntryConcurrent("/" + diskName, out entry) != 0) { }
                 Address = VfsManager.CurrentDisk.Root.AbsolutePath;
                 addressTextBox.Text = Address;
-                UpdateContent();
+                UpdateExplorer();
 
                 VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
                 var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
@@ -281,7 +283,12 @@ namespace VFS_GUI
                 {
                     parentNode.Nodes.Add(dir);
                 }
+                CurrentNode = parentNode;
                 setButtonStates();
+
+
+                UpdateExplorer();
+                
             }
         }
 
@@ -367,21 +374,36 @@ namespace VFS_GUI
 
         private void importButton_Click(object sender, EventArgs e)
         {
-            // whoops this doesn't work with directories and files with spaces in their name.
-            if (importOFD.ShowDialog(this) == DialogResult.OK)
-            {
+            ImportSelectionDialog isd = new ImportSelectionDialog();
 
-                foreach (string fileName in importOFD.FileNames)
+            if (isd.ShowDialog() == DialogResult.OK)
+            {
+                if (isd.fileselect)
                 {
-                    string command = "im " + fileName + " " + Address;
-                    Console.Command(command);
+                    //TODO: whoops this doesn't work with directories and files with spaces in their name.
+                    if (importOFD.ShowDialog(this) == DialogResult.OK)
+                    {
+
+                        foreach (string fileName in importOFD.FileNames)
+                        {
+                            string command = "im " + fileName + " " + Address;
+                            Console.Command(command);
+                        }
+                    }
                 }
+                else
+                {
+                    //folder...
+                }
+
             }
+
+
         }
 
         private void exportButton_Click(object sender, EventArgs e)
         {
-            // show folder select dialog
+            //TODO: show folder select dialog
             string dst = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
             foreach (string file in _selection)
@@ -458,18 +480,19 @@ namespace VFS_GUI
             if (_selection.Count == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
-            while(_selection.Count > 0)
+            string command = "";
+
+            foreach (string s in _selection)
             {
-                string command = "rm " + _selection[0];
-                _selection.Remove(_selection[0]);
-                Console.Command(command);
-                //TODO: Remove nodes from tree
+                command += "rm " + _selection[0];
             }
+            Console.Command(command);
         }
 
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
         {
             Console.Command("quit");
         }
+
     }
 }
