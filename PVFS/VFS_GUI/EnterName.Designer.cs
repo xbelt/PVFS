@@ -83,6 +83,7 @@
             this.MinimumSize = new System.Drawing.Size(300, 112);
             this.Name = "EnterName";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Virtual File System";
             this.ResumeLayout(false);
             this.PerformLayout();

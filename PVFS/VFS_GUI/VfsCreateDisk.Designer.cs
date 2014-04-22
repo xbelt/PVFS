@@ -182,7 +182,11 @@
             this.Controls.Add(this.nameTextBox);
             this.Controls.Add(this.pathTextBox);
             this.Controls.Add(this.pathLabel);
+            this.MaximumSize = new System.Drawing.Size(228, 215);
+            this.MinimumSize = new System.Drawing.Size(228, 215);
             this.Name = "VfsCreateDisk";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "VfsCreateDisk";
             ((System.ComponentModel.ISupportInitialize)(this.blockSizeNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sizeNumericUpDown)).EndInit();
