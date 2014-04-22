@@ -16,14 +16,12 @@ namespace VFS_GUI
         private const string caption = "Virtual File System";
 
         private VfsExplorer explorer;
-
         private LocalConsole local;
 
         public RemoteConsole(VfsExplorer explorer)
         {
             this.explorer = explorer;
         }
-
         public void setConsole(LocalConsole local)
         {
             this.local = local;
@@ -44,6 +42,9 @@ namespace VFS_GUI
         /// <param name="info"></param>
         public override void Message(string info)
         {
+            // TODO: check if this is a result of ls
+            // Yes: explorer.Invoke(() => explorer.setContent(path, dirs, files));
+            // No: explorer.Invoke(() => statusBar.Text = info);
             explorer.Invoke(new Action(() => explorer.setStatus(info)));
         }
 
