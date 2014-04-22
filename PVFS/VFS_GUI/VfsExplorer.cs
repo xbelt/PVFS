@@ -53,7 +53,7 @@ namespace VFS_GUI
             mainListView.DoubleClick += handleItemDoubleClick;
             mainListView.ItemSelectionChanged += handleItemSelectionClick;
 
-            var toolTips = new ToolTip {AutoPopDelay = 5000, InitialDelay = 1000, ReshowDelay = 500, ShowAlways = true};
+            var toolTips = new ToolTip {AutoPopDelay = 5000, InitialDelay = 500, ReshowDelay = 500, ShowAlways = true};
 
             // Set up the ToolTip text for the Button and Checkbox.
             toolTips.SetToolTip(createDiskButton, "Create a new Disk");
@@ -65,7 +65,7 @@ namespace VFS_GUI
             toolTips.SetToolTip(importButton, "Import a file from the host filesystem");
             toolTips.SetToolTip(exportButton, "Export a file to the host filesystem");
             toolTips.SetToolTip(renameButton, "Rename an entry");
-            toolTips.SetToolTip(moveButton, "Move an entry");
+            toolTips.SetToolTip(moveButton, "Cut an entry");
             toolTips.SetToolTip(copyButton, "Copy an entry");
             toolTips.SetToolTip(pasteButton, "Paste an entry");
             toolTips.SetToolTip(deleteButton, "Delete an entry");
