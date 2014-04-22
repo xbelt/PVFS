@@ -15,45 +15,31 @@ namespace VFS_GUI
 {
     public partial class VfsCreateDisk : Form
     {
-        private readonly VfsExplorer _explorer;
-        private bool _isPathChange = false;
+        public string ResultPath { get; private set; }
+        public string ResultName { get; private set; }
+        public decimal ResultBlockSize { get; private set; }
+        public string ResultPassword { get; private set; }
+        public string ResultSize { get; private set; }
 
-        public VfsCreateDisk(VfsExplorer explorer)
+        public VfsCreateDisk()
         {
-            _explorer = explorer;
             InitializeComponent();
             pathTextBox.Text = Environment.CurrentDirectory;
-            blockSizeNumericUpDown.Value = 2048;
-            sizeNumericUpDown.Focus();
-            pathTextBox.GotFocus += OpenPathDialog;
-            siezComboBox.SelectedItem = "kb";
-            new Thread(() =>
-            {
-                Thread.Sleep(100);
-                _isPathChange = true;
-            }).Start();
+            this.sizeComboBox.SelectedIndex = 1;
+            this.DialogResult = DialogResult.Cancel;
         }
 
-        private void OpenPathDialog(object sender, EventArgs e)
+        private void browseFolderButton_Click(object sender, EventArgs e)
         {
-            if (_isPathChange)
+            using (var dialog = new FolderBrowserDialog())
             {
-                _isPathChange = false;
-                using (var dialog = new FolderBrowserDialog())
+                dialog.Description = @"Select new folder";
+                dialog.ShowNewFolderButton = true;
+                dialog.RootFolder = Environment.SpecialFolder.MyComputer;
+                if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    dialog.Description = @"Select new folder";
-                    dialog.ShowNewFolderButton = true;
-                    dialog.RootFolder = Environment.SpecialFolder.MyComputer;
-                    if (dialog.ShowDialog() == DialogResult.OK)
-                    {
-                        pathTextBox.Text = dialog.SelectedPath;
-                    }
+                    pathTextBox.Text = dialog.SelectedPath;
                 }
-                new Thread(() =>
-                {
-                    Thread.Sleep(100); 
-                    _isPathChange = true;
-                }).Start();
             }
         }
 
@@ -64,50 +50,13 @@ namespace VFS_GUI
 
         private void createButton_Click(object sender, EventArgs e)
         {
-            var path = "";
-            var name = "";
-            var bs = "";
-            var pw = "";
-            var size = "";
+            ResultPath = pathTextBox.Text;
+            ResultName = nameTextBox.Text;
+            ResultBlockSize = blockSizeNumericUpDown.Value;
+            ResultPassword = pwTextBox.Text;
+            ResultSize= sizeNumericUpDown.Value.ToString() + sizeComboBox.SelectedItem;
 
-            if (pathTextBox.Text != Environment.CurrentDirectory)
-            {
-                path = " -p " + pathTextBox.Text;
-            }
-
-            if (nameTextBox.Text != "")
-            {
-                name = " -n " + nameTextBox.Text;
-            }
-
-            if (blockSizeNumericUpDown.Value != 2048)
-            {
-                bs = " -b " + blockSizeNumericUpDown.Value;
-            }
-
-            if (pwTextBox.Text != "")
-            {
-                pw = " -pw " + pwTextBox.Text;
-            }
-
-            if (sizeNumericUpDown.Value <= 0)
-            {
-                MessageBox.Show("Please enter a valid size of the disk");
-                return;
-            }
-
-            VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + sizeNumericUpDown.Value + siezComboBox.SelectedItem);
-
-            _explorer.mainTreeView.BeginUpdate();
-            var node = _explorer.mainTreeView.Nodes.Add(name.Substring(4));
-            _explorer.mainTreeView.EndUpdate();
-            _explorer.CurrentNode = node;
-            new Thread(() =>
-            {
-                VfsEntry entry;
-                while (VfsManager.GetEntryConcurrent("/" + name.Substring(4), out entry) != 0) { }
-                _explorer.UpdateContent();
-            }).Start();
+            this.DialogResult = DialogResult.OK;
             Close();
         }
     }

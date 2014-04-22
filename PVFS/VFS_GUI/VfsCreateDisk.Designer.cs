@@ -38,9 +38,10 @@
             this.pwTextBox = new System.Windows.Forms.TextBox();
             this.abortButton = new System.Windows.Forms.Button();
             this.createButton = new System.Windows.Forms.Button();
-            this.siezComboBox = new System.Windows.Forms.ComboBox();
+            this.sizeComboBox = new System.Windows.Forms.ComboBox();
             this.sizeNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
+            this.browseFolderButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.blockSizeNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sizeNumericUpDown)).BeginInit();
             this.SuspendLayout();
@@ -58,7 +59,7 @@
             // 
             this.pathTextBox.Location = new System.Drawing.Point(79, 13);
             this.pathTextBox.Name = "pathTextBox";
-            this.pathTextBox.Size = new System.Drawing.Size(120, 20);
+            this.pathTextBox.Size = new System.Drawing.Size(96, 20);
             this.pathTextBox.TabIndex = 1;
             // 
             // nameTextBox
@@ -81,13 +82,23 @@
             // 
             this.blockSizeNumericUpDown.Location = new System.Drawing.Point(79, 67);
             this.blockSizeNumericUpDown.Maximum = new decimal(new int[] {
-            100000,
+            4194304,
+            0,
+            0,
+            0});
+            this.blockSizeNumericUpDown.Minimum = new decimal(new int[] {
+            256,
             0,
             0,
             0});
             this.blockSizeNumericUpDown.Name = "blockSizeNumericUpDown";
             this.blockSizeNumericUpDown.Size = new System.Drawing.Size(120, 20);
             this.blockSizeNumericUpDown.TabIndex = 4;
+            this.blockSizeNumericUpDown.Value = new decimal(new int[] {
+            2048,
+            0,
+            0,
+            0});
             // 
             // bsLabel
             // 
@@ -134,26 +145,42 @@
             this.createButton.UseVisualStyleBackColor = true;
             this.createButton.Click += new System.EventHandler(this.createButton_Click);
             // 
-            // siezComboBox
+            // sizeComboBox
             // 
-            this.siezComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.siezComboBox.FormattingEnabled = true;
-            this.siezComboBox.Items.AddRange(new object[] {
+            this.sizeComboBox.DisplayMember = "1";
+            this.sizeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.sizeComboBox.FormattingEnabled = true;
+            this.sizeComboBox.Items.AddRange(new object[] {
             "kb",
             "mb",
             "gb",
             "tb"});
-            this.siezComboBox.Location = new System.Drawing.Point(161, 94);
-            this.siezComboBox.Name = "siezComboBox";
-            this.siezComboBox.Size = new System.Drawing.Size(38, 21);
-            this.siezComboBox.TabIndex = 10;
+            this.sizeComboBox.Location = new System.Drawing.Point(161, 94);
+            this.sizeComboBox.Name = "sizeComboBox";
+            this.sizeComboBox.Size = new System.Drawing.Size(38, 21);
+            this.sizeComboBox.TabIndex = 10;
             // 
             // sizeNumericUpDown
             // 
             this.sizeNumericUpDown.Location = new System.Drawing.Point(79, 94);
+            this.sizeNumericUpDown.Maximum = new decimal(new int[] {
+            16768,
+            0,
+            0,
+            0});
+            this.sizeNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.sizeNumericUpDown.Name = "sizeNumericUpDown";
             this.sizeNumericUpDown.Size = new System.Drawing.Size(76, 20);
             this.sizeNumericUpDown.TabIndex = 11;
+            this.sizeNumericUpDown.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // label1
             // 
@@ -164,14 +191,24 @@
             this.label1.TabIndex = 12;
             this.label1.Text = "Size";
             // 
+            // browseFolderButton
+            // 
+            this.browseFolderButton.Location = new System.Drawing.Point(178, 12);
+            this.browseFolderButton.Name = "browseFolderButton";
+            this.browseFolderButton.Size = new System.Drawing.Size(21, 21);
+            this.browseFolderButton.TabIndex = 13;
+            this.browseFolderButton.UseVisualStyleBackColor = true;
+            this.browseFolderButton.Click += new System.EventHandler(this.browseFolderButton_Click);
+            // 
             // VfsCreateDisk
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(212, 177);
+            this.Controls.Add(this.browseFolderButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.sizeNumericUpDown);
-            this.Controls.Add(this.siezComboBox);
+            this.Controls.Add(this.sizeComboBox);
             this.Controls.Add(this.createButton);
             this.Controls.Add(this.abortButton);
             this.Controls.Add(this.pwTextBox);
@@ -207,8 +244,9 @@
         private System.Windows.Forms.TextBox pwTextBox;
         private System.Windows.Forms.Button abortButton;
         private System.Windows.Forms.Button createButton;
-        private System.Windows.Forms.ComboBox siezComboBox;
+        private System.Windows.Forms.ComboBox sizeComboBox;
         private System.Windows.Forms.NumericUpDown sizeNumericUpDown;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button browseFolderButton;
     }
 }

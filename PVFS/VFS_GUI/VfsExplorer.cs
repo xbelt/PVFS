@@ -213,8 +213,47 @@ namespace VFS_GUI
 
         private void createDiskButton_Click(object sender, EventArgs e)
         {
-            var window = new VfsCreateDisk(this);
-            window.Show();
+            var window = new VfsCreateDisk();
+            if (window.ShowDialog() == DialogResult.OK)
+            {
+                var path = "";
+                var name = "";
+                var bs = "";
+                var pw = "";
+
+                if (window.ResultPath != Environment.CurrentDirectory)
+                {
+                    path = " -p " + window.ResultPath;
+                }
+
+                if (window.ResultName != "")
+                {
+                    name = " -n " + window.ResultName;
+                }
+
+                if (window.ResultBlockSize != 2048)
+                {
+                    bs = " -b " + window.ResultBlockSize;
+                }
+
+                if (window.ResultPassword != "")
+                {
+                    pw = " -pw " + window.ResultPassword;
+                }
+
+                VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + window.ResultSize);
+
+                mainTreeView.BeginUpdate();
+                var node = mainTreeView.Nodes.Add(name.Substring(4));
+                mainTreeView.EndUpdate();
+                CurrentNode = node;
+                new System.Threading.Thread(() =>
+                {
+                    VfsEntry entry;
+                    while (VfsManager.GetEntryConcurrent("/" + name.Substring(4), out entry) != 0) { }
+                    UpdateContent();
+                }).Start();
+            }
         }
 
         private void openDiskButton_Click(object sender, EventArgs e)
