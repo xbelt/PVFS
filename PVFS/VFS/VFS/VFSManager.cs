@@ -335,12 +335,7 @@ namespace VFS.VFS
         /// </summary>
         public static void ListDisks()
         {
-            Console.Message(Disks.Aggregate("", (curr, d) => curr + " " + d.DiskProperties.Name));
-        }
-
-        public static void ListDisks(out List<string> disks)
-        {
-            disks = Disks.Select(x => x.DiskProperties.Name).ToList();
+            Console.Message(Disks.Select(d => d.DiskProperties.Name).Concat(" "));
         }
 
         public static void LoadDisk(VfsDisk disk)
@@ -496,17 +491,21 @@ namespace VFS.VFS
             
             ListEntries(path, out fileList, out dirList);
 
+            string output = "";
+
+
+
             if (dirs)
-            {
-                Console.Message(dirList.Concat(" "));
-            }
+                output += dirList.Concat(" ");
+            if (dirs && files)
+                output += "\n";
             if (files)
-            {
-                Console.Message(fileList.Concat(" "), ConsoleColor.Blue);
-            }
+                output += fileList.Concat(" ");
+
+            Console.Message(output);
         }
 
-        public static void ListEntries(string path, out List<string> dirs, out List<string> files)
+        private static void ListEntries(string path, out List<string> dirs, out List<string> files)
         {
             files = new List<string>();
             dirs = new List<string>();
