@@ -1046,7 +1046,9 @@ namespace VFS.VFS
             else
             {
                 Console.ErrorMessage("Your source path does not lead to a valid file or directory. Aborting import operation.");
+                return;
             }
+            Console.Message("Finished importing.");
         }
 
         private static string EncryptFile(FileInfo src, String password)
