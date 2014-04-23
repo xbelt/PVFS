@@ -1056,7 +1056,8 @@ namespace VFS.VFS
 
             if (password == null)
             {
-                File.Copy(srcPath, dstPath);
+                if (!File.Exists(dstPath))
+                    File.Copy(srcPath, dstPath);
                 return dstPath;
             }
 
