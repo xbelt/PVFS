@@ -17,9 +17,12 @@ namespace VFS.VFS
 
         public static string Concat(this IEnumerable<string> arr, string glue)
         {
-            if (arr.Count() == 0)
+            int count = arr.Count();
+            if (count == 0)
                 return "";
-            return arr.First() + arr.Skip(1).Aggregate((agg, s) => agg + (glue + s));
+            if (count == 1)
+                return arr.First();
+            return arr.Skip(1).Aggregate(arr.First(), (agg, s) => agg + (glue + s));
         }
     }
 }
