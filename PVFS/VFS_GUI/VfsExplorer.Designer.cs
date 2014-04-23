@@ -282,7 +282,7 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(527, 252);
+            this.mainListView.Size = new System.Drawing.Size(528, 252);
             this.mainListView.SmallImageList = this.smallImageList;
             this.mainListView.TabIndex = 1;
             this.mainListView.UseCompatibleStateImageBehavior = false;
@@ -341,6 +341,7 @@
             this.addressTextBox.Size = new System.Drawing.Size(357, 20);
             this.addressTextBox.TabIndex = 0;
             this.addressTextBox.Text = "/";
+            this.addressTextBox.TextChanged += new System.EventHandler(this.addressTextBox_TextChanged);
             // 
             // statusBar
             // 
