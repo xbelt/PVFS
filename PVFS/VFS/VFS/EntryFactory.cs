@@ -55,12 +55,8 @@ namespace VFS.VFS
         {
             if (disk == null)
                 throw new ArgumentNullException("disk");
-            if (name == null)
+            if (name == null) //Valid name is already checked in import.
                 throw new ArgumentNullException("name");
-            if (!VfsFile.ValidName(name))
-            {
-                name = new String(name.Where(c => Char.IsLetterOrDigit(c) || c == '_' || c == '.').ToArray());
-            }
             if (size < 0)
                 throw new ArgumentException("Can't create files larger than 1 Gb.");
             if (parent == null)

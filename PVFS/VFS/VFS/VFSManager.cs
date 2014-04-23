@@ -1161,11 +1161,15 @@ namespace VFS.VFS
 
             Console.Message("Importing " + fileName + " in " + dstDir.AbsolutePath);
 
+            if (!VfsFile.ValidName(fileName))
+            {
+                fileName = new String(fileName.Where(c => Char.IsLetterOrDigit(c) || c == '_' || c == '.').ToArray());
+            }
             //Check for duplicates
             var fileWithSamename = dstDir.GetFile(fileName);
             if (fileWithSamename != null)
             {
-                var answer = Console.Query("There is already a file with this name, do you want to overwrite it?", "Ok", "Cancel");
+                var answer = Console.Query("There is already a file with this " + fileName + ", do you want to overwrite it?", "Ok", "Cancel");
                 if (answer == 1)
                 {
                     Console.ErrorMessage("File has not been overwritten.");
