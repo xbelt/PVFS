@@ -384,7 +384,7 @@ namespace VFS_GUI
             {
                 if (isd.FileSelect)
                 {
-                    //TODO: this doesn't work with files with spaces in their name.
+                    //TODO: attention, will remove invalid characters from the names.
                     if (importOFD.ShowDialog(this) == DialogResult.OK)
                     {
                         foreach (string fileName in importOFD.FileNames)
@@ -498,6 +498,16 @@ namespace VFS_GUI
         {
             Console.Command("quit");
         }
+
+        private void addressTextBox_TextChanged(object sender, EventArgs e)
+        {
+            KeyEventArgs a = (KeyEventArgs) e;
+            if (a.KeyCode == Keys.Enter)
+            {
+                //TODO: navigate to address entered (if it exists)
+                //Console.Command()
+            }
+       }
 
     }
 }
