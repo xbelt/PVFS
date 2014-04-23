@@ -12,8 +12,7 @@ namespace VFS_GUI
 {
     public partial class ImportSelectionDialog : Form
     {
-        public bool fileselect { get; private set; }
-
+        public bool FileSelect { get; private set; }
         public ImportSelectionDialog()
         {
             InitializeComponent();
@@ -21,16 +20,16 @@ namespace VFS_GUI
             DialogResult = DialogResult.Cancel;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void FileButton_Click(object sender, EventArgs e)
         {
-            fileselect = true;
+            FileSelect = true;
             DialogResult = DialogResult.OK;
             Close();
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void FolderButton_Click(object sender, EventArgs e)
         {
-            fileselect = false;
+            FileSelect = false;
             DialogResult = DialogResult.OK;
             Close();
         }
