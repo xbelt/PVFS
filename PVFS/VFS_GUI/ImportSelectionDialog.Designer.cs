@@ -28,47 +28,49 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.FileImportButton = new System.Windows.Forms.Button();
+            this.FolderImportButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // FileImportButton
             // 
-            this.button1.Location = new System.Drawing.Point(12, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(231, 42);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.FileImportButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FileImportButton.Location = new System.Drawing.Point(12, 12);
+            this.FileImportButton.Name = "FileImportButton";
+            this.FileImportButton.Size = new System.Drawing.Size(231, 42);
+            this.FileImportButton.TabIndex = 0;
+            this.FileImportButton.Text = "File";
+            this.FileImportButton.UseVisualStyleBackColor = true;
+            this.FileImportButton.Click += new System.EventHandler(this.FileButton_Click);
             // 
-            // button2
+            // FolderImportButton
             // 
-            this.button2.Location = new System.Drawing.Point(12, 60);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(231, 45);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.FolderImportButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.FolderImportButton.Location = new System.Drawing.Point(12, 60);
+            this.FolderImportButton.Name = "FolderImportButton";
+            this.FolderImportButton.Size = new System.Drawing.Size(231, 45);
+            this.FolderImportButton.TabIndex = 0;
+            this.FolderImportButton.Text = "Folder";
+            this.FolderImportButton.UseVisualStyleBackColor = true;
+            this.FolderImportButton.Click += new System.EventHandler(this.FolderButton_Click);
             // 
             // ImportSelectionDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(255, 121);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.FolderImportButton);
+            this.Controls.Add(this.FileImportButton);
             this.Name = "ImportSelectionDialog";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "ImportSelectionDialog";
+            this.Text = "Import";
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button FileImportButton;
+        private System.Windows.Forms.Button FolderImportButton;
     }
 }
