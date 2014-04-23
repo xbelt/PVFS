@@ -11,6 +11,7 @@ namespace VFS_GUI
     {
         public static RemoteConsole Console { get; private set; }
         private string Address { get; set; }
+        private List<string> Disks { get; set; }
 
         private readonly List<string> _selection;
 
@@ -57,6 +58,7 @@ namespace VFS_GUI
             mainListView.DoubleClick += handleItemDoubleClick;
             mainListView.ItemSelectionChanged += handleItemSelectionClick;
 
+            #region Tooltips
             var toolTips = new ToolTip {AutoPopDelay = 5000, InitialDelay = 500, ReshowDelay = 500, ShowAlways = true};
 
             // Set up the ToolTip text for the Button and Checkbox.
@@ -73,9 +75,87 @@ namespace VFS_GUI
             toolTips.SetToolTip(copyButton, "Copy an entry");
             toolTips.SetToolTip(pasteButton, "Paste an entry");
             toolTips.SetToolTip(deleteButton, "Delete an entry");
+            #endregion
+        }
+        
+        /// <summary>
+        /// TODO
+        /// </summary>
+        public void UpdateExplorer()
+        {
+
         }
 
-        private void handleItemSelectionClick(object sender, ListViewItemSelectionChangedEventArgs e)
+        private void setButtonStates()
+        {
+            Button[] NeedDisk =
+            {
+                closeDiskButton, deleteDiskButton, createDirectoryButton, createFileButton,
+                importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
+            };
+
+            if (Disks.Count > 0)
+            {
+                foreach (Button b in NeedDisk)
+                {
+                    b.Enabled = true;
+                }
+
+                exportButton.Enabled = _selection.Count != 0;
+                moveButton.Enabled = _selection.Count != 0;
+                copyButton.Enabled = _selection.Count != 0;
+                deleteButton.Enabled = _selection.Count != 0;
+
+                renameButton.Enabled = _selection.Count == 1;
+
+                pasteButton.Enabled = markedFiles != null;
+            }
+            else
+            {
+                foreach (Button b in NeedDisk)
+                {
+                    b.Enabled = false;
+                }
+            }
+        }
+
+        private void Navigate(string Path)
+        {
+
+        }
+
+        public void ReceiveListEntries(string path, string[] directories, string[] files)
+        {
+            if (path == this.Address)
+            {
+                mainListView.Items.Clear();
+                foreach (var directory in directories)
+                {
+                    var item = mainListView.Items.Add(directory, 0);
+                }
+
+                foreach (var file in files)
+                {
+                    var item = mainListView.Items.Add(file, 1);
+                }
+            }
+        }
+
+        public void ReceiveListDisks(string[] disks)
+        {
+            this.Disks = disks.ToList();
+        }
+
+
+        public void setStatus(string status)
+        {
+            statusBarText.Text = status;
+        }
+
+
+
+
+        private void _handleItemSelectionClick(object sender, ListViewItemSelectionChangedEventArgs e)
         {
             if (e.IsSelected)
             {
@@ -91,13 +171,13 @@ namespace VFS_GUI
             setButtonStates();
         }
 
-        private void handleItemDoubleClick(object sender, EventArgs e)
+        private void _handleItemDoubleClick(object sender, EventArgs e)
         {
             if (mainListView.SelectedItems.Count == 1)
             {
                 string testPath = Address + "/" + mainListView.SelectedItems[0].Text;
                 VfsEntry testEntry = VfsManager.GetEntry(testPath);
-                if ( testEntry != null && testEntry.IsDirectory)
+                if (testEntry != null && testEntry.IsDirectory)
                 {
                     Address = testPath;
                     addressTextBox.Text = Address;
@@ -109,7 +189,7 @@ namespace VFS_GUI
                         {
                             CurrentNode = CurrentNode.Nodes[i];
                         }
-                    } 
+                    }
                 }
 
                 UpdateExplorer();
@@ -177,63 +257,27 @@ namespace VFS_GUI
             }
         }
 
-
-        private void setButtonStates()
+        private void _handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            Button[] NeedDisk =
+            CurrentNode = e.Node;
+            Address = "/" + e.Node.FullPath;
+            addressTextBox.Text = Address;
+            Console.Command("cd " + Address);
+            
+            _selection.Clear();
+            UpdateExplorer();
+            setButtonStates();
+        }
+
+        private void addressTextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
             {
-                closeDiskButton, deleteDiskButton, createDirectoryButton, createFileButton,
-                importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
-            };
-
-            List<string> disks;
-            VfsManager.ListDisks(out disks);
-            // check over console.command("ldisks") whether there are some open disks.
-            // maybe not every time because this runs a lot (probably after each user action)
-            if (disks.Count > 0)//Console.Query("Are there some open disks?", "Yes", "No") == 0)
-            {
-                foreach (Button b in NeedDisk)
-                {
-                    b.Enabled = true;
-                }
-
-                exportButton.Enabled = _selection.Count != 0;
-                moveButton.Enabled = _selection.Count != 0;
-                copyButton.Enabled = _selection.Count != 0;
-                deleteButton.Enabled = _selection.Count != 0;
-
-                renameButton.Enabled = _selection.Count == 1;
-
-                pasteButton.Enabled = markedFiles != null;
-            }
-            else
-            {
-                foreach (Button b in NeedDisk)
-                {
-                    b.Enabled = false;
-                }
+                Navigate(this.addressTextBox.Text);
+                e.Handled = true;
             }
         }
 
-
-        public void SetContent(List<string> directories, List<string> files)
-        {
-            mainListView.Items.Clear();
-            foreach (var directory in directories)
-            {
-                var item = mainListView.Items.Add(directory, 0);
-            }
-
-            foreach (var file in files)
-            {
-                var item = mainListView.Items.Add(file, 1);
-            }
-        }
-
-        public void setStatus(string status)
-        {
-            statusBarText.Text = status;
-        }
 
         //---------------Buttons & Co.---------------
 
