@@ -11,7 +11,7 @@ namespace VFS_GUI
     /// <summary>
     /// This is the console which speaks to the VfsExplorer.
     /// </summary>
-    public class RemoteConsole : VfsConsole
+    public class RemoteConsole
     {
         private const string caption = "Virtual File System";
 
@@ -40,22 +40,42 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="info"></param>
-        public override void Message(string info)
+        public override void Message(string command, string info)
         {
-            // TODO: check if this is a result of ls
-            // Yes: explorer.Invoke(() => explorer.setContent(path, dirs, files));
-            // No: explorer.Invoke(() => statusBar.Text = info);
-            explorer.Invoke(new Action(() => explorer.setStatus(info)));
+            if (command.StartsWith("ls"))
+            {
+                string[] dirs, files;
+                var lines = info.Split('\n');
+                dirs = lines[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                files = lines[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                explorer.Invoke(new Action(() => explorer.ReceiveListEntries(command.Substring(3), dirs, files)));
+            }
+            else if (command.StartsWith("ldisks"))
+            {
+                string[] disks;
+                disks = info.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                explorer.Invoke(new Action(() => explorer.ReceiveListDisks(disks)));
+            }
+            else
+            {
+                explorer.Invoke(new Action(() => explorer.setStatus(info)));
+            }
         }
 
         /// <summary>
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="message"></param>
-        public override void ErrorMessage(string message)
+        public override void ErrorMessage(string command, string message)
         {
-            explorer.Invoke(new Action(() => 
-                MessageBox.Show(explorer, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error)));
+            explorer.Invoke(new Action(() =>
+            {
+                MessageBox.Show(explorer, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // TODO:
+                // navigate back if comm.startswith("ls") and explorer.address == comm.substring(3)
+                // => folder we're in was deleted.
+            }));
         }
 
         /// <summary>
@@ -68,11 +88,6 @@ namespace VFS_GUI
         {
             DialogResult res = MessageBox.Show(message, caption, System.Windows.Forms.MessageBoxButtons.YesNo);
             return res == DialogResult.Yes ? 0 : 1;
-        }
-
-        internal void setContent(List<string> dirs, List<string> files)
-        {
-            explorer.Invoke(new Action(() => explorer.SetContent(dirs, files)));
         }
     }
 }

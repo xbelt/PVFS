@@ -15,8 +15,8 @@ namespace VFS_GUI
         private RemoteConsole remote;
 
         private ConcurrentQueue<VfsTask> tasks;
-        private Thread workerThread;
         private string lastCommand;
+        private Thread workerThread;
 
         public LocalConsole(RemoteConsole remote)
         {
@@ -24,6 +24,7 @@ namespace VFS_GUI
             remote.setConsole(this);
 
             this.tasks = new ConcurrentQueue<VfsTask>();
+            this.lastCommand = "";
 
             this.workerThread = new Thread(new ThreadStart(this.workerThreadProcedure));
             this.workerThread.Name = "VFS Worker Thread";
@@ -40,6 +41,7 @@ namespace VFS_GUI
                     if (task.Command == "quit")
                         return;
 
+                    lastCommand = task.Command;
                     VfsManager.ExecuteCommand(task.Command);
                 }
             }
@@ -54,14 +56,15 @@ namespace VFS_GUI
                 int res = VfsManager.ListEntriesConcurrent(comm.Substring(3), out dirs, out files);
                 if (res == 1)
                 {
-                    this.ErrorMessage("Invalid path.");
+                    remote.ErrorMessage(comm, "Invalid path.");
                     return;
                 }
                 if (res == 0)
-                    remote.setContent(dirs, files);
+                {
+                    remote.Message(comm, dirs.Concat(" ") + "\n" + files.Concat(" "));
+                }
                 else
                 {
-                    remote.setContent(new List<string>() { "Loading..." }, new List<string>());
                     tasks.Enqueue(new VfsTask() { Command = comm });
                 }
             }
@@ -77,15 +80,12 @@ namespace VFS_GUI
 
         public override void ErrorMessage(string message)
         {
-            remote.ErrorMessage(message);
+            remote.ErrorMessage(lastCommand, message);
         }
 
         public override void Message(string info)
         {
-            // check if this is a result of ls
-            // Yes: explorer.Invoke(() => explorer.setContent(path, dirs, files));
-            // No: explorer.Invoke(() => statusBar.Text = info);
-            remote.Message(info);
+            remote.Message(lastCommand, info);
         }
 
         public override void Message(string info, ConsoleColor textCol)
@@ -95,7 +95,6 @@ namespace VFS_GUI
 
         public override int Query(string message, params string[] options)
         {
-            // show a popup query (maybe windows MessageBox?)
             return remote.Query(message, options);
         }
     }
