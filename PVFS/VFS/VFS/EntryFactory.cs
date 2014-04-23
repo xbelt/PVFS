@@ -58,7 +58,9 @@ namespace VFS.VFS
             if (name == null)
                 throw new ArgumentNullException("name");
             if (!VfsFile.ValidName(name))
-                throw new ArgumentException("Invalid filename.");
+            {
+                name = new String(name.Where(c => Char.IsLetterOrDigit(c) || c == '_' || c == '.').ToArray());
+            }
             if (size < 0)
                 throw new ArgumentException("Can't create files larger than 1 Gb.");
             if (parent == null)
