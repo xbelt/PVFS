@@ -24,6 +24,7 @@ namespace VFS_GUI
         /// </summary>
         private bool cut;
         private OpenFileDialog importOFD, diskOFD;
+        private FolderBrowserDialog folderBD;
         public TreeNode CurrentNode { get; set; }
 
 
@@ -44,6 +45,9 @@ namespace VFS_GUI
             importOFD = new OpenFileDialog();
             importOFD.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             importOFD.Multiselect = true;
+
+            folderBD = new FolderBrowserDialog();
+            folderBD.RootFolder = Environment.SpecialFolder.MyComputer;
 
             setButtonStates();
 
@@ -378,15 +382,14 @@ namespace VFS_GUI
 
             if (isd.ShowDialog() == DialogResult.OK)
             {
-                if (isd.fileselect)
+                if (isd.FileSelect)
                 {
-                    //TODO: whoops this doesn't work with directories and files with spaces in their name.
+                    //TODO: this doesn't work with files with spaces in their name.
                     if (importOFD.ShowDialog(this) == DialogResult.OK)
                     {
-
                         foreach (string fileName in importOFD.FileNames)
                         {
-                            string command = "im " + fileName + " " + Address;
+                            string command = "im " + fileName + " " + Address + " ";
                             Console.Command(command);
                         }
                     }
@@ -394,11 +397,13 @@ namespace VFS_GUI
                 else
                 {
                     //folder...
+                     if (folderBD.ShowDialog(this) == DialogResult.OK)
+                     {
+                         string command = "im " + folderBD.SelectedPath + " " + Address;
+                         Console.Command(command);
+                     }
                 }
-
             }
-
-
         }
 
         private void exportButton_Click(object sender, EventArgs e)
@@ -458,7 +463,7 @@ namespace VFS_GUI
             {
                 foreach (string file in markedFiles)
                 {
-                    string command = "mv " + file + " " + Address;
+                    string command = "mv " + file + " " + Address + " ";
 
                     Console.Command(command);
                 }
@@ -468,7 +473,7 @@ namespace VFS_GUI
             {
                 foreach (string file in markedFiles)
                 {
-                    string command = "cp " + file + " " + Address;
+                    string command = "cp " + file + " " + Address + " ";
                     Console.Command(command);
                 }
                 // not clearing markedfiles = paste multiple copies.
@@ -484,7 +489,7 @@ namespace VFS_GUI
 
             foreach (string s in _selection)
             {
-                command += "rm " + _selection[0];
+                command += "rm " + _selection[0] + " ";
             }
             Console.Command(command);
         }
