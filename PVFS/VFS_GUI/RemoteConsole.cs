@@ -31,7 +31,7 @@ namespace VFS_GUI
         /// Sends the command to the LocalConsole.
         /// </summary>
         /// <param name="comm"></param>
-        public override void Command(string comm)
+        public void Command(string comm)
         {
             local.Command(comm);
         }
@@ -40,7 +40,7 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="info"></param>
-        public override void Message(string command, string info)
+        public void Message(string command, string info)
         {
             if (command.StartsWith("ls"))
             {
@@ -67,15 +67,19 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="message"></param>
-        public override void ErrorMessage(string command, string message)
+        public void ErrorMessage(string command, string message)
         {
-            explorer.Invoke(new Action(() =>
+            if (command.StartsWith("ls"))
             {
-                MessageBox.Show(explorer, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                // TODO:
-                // navigate back if comm.startswith("ls") and explorer.address == comm.substring(3)
-                // => folder we're in was deleted.
-            }));
+                explorer.Invoke(new Action(() => explorer.ReceivedInvalidDirectory(command.Substring(3))));
+            }
+            else
+            {
+                explorer.Invoke(new Action(() =>
+                {
+                    MessageBox.Show(explorer, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }));
+            }
         }
 
         /// <summary>
@@ -84,7 +88,7 @@ namespace VFS_GUI
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public override int Query(string message, params string[] options)
+        public int Query(string message, params string[] options)
         {
             DialogResult res = MessageBox.Show(message, caption, System.Windows.Forms.MessageBoxButtons.YesNo);
             return res == DialogResult.Yes ? 0 : 1;
