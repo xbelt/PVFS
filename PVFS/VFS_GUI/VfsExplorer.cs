@@ -499,15 +499,27 @@ namespace VFS_GUI
             Console.Command("quit");
         }
 
+        //TODO: what's the use of this?
         private void addressTextBox_TextChanged(object sender, EventArgs e)
         {
-            KeyEventArgs a = (KeyEventArgs) e;
-            if (a.KeyCode == Keys.Enter)
+
+        }
+
+        private void addressTextBox_EnterUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) //Notice: removing this 'if' will lead to instant navigation (which is pretty cool imo)
             {
-                //TODO: navigate to address entered (if it exists)
-                //Console.Command()
+                string command = "cd " + this.addressTextBox.Text;
+                //TODO: somehow work around this without using VfsManager directly.
+                VfsEntry toGo = VfsManager.GetEntry(this.addressTextBox.Text);
+                if (toGo != null && toGo.IsDirectory)
+                {
+                    Console.Command(command);
+                    Address = this.addressTextBox.Text;
+                    UpdateExplorer();
+                } 
             }
-       }
+        }
 
     }
 }

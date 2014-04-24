@@ -342,6 +342,7 @@
             this.addressTextBox.TabIndex = 0;
             this.addressTextBox.Text = "/";
             this.addressTextBox.TextChanged += new System.EventHandler(this.addressTextBox_TextChanged);
+            this.addressTextBox.KeyUp += this.addressTextBox_EnterUp;
             // 
             // statusBar
             // 
