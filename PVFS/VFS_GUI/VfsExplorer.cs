@@ -146,7 +146,7 @@ namespace VFS_GUI
         }
 
         /// <summary>
-        /// TODO
+        /// TODO: update the tree.
         /// </summary>
         public void UpdateExplorer()
         {
@@ -166,11 +166,10 @@ namespace VFS_GUI
         {
             for (int i = 0; i < e.Node.Nodes.Count; i++)
             {
-                List<string> dirs;
-                List<string> files;
-
-                VfsManager.ListEntries("/" + e.Node.Nodes[i].FullPath, out dirs, out files);
-
+                //TODO: avoid use of manager.
+                VfsDirectory mainDir = (VfsDirectory) VfsManager.GetEntry("/" + e.Node.Nodes[i].FullPath);
+                List<string> dirs = mainDir.GetDirectories.Select(dir => dir.Name).ToList();
+                
                 foreach (var dir in dirs)
                 {
                     e.Node.Nodes[i].Nodes.Add(dir);
