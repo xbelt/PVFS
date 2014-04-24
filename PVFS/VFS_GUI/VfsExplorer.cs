@@ -115,21 +115,33 @@ namespace VFS_GUI
                 UpdateExplorer();
             }
         }
-
+       
+        /// <summary>
+        /// Navigates to specified path (if it exists)
+        /// Updates Explorer and Address
+        /// </summary>
+        /// <param name="Path">The absolute path we want to go to.</param>
         private void Navigate(string Path)
         {
-
+            //TODO: work around the manager.
+            VfsEntry toGo = VfsManager.GetEntry(Path);
+            if (toGo != null && toGo.IsDirectory)
+            {
+                string command = "cd " + Path;
+                Address = Path;
+                Console.Command(command);
+                UpdateExplorer(); 
+            }
         }
 
         private void handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             CurrentNode = e.Node;
-            Address = "/" + e.Node.FullPath;
-            addressTextBox.Text = Address;
-            Console.Command("cd " + Address);
+            string path= "/" + e.Node.FullPath;
+            addressTextBox.Text = path;
+            Navigate(path);
             
             _selection.Clear();
-            UpdateExplorer();
             setButtonStates();
         }
 
@@ -509,14 +521,12 @@ namespace VFS_GUI
         {
             if (e.KeyCode == Keys.Enter) //Notice: removing this 'if' will lead to instant navigation (which is pretty cool imo)
             {
-                string command = "cd " + this.addressTextBox.Text;
                 //TODO: somehow work around this without using VfsManager directly.
                 VfsEntry toGo = VfsManager.GetEntry(this.addressTextBox.Text);
                 if (toGo != null && toGo.IsDirectory)
                 {
-                    Console.Command(command);
-                    Address = this.addressTextBox.Text;
-                    UpdateExplorer();
+                    string path = this.addressTextBox.Text;
+                    Navigate(path);
                 } 
             }
         }
