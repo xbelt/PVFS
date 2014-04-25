@@ -208,12 +208,12 @@ namespace VFS.VFS.Models
         public void UpdateFileHeader()
         {
             var writer = Disk.GetWriter;
-            // Write File Header
+            // Write File/Directory Header
             writer.Seek(Disk, Address);
             writer.Write(NextBlock);
             writer.Write(FileSize);
             writer.Write(NoBlocks);
-            writer.Write(false);
+            writer.Write(IsDirectory);
             writer.Write(Parent.Address);
             writer.Write((byte)Name.Length);
             writer.Write(Name.ToCharArray());
