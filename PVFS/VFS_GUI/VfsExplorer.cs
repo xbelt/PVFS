@@ -439,10 +439,7 @@ namespace VFS_GUI
             }
             Console.Command("udisk " + diskName);
 
-            if (this.Address.StartsWith("/" + diskName + "/") || this.Address == "/" + diskName)
-                Navigate("/");
-
-            UpdateExplorer(true);
+            Navigate("/");
         }
 
         private void deleteDiskButton_Click(object sender, EventArgs e)
@@ -461,7 +458,7 @@ namespace VFS_GUI
             {
                 Console.Command("rmdisk " + diskName);
 
-                UpdateExplorer(true);
+                Navigate("/");
             }
         }
         
