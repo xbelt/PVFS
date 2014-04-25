@@ -69,17 +69,7 @@ namespace VFS_GUI
         /// <param name="message"></param>
         public virtual void ErrorMessage(string command, string message)
         {
-            if (command.StartsWith("ls"))
-            {
-                explorer.Invoke(new Action(() => explorer.ReceivedInvalidDirectory(command.Substring(3))));
-            }
-            else
-            {
-                explorer.Invoke(new Action(() =>
-                {
-                    MessageBox.Show(explorer, message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }));
-            }
+            explorer.Invoke(new Action(() => explorer.ReceivedError(command, message)));
         }
 
         /// <summary>

@@ -208,14 +208,24 @@ namespace VFS_GUI
             setButtonStates();
         }
 
-        public void ReceivedInvalidDirectory(string path)
+        public void ReceivedError(string command, string message)
         {
-            if (path == this.Address)
+            if (command.StartsWith("ls"))
             {
-                string newpath = path.Remove(path.LastIndexOf('/'));
-                if (newpath == "")
-                    newpath = "/";
-                Navigate(newpath);
+                var path = command.Substring(3);
+                if (path == this.Address)
+                {
+                    string newpath = path.Remove(path.LastIndexOf('/'));
+                    if (newpath == "")
+                        newpath = "/";
+                    Navigate(newpath);
+                }
+            }
+            else
+            {
+                UpdateExplorer(false);
+
+                MessageBox.Show(this, message, Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -227,8 +237,7 @@ namespace VFS_GUI
                 "im",
                 "rn",
                 "mv",
-                "cp",
-                "rm"
+                "cp"
             };
 
             foreach (string s in updateCommands)
@@ -606,7 +615,14 @@ namespace VFS_GUI
                     string command = "mv " + file + " " + Address + " ";
 
                     Console.Command(command);
+
+                    TreeNode last;
+                    string[] names;
+                    TreeNode node = getNode(file, out last, out names);
+                    if (node != null)
+                        node.Remove();
                 }
+
                 markedFiles = null;
             }
             else
@@ -632,6 +648,16 @@ namespace VFS_GUI
                 command += "rm " + s + " ";
             }
             Console.Command(command);
+
+            TreeNode last;
+            string[] names;
+            TreeNode currentNode = getNode(this.Address, out last, out names);
+            foreach (string name in selectedNames)
+            {
+                this.mainListView.Items.RemoveByKey(name);
+                if (currentNode != null && currentNode.Nodes.ContainsKey(name))
+                    currentNode.Nodes.RemoveByKey(name);
+            }
         }
 
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
