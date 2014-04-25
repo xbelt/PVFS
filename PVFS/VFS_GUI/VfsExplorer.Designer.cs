@@ -95,7 +95,7 @@
             this.deleteButton.Margin = new System.Windows.Forms.Padding(0);
             this.deleteButton.Name = "deleteButton";
             this.deleteButton.Size = new System.Drawing.Size(47, 45);
-            this.deleteButton.TabIndex = 11;
+            this.deleteButton.TabIndex = 12;
             this.deleteButton.UseVisualStyleBackColor = true;
             this.deleteButton.Click += new System.EventHandler(this.deleteButton_Click);
             // 
@@ -117,7 +117,7 @@
             this.moveButton.Margin = new System.Windows.Forms.Padding(0);
             this.moveButton.Name = "moveButton";
             this.moveButton.Size = new System.Drawing.Size(47, 45);
-            this.moveButton.TabIndex = 10;
+            this.moveButton.TabIndex = 9;
             this.moveButton.UseVisualStyleBackColor = true;
             this.moveButton.Click += new System.EventHandler(this.moveButton_Click);
             // 
@@ -128,7 +128,7 @@
             this.copyButton.Margin = new System.Windows.Forms.Padding(0);
             this.copyButton.Name = "copyButton";
             this.copyButton.Size = new System.Drawing.Size(47, 45);
-            this.copyButton.TabIndex = 8;
+            this.copyButton.TabIndex = 10;
             this.copyButton.UseVisualStyleBackColor = true;
             this.copyButton.Click += new System.EventHandler(this.copyButton_Click);
             // 
@@ -139,7 +139,7 @@
             this.renameButton.Margin = new System.Windows.Forms.Padding(0);
             this.renameButton.Name = "renameButton";
             this.renameButton.Size = new System.Drawing.Size(47, 45);
-            this.renameButton.TabIndex = 9;
+            this.renameButton.TabIndex = 8;
             this.renameButton.UseVisualStyleBackColor = true;
             this.renameButton.Click += new System.EventHandler(this.renameButton_Click);
             // 
@@ -161,7 +161,7 @@
             this.createFileButton.Margin = new System.Windows.Forms.Padding(0);
             this.createFileButton.Name = "createFileButton";
             this.createFileButton.Size = new System.Drawing.Size(47, 45);
-            this.createFileButton.TabIndex = 6;
+            this.createFileButton.TabIndex = 5;
             this.createFileButton.UseVisualStyleBackColor = true;
             this.createFileButton.Click += new System.EventHandler(this.createFileButton_Click);
             // 
@@ -172,7 +172,7 @@
             this.importButton.Margin = new System.Windows.Forms.Padding(0);
             this.importButton.Name = "importButton";
             this.importButton.Size = new System.Drawing.Size(47, 45);
-            this.importButton.TabIndex = 5;
+            this.importButton.TabIndex = 6;
             this.importButton.UseVisualStyleBackColor = true;
             this.importButton.Click += new System.EventHandler(this.importButton_Click);
             // 
@@ -285,9 +285,9 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(529, 252);
+            this.mainListView.Size = new System.Drawing.Size(530, 252);
             this.mainListView.SmallImageList = this.smallImageList;
-            this.mainListView.TabIndex = 1;
+            this.mainListView.TabIndex = 0;
             this.mainListView.UseCompatibleStateImageBehavior = false;
             this.mainListView.View = System.Windows.Forms.View.SmallIcon;
             this.mainListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.mainListView_ItemSelectionChanged);
@@ -312,7 +312,7 @@
             this.addressPanel.Margin = new System.Windows.Forms.Padding(2);
             this.addressPanel.Name = "addressPanel";
             this.addressPanel.Size = new System.Drawing.Size(524, 26);
-            this.addressPanel.TabIndex = 0;
+            this.addressPanel.TabIndex = 1;
             // 
             // searchTextBox
             // 
@@ -324,6 +324,7 @@
             this.searchTextBox.Size = new System.Drawing.Size(131, 20);
             this.searchTextBox.TabIndex = 1;
             this.searchTextBox.Text = "Search";
+            this.searchTextBox.Click += new System.EventHandler(this.searchTextBox_Click);
             // 
             // searchButton
             // 
@@ -335,6 +336,7 @@
             this.searchButton.Size = new System.Drawing.Size(23, 22);
             this.searchButton.TabIndex = 2;
             this.searchButton.UseVisualStyleBackColor = true;
+            this.searchButton.Click += new System.EventHandler(this.searchButton_Click);
             // 
             // addressTextBox
             // 
@@ -358,7 +360,7 @@
             this.statusBar.Name = "statusBar";
             this.statusBar.Padding = new System.Windows.Forms.Padding(1, 0, 9, 0);
             this.statusBar.Size = new System.Drawing.Size(711, 22);
-            this.statusBar.TabIndex = 2;
+            this.statusBar.TabIndex = 1;
             this.statusBar.Text = "Hello World";
             // 
             // statusBarText

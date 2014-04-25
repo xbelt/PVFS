@@ -86,7 +86,8 @@ namespace VFS_GUI
             toolTips.SetToolTip(deleteButton, "Delete an entry");
             #endregion
         }
-        
+
+        //---------------Set Content---------------
 
         public void UpdateExplorer(bool disks)
         {
@@ -642,6 +643,21 @@ namespace VFS_GUI
                 string command = "im " + fileName + " " + Address + " ";
                 Console.Command(command);
             }
+        }
+
+        //---------------Search---------------
+
+        private void searchTextBox_Click(object sender, EventArgs e)
+        {
+            this.searchTextBox.SelectAll();
+        }
+
+        private void searchButton_Click(object sender, EventArgs e)
+        {
+            PVFS.Search.Index i = new PVFS.Search.Index();
+            i.Search(this.searchTextBox.Text);
+
+            //TODO search!
         }
     }
 }
