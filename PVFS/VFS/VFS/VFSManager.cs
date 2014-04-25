@@ -1399,7 +1399,7 @@ unloaddisk Name
 removedisk Name
 listdisks [-p SysPath]
 
-ls [-p Path, -f Files, -d Directories]
+ls [Path] [-f Files, -d Directories]
 cd Path
 mkdir Path
 mk Path
