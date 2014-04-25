@@ -27,7 +27,7 @@ compileUnit
 	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir
 	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
 	| ('remove' | 'rm') (trgt=Path | id=Identifier) compileUnit												#Rm
-	| ('rename' | 'rn') src=Identifier dst=Identifier compileUnit											#Rn
+	| ('rename' | 'rn') (id=Identifier | path=Path) dst=Identifier compileUnit											#Rn
 	| ('move' | 'mv') src=(Path | Identifier) dst=(Path | Identifier) compileUnit							#Mv
 	| ('copy' | 'cp') src=(Path | Identifier) dst=(Path | Identifier) compileUnit							#Cp
 	| ('import' | 'im') ext=SysPath inte=(Path | Identifier) compileUnit									#Im

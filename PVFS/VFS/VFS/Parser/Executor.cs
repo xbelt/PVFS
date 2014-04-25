@@ -267,9 +267,14 @@ namespace VFS.VFS.Parser
 
         public override void EnterRn(ShellParser.RnContext context)
         {
-            if (context == null)
+            if (context == null || context.dst == null)
                 return;
-            VfsManager.Rename(VfsManager.GetAbsolutePath(context.src.Text), context.dst.Text);
+            if (context.id == null && context.path == null)
+                return;
+            if (context.id != null)
+                VfsManager.Rename(context.id.Text, context.dst.Text);
+            else
+                VfsManager.Rename(context.path.Text, context.dst.Text);
         }
 
         public override void EnterMv(ShellParser.MvContext context)
