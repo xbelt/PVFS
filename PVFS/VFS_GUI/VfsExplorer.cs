@@ -97,39 +97,6 @@ namespace VFS_GUI
                 Console.Command("ls " + this.Address);
         }
 
-        private void setButtonStates()
-        {
-            Button[] NeedDisk =
-            {
-                closeDiskButton, deleteDiskButton, createDirectoryButton, createFileButton,
-                importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
-            };
-
-            if (Disks.Count > 0 && Address != "/")
-            {
-                foreach (Button b in NeedDisk)
-                {
-                    b.Enabled = true;
-                }
-
-                exportButton.Enabled = selectedNames.Length != 0;
-                moveButton.Enabled = selectedNames.Length != 0;
-                copyButton.Enabled = selectedNames.Length != 0;
-                deleteButton.Enabled = selectedNames.Length != 0;
-
-                renameButton.Enabled = selectedNames.Length == 1;
-
-                pasteButton.Enabled = markedFiles != null;
-            }
-            else
-            {
-                foreach (Button b in NeedDisk)
-                {
-                    b.Enabled = false;
-                }
-            }
-        }
-
         private void Navigate(string path)
         {
             if (!path.StartsWith("/")) return;
@@ -251,9 +218,61 @@ namespace VFS_GUI
             }
         }
 
-        public void setStatus(string status)
+        public void SetStatus(string comm, string status)
         {
+            string[] updateCommands = new string[] {
+                "mkdir",
+                "mk",
+                "im",
+                "rn",
+                "mv",
+                "cp",
+                "rm"
+            };
+
+            foreach (string s in updateCommands)
+            {
+                if (comm.StartsWith(s))
+                {
+                    UpdateExplorer(false);
+                    break;
+                }
+            }
+
             statusBarText.Text = status;
+        }
+
+        private void setButtonStates()
+        {
+            Button[] NeedDisk =
+            {
+                closeDiskButton, deleteDiskButton, createDirectoryButton, createFileButton,
+                importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
+            };
+
+            if (Disks.Count > 0 && Address != "/")
+            {
+                foreach (Button b in NeedDisk)
+                {
+                    b.Enabled = true;
+                }
+
+                exportButton.Enabled = selectedNames.Length != 0;
+                moveButton.Enabled = selectedNames.Length != 0;
+                copyButton.Enabled = selectedNames.Length != 0;
+                deleteButton.Enabled = selectedNames.Length != 0;
+
+                renameButton.Enabled = selectedNames.Length == 1;
+
+                pasteButton.Enabled = markedFiles != null;
+            }
+            else
+            {
+                foreach (Button b in NeedDisk)
+                {
+                    b.Enabled = false;
+                }
+            }
         }
 
         private string getPath(TreeNode node)
@@ -420,6 +439,9 @@ namespace VFS_GUI
             }
             Console.Command("udisk " + diskName);
 
+            if (this.Address.StartsWith("/" + diskName + "/") || this.Address == "/" + diskName)
+                Navigate("/");
+
             UpdateExplorer(true);
         }
 
@@ -452,11 +474,16 @@ namespace VFS_GUI
                 string command = "mkdir " + Address + "/" + window.Result;
                 Console.Command(command);
 
-                UpdateExplorer(false);
-
-                // TODO: create a temp?
                 if (!this.mainListView.Items.ContainsKey(window.Result))
+                {
                     this.mainListView.Items.Add(window.Result, window.Result, 0);
+
+                    TreeNode last;
+                    string[] names;
+                    TreeNode node = getNode(this.Address, out last, out names);
+                    if (node != null)
+                        node.Nodes.Add(window.Result, window.Result);
+                }
             }
         }
 
@@ -469,8 +496,6 @@ namespace VFS_GUI
                 string command = "mk " + Address + "/" + window.Result;
 
                 Console.Command(command);
-
-                UpdateExplorer(false);
 
                 if (!this.mainListView.Items.ContainsKey(window.Result))
                     this.mainListView.Items.Add(window.Result, window.Result, 1);
@@ -504,8 +529,6 @@ namespace VFS_GUI
                          Console.Command(command);
                      }
                 }
-
-                UpdateExplorer(false);
             }
         }
 
@@ -533,8 +556,6 @@ namespace VFS_GUI
                 string command = "rn " + selectedPaths[0] + " " + window.Result;
 
                 Console.Command(command);
-
-                UpdateExplorer(false);
 
                 var el = this.mainListView.SelectedItems[0];
                 this.mainListView.Items.Remove(el);
@@ -585,8 +606,6 @@ namespace VFS_GUI
                 }
                 // not clearing markedfiles = paste multiple copies.
             }
-
-            UpdateExplorer(false);
         }
         
         private void deleteButton_Click(object sender, EventArgs e)
@@ -601,8 +620,6 @@ namespace VFS_GUI
                 command += "rm " + s + " ";
             }
             Console.Command(command);
-
-            UpdateExplorer(false);
         }
 
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)

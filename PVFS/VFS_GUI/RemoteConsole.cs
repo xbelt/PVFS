@@ -59,7 +59,7 @@ namespace VFS_GUI
             }
             else
             {
-                explorer.Invoke(new Action(() => explorer.setStatus(info)));
+                explorer.Invoke(new Action(() => explorer.SetStatus(command, info)));
             }
         }
 
