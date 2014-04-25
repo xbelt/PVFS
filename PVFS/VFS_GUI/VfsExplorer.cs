@@ -63,7 +63,7 @@ namespace VFS_GUI
             importOFD.Multiselect = true;
 
             folderBD = new FolderBrowserDialog();
-            folderBD.RootFolder = Environment.SpecialFolder.MyComputer;
+            folderBD.RootFolder = Environment.SpecialFolder.Desktop;
 
             setButtonStates();
 

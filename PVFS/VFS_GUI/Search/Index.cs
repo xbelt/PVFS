@@ -52,7 +52,10 @@ namespace PVFS.Search
         /// <returns>Returns a list of paths to files containing the keywords.</returns>
         public List<string> Search(string name)
         {
-            return wordIndex[name].Select(file => this.files[file]).ToList();
+            if (wordIndex.ContainsKey(name))
+                return wordIndex[name].Select(file => this.files[file]).ToList();
+            else
+                return new List<string>();
         }
 
         /// <summary>
