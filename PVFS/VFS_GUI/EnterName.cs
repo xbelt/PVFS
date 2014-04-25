@@ -14,6 +14,12 @@ namespace VFS_GUI
 
         private void okButton_Click(object sender, EventArgs e)
         {
+            if (!VFS.VFS.Models.VfsFile.ValidName(nameTextBox.Text))
+            {
+                MessageBox.Show("Allowed characters: A-Z a-z 0-9 . _");
+                return;
+            }
+
             Result = nameTextBox.Text;
             this.DialogResult = DialogResult.OK;
             Close();
