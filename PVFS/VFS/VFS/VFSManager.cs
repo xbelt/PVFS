@@ -740,7 +740,7 @@ namespace VFS.VFS
                 src.UpdateFileHeader();
             }
 
-            Console.Message("Moved  " + srcPath + " to " + dstPath + ".");
+            Console.Message("Moved " + srcPath + " to " + dstPath + ".");
         }
         
         /// <summary>
