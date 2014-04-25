@@ -722,10 +722,13 @@ namespace VFS.VFS
                 }
                 string tmp = GetTempFilePath();
 
+                Directory.CreateDirectory(tmp);
+
                 Export(srcPath, tmp);
-                Import(tmp, dstPath);
+                Import(tmp + "\\" + src.Name, dstPath);
                 Remove(srcPath);
-                File.Delete(tmp);
+
+                Directory.Delete(tmp, true);
             }
             else
             {
@@ -837,18 +840,30 @@ namespace VFS.VFS
                 }
             }
             VfsDirectory dst = (VfsDirectory)dstEntry;
-            if (((VfsFile) srcEntry).Disk != dst.Disk)
+            if (((VfsFile)srcEntry).Disk != dst.Disk)
             {
-                Console.ErrorMessage("Can't copy to another disk.");
-                return;
-            }
+                if (dst.SpaceIndicator(1) + VfsFile.GetNoBlocks(dst.Disk, ((VfsFile)srcEntry).FileSize) > dst.Disk.GetFreeBlocks)
+                {
+                    Console.ErrorMessage("The disk has not enough space to move this file.");
+                    return;
+                }
+                string tmp = GetTempFilePath();
 
-            if (!CopyHelper(srcEntry, dst, ((VfsFile)srcEntry).Parent == dst))
+                Directory.CreateDirectory(tmp);
+
+                Export(srcPath, tmp);
+                Import(tmp + "\\" + srcEntry.Name, dstPath);
+
+                Directory.Delete(tmp, true);
+            }
+            else
             {
-                Console.ErrorMessage("Copying was canceled due to a invalid file or directory name or not enough space on the disk.");
-                return;
+                if (!CopyHelper(srcEntry, dst, ((VfsFile)srcEntry).Parent == dst))
+                {
+                    Console.ErrorMessage("Copying was canceled due to a invalid file or directory name or not enough space on the disk.");
+                    return;
+                }
             }
-
             Console.Message("Copied " + srcPath + " to " + dstPath + ".");
         }
 
