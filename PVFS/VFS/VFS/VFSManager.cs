@@ -839,7 +839,7 @@ namespace VFS.VFS
             VfsDirectory dst = (VfsDirectory)dstEntry;
             if (((VfsFile) srcEntry).Disk != dst.Disk)
             {
-                Console.ErrorMessage("Can't copy to anothe disk.");
+                Console.ErrorMessage("Can't copy to another disk.");
                 return;
             }
 
