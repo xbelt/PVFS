@@ -486,31 +486,7 @@ namespace VFS.VFS
         /// <param name="dirs">Display directories.</param>
         public static void ListEntries(string path, bool files, bool dirs)
         {
-            List<string> fileList;
-            List<string> dirList;
-            
-            ListEntries(path, out fileList, out dirList);
-
-            string output = "";
-
-
-
-            if (dirs)
-                output += dirList.Concat(" ");
-            if (dirs && files)
-                output += "\n";
-            if (files)
-                output += fileList.Concat(" ");
-
-            Console.Message(output);
-        }
-
-        private static void ListEntries(string path, out List<string> dirs, out List<string> files)
-        {
-            files = new List<string>();
-            dirs = new List<string>();
-            var diskName = CurrentDisk.DiskProperties.Name;
-            if (path == null) path = "/" + diskName;
+            if (path == null) throw new ArgumentNullException("path");
 
             if (Disks.Count == 0)
             {
@@ -534,8 +510,21 @@ namespace VFS.VFS
 
             VfsDirectory dir = (VfsDirectory)entry;
 
-            dirs = dir.GetDirectories.Select(x => x.Name).ToList();
-            files = dir.GetFiles.Select(x => x.Name).ToList();
+            var dirList = dir.GetDirectories.Select(x => x.Name).ToList();
+            var fileList = dir.GetFiles.Select(x => x.Name).ToList();
+
+            string output = "";
+
+
+
+            if (dirs)
+                output += dirList.Concat(" ");
+            if (dirs && files)
+                output += "\n";
+            if (files)
+                output += fileList.Concat(" ");
+
+            Console.Message(output);
         }
         
         /// <summary>
