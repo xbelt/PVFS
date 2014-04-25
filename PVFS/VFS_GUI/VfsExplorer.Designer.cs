@@ -285,7 +285,7 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(530, 252);
+            this.mainListView.Size = new System.Drawing.Size(531, 252);
             this.mainListView.SmallImageList = this.smallImageList;
             this.mainListView.TabIndex = 0;
             this.mainListView.UseCompatibleStateImageBehavior = false;
@@ -301,6 +301,7 @@
             this.smallImageList.TransparentColor = System.Drawing.Color.Transparent;
             this.smallImageList.Images.SetKeyName(0, "Folder.png");
             this.smallImageList.Images.SetKeyName(1, "File.png");
+            this.smallImageList.Images.SetKeyName(2, "Disk.png");
             // 
             // addressPanel
             // 

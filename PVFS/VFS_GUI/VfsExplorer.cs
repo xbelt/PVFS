@@ -569,6 +569,8 @@ namespace VFS_GUI
             cut = true;
             markedFiles = new List<string>(selectedPaths);
             this.mainListView.SelectedIndices.Clear();
+
+            setButtonStates();
         }
 
         private void copyButton_Click(object sender, EventArgs e)
@@ -578,6 +580,8 @@ namespace VFS_GUI
 
             cut = false;
             markedFiles = new List<string>(this.selectedPaths);
+
+            setButtonStates();
         }
 
         private void pasteButton_Click(object sender, EventArgs e)
