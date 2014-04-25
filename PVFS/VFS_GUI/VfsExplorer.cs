@@ -9,11 +9,23 @@ namespace VFS_GUI
 {
     public partial class VfsExplorer : Form
     {
+        public const string Caption = "Virtual File System";
+
         public static RemoteConsole Console { get; private set; }
         private string Address { get; set; }
         private List<string> Disks { get; set; }
 
-        private readonly List<string> _selection;
+        private string[] selectedNames;
+        private List<string> selectedPaths
+        {
+            get
+            {
+                if (this.Address == "/")
+                    return new List<string>();
+                else
+                    return selectedNames.Select(n => this.Address + "/" + n).ToList();
+            }
+        }
 
         /// <summary>
         /// Store files here when copy or cut are pressed.
@@ -26,7 +38,8 @@ namespace VFS_GUI
         private bool cut;
         private OpenFileDialog importOFD, diskOFD;
         private FolderBrowserDialog folderBD;
-        public TreeNode CurrentNode { get; set; }
+
+        private Object LoadedObject = new Object();
 
 
         public VfsExplorer()
@@ -34,7 +47,9 @@ namespace VFS_GUI
             Console = new RemoteConsole(this);
             VfsManager.Console = new LocalConsole(Console);
 
-            _selection = new List<string>();
+            this.Address = "/";
+            this.Disks = new List<string>();
+            this.selectedNames = new string[0];
 
             InitializeComponent();
 
@@ -51,12 +66,6 @@ namespace VFS_GUI
             folderBD.RootFolder = Environment.SpecialFolder.MyComputer;
 
             setButtonStates();
-
-            mainTreeView.AfterExpand += handleTreeViewExpand;
-            mainTreeView.NodeMouseClick += handleTreeViewMouseClick;
-
-            mainListView.DoubleClick += handleItemDoubleClick;
-            mainListView.ItemSelectionChanged += handleItemSelectionClick;
 
             #region Tooltips
             var toolTips = new ToolTip {AutoPopDelay = 5000, InitialDelay = 500, ReshowDelay = 500, ShowAlways = true};
@@ -78,12 +87,14 @@ namespace VFS_GUI
             #endregion
         }
         
-        /// <summary>
-        /// TODO
-        /// </summary>
-        public void UpdateExplorer()
-        {
 
+        public void UpdateExplorer(bool disks)
+        {
+            if (disks)
+                Console.Command("ldisks");
+
+            if (this.Address != "/")
+                Console.Command("ls " + this.Address);
         }
 
         private void setButtonStates()
@@ -94,19 +105,19 @@ namespace VFS_GUI
                 importButton, exportButton, renameButton, moveButton, copyButton, pasteButton, deleteButton
             };
 
-            if (Disks.Count > 0)
+            if (Disks.Count > 0 && Address != "/")
             {
                 foreach (Button b in NeedDisk)
                 {
                     b.Enabled = true;
                 }
 
-                exportButton.Enabled = _selection.Count != 0;
-                moveButton.Enabled = _selection.Count != 0;
-                copyButton.Enabled = _selection.Count != 0;
-                deleteButton.Enabled = _selection.Count != 0;
+                exportButton.Enabled = selectedNames.Length != 0;
+                moveButton.Enabled = selectedNames.Length != 0;
+                copyButton.Enabled = selectedNames.Length != 0;
+                deleteButton.Enabled = selectedNames.Length != 0;
 
-                renameButton.Enabled = _selection.Count == 1;
+                renameButton.Enabled = selectedNames.Length == 1;
 
                 pasteButton.Enabled = markedFiles != null;
             }
@@ -119,155 +130,186 @@ namespace VFS_GUI
             }
         }
 
-        private void Navigate(string Path)
+        private void Navigate(string path)
         {
+            if (!path.StartsWith("/")) return;
 
+            if (path != this.Address)
+            {
+                this.mainListView.SelectedIndices.Clear();
+            }
+
+            this.Address = path;
+
+            this.addressTextBox.Text = path;
+
+            this.mainListView.Enabled = false;
+
+            this.UpdateExplorer(path == "/");
         }
 
         public void ReceiveListEntries(string path, string[] directories, string[] files)
         {
             if (path == this.Address)
             {
+                this.mainListView.Enabled = true;
+                this.mainListView.MultiSelect = true;
+
+                List<string> sel = this.selectedNames.ToList();
+
                 mainListView.Items.Clear();
                 foreach (var directory in directories)
                 {
-                    var item = mainListView.Items.Add(directory, 0);
+                    mainListView.Items.Add(directory, directory, 0);
                 }
 
                 foreach (var file in files)
                 {
-                    var item = mainListView.Items.Add(file, 1);
+                    mainListView.Items.Add(file, file, 1);
                 }
+
+                // Restore Selection
+                mainListView.SelectedIndices.Clear();
+                foreach (string name in sel)
+                {
+                    if (mainListView.Items.ContainsKey(name))
+                        mainListView.SelectedIndices.Add(mainListView.Items.IndexOfKey(name));
+                }
+
+                setButtonStates();
             }
+
+            #region Update Tree
+            string[] names;
+            TreeNode last;
+            TreeNode node = getNode(path, out last, out names);
+
+            if (node == null)
+            {
+                int i = 0;
+                if (last == null)
+                {
+                    last = this.mainTreeView.Nodes.Add(names[0], names[0]);
+                    i++;
+                }
+
+                for (; i < names.Length; i++)
+                {
+                    last = last.Nodes.Add(names[i], names[i]);
+                }
+
+                node = last;
+            }
+
+            node.Tag = LoadedObject;
+            treeSync(node.Nodes, directories);
+            node.Expand();
+            mainTreeView.SelectedNode = node;
+            #endregion
         }
 
         public void ReceiveListDisks(string[] disks)
         {
             this.Disks = disks.ToList();
+
+            treeSync(this.mainTreeView.Nodes, disks);
+
+            if (this.Address == "/")
+            {
+                this.mainListView.Enabled = true;
+                this.mainListView.MultiSelect = false;
+
+                List<string> sel = this.selectedNames.ToList();
+
+                mainListView.Items.Clear();
+                foreach (var disk in disks)
+                {
+                    mainListView.Items.Add(disk, disk, 2);
+                }
+
+                // Restore Selection
+                mainListView.SelectedIndices.Clear();
+                foreach (string name in sel)
+                {
+                    if (mainListView.Items.ContainsKey(name))
+                        mainListView.SelectedIndices.Add(mainListView.Items.IndexOfKey(name));
+                }
+            }
+
+
+            setButtonStates();
         }
 
+        public void ReceivedInvalidDirectory(string path)
+        {
+            if (path == this.Address)
+            {
+                string newpath = path.Remove(path.LastIndexOf('/'));
+                if (newpath == "")
+                    newpath = "/";
+                Navigate(newpath);
+            }
+        }
 
         public void setStatus(string status)
         {
             statusBarText.Text = status;
         }
 
-
-
-
-        private void _handleItemSelectionClick(object sender, ListViewItemSelectionChangedEventArgs e)
+        private string getPath(TreeNode node)
         {
-            if (e.IsSelected)
+            string path = node.Name;
+            while (node.Parent != null)
             {
-                if (!_selection.Contains(e.Item.Text))
-                {
-                    _selection.Add(VfsManager.WorkingDirectory.AbsolutePath + "/" + e.Item.Text);
-                }
+                node = node.Parent;
+                path = node.Name + "/" + path;
             }
-            else
-            {
-                _selection.Remove(e.Item.Text);
-            }
-            setButtonStates();
+            return "/" + path;
         }
 
-        private void _handleItemDoubleClick(object sender, EventArgs e)
+        private TreeNode getNode(string path, out TreeNode current, out string[] remaining)
         {
-            if (mainListView.SelectedItems.Count == 1)
+            var names = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            remaining = names;
+            current = null;
+            if (names.Length == 0) return null;
+            if (!this.mainTreeView.Nodes.ContainsKey(names[0])) return null;
+            current = this.mainTreeView.Nodes[names[0]];
+            for (int i = 1; i < names.Length; i++)
             {
-                string testPath = Address + "/" + mainListView.SelectedItems[0].Text;
-                VfsEntry testEntry = VfsManager.GetEntry(testPath);
-                if (testEntry != null && testEntry.IsDirectory)
+                if (!current.Nodes.ContainsKey(names[i]))
                 {
-                    Address = testPath;
-                    addressTextBox.Text = Address;
-                    Console.Command("cd " + Address);
-                    _selection.Clear();
-                    for (int i = 0; i < CurrentNode.Nodes.Count; i++)
-                    {
-                        if (CurrentNode.Nodes[i].Text == mainListView.SelectedItems[0].Text)
-                        {
-                            CurrentNode = CurrentNode.Nodes[i];
-                        }
-                    }
+                    remaining = names.Skip(i).ToArray();
+                    return null;
                 }
 
-                UpdateExplorer();
+                current = current.Nodes[names[i]];
             }
+            remaining = null;
+            return current;
         }
-       
-        /// <summary>
-        /// Navigates to specified path (if it exists)
-        /// Updates Explorer and Address
-        /// </summary>
-        /// <param name="Path">The absolute path we want to go to.</param>
-        private void Navigate(string Path)
+
+        private void treeSync(TreeNodeCollection nodes, string[] dirs)
         {
-            //TODO: work around the manager.
-            VfsEntry toGo = VfsManager.GetEntry(Path);
-            if (toGo != null && toGo.IsDirectory)
+            foreach (string name in dirs)
             {
-                string command = "cd " + Path;
-                Address = Path;
-                Console.Command(command);
-                UpdateExplorer(); 
+                if (!nodes.ContainsKey(name))
+                    nodes.Add(name, name);
             }
-        }
 
-        private void handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            CurrentNode = e.Node;
-            string path= "/" + e.Node.FullPath;
-            addressTextBox.Text = path;
-            Navigate(path);
-            
-            _selection.Clear();
-            setButtonStates();
-        }
-
-        /// <summary>
-        /// TODO: update the tree.
-        /// </summary>
-        public void UpdateExplorer()
-        {
-            // ls -> manager
-            // 
-
-            List<string> dirs;
-            List<string> files;
-
-            VfsManager.ListEntries(Address, out dirs, out files);
-
-            SetContent(dirs, files);
-        }
-
-
-        private void handleTreeViewExpand(object sender, TreeViewEventArgs e)
-        {
-            for (int i = 0; i < e.Node.Nodes.Count; i++)
+            List<TreeNode> rem = new List<TreeNode>();
+            foreach (TreeNode el in nodes)
             {
-                //TODO: avoid use of manager.
-                VfsDirectory mainDir = (VfsDirectory) VfsManager.GetEntry("/" + e.Node.Nodes[i].FullPath);
-                List<string> dirs = mainDir.GetDirectories.Select(dir => dir.Name).ToList();
-                
-                foreach (var dir in dirs)
-                {
-                    e.Node.Nodes[i].Nodes.Add(dir);
-                }
+                if (!dirs.Contains(el.Text))
+                    rem.Add(el);
+            }
+            foreach (TreeNode el in rem)
+            {
+                nodes.Remove(el);
             }
         }
 
-        private void _handleTreeViewMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            CurrentNode = e.Node;
-            Address = "/" + e.Node.FullPath;
-            addressTextBox.Text = Address;
-            Console.Command("cd " + Address);
-            
-            _selection.Clear();
-            UpdateExplorer();
-            setButtonStates();
-        }
+        //---------------Navigation & Co.---------------
 
         private void addressTextBox_KeyUp(object sender, KeyEventArgs e)
         {
@@ -278,6 +320,41 @@ namespace VFS_GUI
             }
         }
 
+        private void mainListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            this.selectedNames = new string[this.mainListView.SelectedItems.Count];
+            for(int i = 0; i < this.selectedNames.Length; i++){
+                selectedNames[i] = this.mainListView.SelectedItems[i].Text;
+            }
+
+            this.setButtonStates();
+        }
+
+        private void mainListView_DoubleClick(object sender, EventArgs e)
+        {
+            if (this.selectedNames.Length == 1)
+            {
+                if (this.Address == "/")
+                    Navigate("/" + this.selectedNames[0]);
+                else
+                    Navigate(this.Address + "/" + this.selectedNames[0]);
+            }
+        }
+
+        private void mainTreeView_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Action == TreeViewAction.ByMouse)
+                Navigate(getPath(e.Node));
+        }
+
+        private void mainTreeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            if (e.Node.Tag != LoadedObject)
+            {
+                Console.Command("ls " + getPath(e.Node));
+                e.Cancel = true;
+            }
+        }
 
         //---------------Buttons & Co.---------------
 
@@ -313,7 +390,7 @@ namespace VFS_GUI
 
                 VfsExplorer.Console.Command("cdisk" + path + name + bs + pw + " -s " + window.ResultSize);
 
-                UpdateExplorer();
+                UpdateExplorer(true);
             }
         }
 
@@ -325,29 +402,7 @@ namespace VFS_GUI
 
                 Console.Command(command);
 
-                List<string> dirs;
-                List<string> files;
-
-                var diskName = diskOFD.ToString().Substring(diskOFD.ToString().LastIndexOf("\\") + 1, diskOFD.ToString().Length - 5 - diskOFD.ToString().LastIndexOf("\\"));
-                VfsEntry entry;
-                while (VfsManager.GetEntryConcurrent("/" + diskName, out entry) != 0) { }
-                Address = VfsManager.CurrentDisk.Root.AbsolutePath;
-                addressTextBox.Text = Address;
-                UpdateExplorer();
-
-                VfsManager.ListEntries(VfsManager.CurrentDisk.Root.AbsolutePath, out dirs, out files);
-                var parentNode = mainTreeView.Nodes.Add(VfsManager.CurrentDisk.DiskProperties.Name);
-
-                foreach (var dir in dirs)
-                {
-                    parentNode.Nodes.Add(dir);
-                }
-                CurrentNode = parentNode;
-                setButtonStates();
-
-
-                UpdateExplorer();
-                
+                UpdateExplorer(true);
             }
         }
 
@@ -364,18 +419,8 @@ namespace VFS_GUI
                 diskName = Address.Substring(1, indexOf - 1);
             }
             Console.Command("udisk " + diskName);
-            TreeNode node = null;
-            for (int i = 0; i < mainTreeView.Nodes.Count; i++)
-            {
-                if (diskName == mainTreeView.Nodes[i].Text)
-                {
-                    node = mainTreeView.Nodes[i];
-                }
-            }
-            if (node != null)
-            {
-                mainTreeView.Nodes.Remove(node);
-            }
+
+            UpdateExplorer(true);
         }
 
         private void deleteDiskButton_Click(object sender, EventArgs e)
@@ -390,18 +435,11 @@ namespace VFS_GUI
             {
                 diskName = Address.Substring(1, indexOf - 1);
             }
-            Console.Command("rmdisk " + diskName);
-            TreeNode node = null;
-            for (int i = 0; i < mainTreeView.Nodes.Count; i++)
+            if (MessageBox.Show("Do you really want to delete the disk " + diskName + "?", Caption, MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                if (diskName == mainTreeView.Nodes[i].Text)
-                {
-                    node = mainTreeView.Nodes[i];
-                }
-            }
-            if (node != null)
-            {
-                mainTreeView.Nodes.Remove(node);
+                Console.Command("rmdisk " + diskName);
+
+                UpdateExplorer(true);
             }
         }
         
@@ -413,9 +451,12 @@ namespace VFS_GUI
             {
                 string command = "mkdir " + Address + "/" + window.Result;
                 Console.Command(command);
-                //Add only to treeview, if directory was valid and didn't exist already.
-                if (VfsManager.GetEntry(Address + "/" + window.Result) != null)
-                    CurrentNode.Nodes.Add(window.Result);
+
+                UpdateExplorer(false);
+
+                // TODO: create a temp?
+                if (!this.mainListView.Items.ContainsKey(window.Result))
+                    this.mainListView.Items.Add(window.Result, window.Result, 0);
             }
         }
 
@@ -428,6 +469,11 @@ namespace VFS_GUI
                 string command = "mk " + Address + "/" + window.Result;
 
                 Console.Command(command);
+
+                UpdateExplorer(false);
+
+                if (!this.mainListView.Items.ContainsKey(window.Result))
+                    this.mainListView.Items.Add(window.Result, window.Result, 1);
             }
         }
 
@@ -458,55 +504,61 @@ namespace VFS_GUI
                          Console.Command(command);
                      }
                 }
+
+                UpdateExplorer(false);
             }
         }
 
         private void exportButton_Click(object sender, EventArgs e)
         {
-            //TODO: show folder select dialog
-            string dst = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-
-            foreach (string file in _selection)
+            if (folderBD.ShowDialog(this) == DialogResult.OK)
             {
-                string command = "ex " + file + " " + dst;
+                foreach (string file in this.selectedPaths)
+                {
+                    string command = "ex " + file + " " + folderBD.SelectedPath;
 
-                Console.Command(command);
+                    Console.Command(command);
+                }
             }
         }
 
         private void renameButton_Click(object sender, EventArgs e)
         {
-            if (_selection.Count != 1)
+            if (this.selectedNames.Length != 1)
                 throw new ArgumentException("Button should not be pressable when not exactly 1 file is selected.");
 
-            // show name dialog or allow for a namechange in the list view
             var window = new EnterName();
             if (window.ShowDialog() == DialogResult.OK)
             {
-                string command = "rn " + _selection[0] + " " + window.Result;
+                string command = "rn " + selectedPaths[0] + " " + window.Result;
 
                 Console.Command(command);
+
+                UpdateExplorer(false);
+
+                var el = this.mainListView.SelectedItems[0];
+                this.mainListView.Items.Remove(el);
+                this.mainListView.Items.Add(window.Result, window.Result, el.ImageIndex);
             }
         }
 
         private void moveButton_Click(object sender, EventArgs e)
         {
-            if (_selection.Count == 0)
+            if (selectedNames.Length == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             cut = true;
-            markedFiles = new List<string>(_selection);
-            _selection.Clear();
+            markedFiles = new List<string>(selectedPaths);
+            this.mainListView.SelectedIndices.Clear();
         }
 
         private void copyButton_Click(object sender, EventArgs e)
         {
-            if (_selection.Count == 0)
+            if (this.selectedNames.Length == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             cut = false;
-            markedFiles = new List<string>(_selection);
-            _selection.Clear();
+            markedFiles = new List<string>(this.selectedPaths);
         }
 
         private void pasteButton_Click(object sender, EventArgs e)
@@ -533,20 +585,24 @@ namespace VFS_GUI
                 }
                 // not clearing markedfiles = paste multiple copies.
             }
+
+            UpdateExplorer(false);
         }
         
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            if (_selection.Count == 0)
+            if (this.selectedNames.Length == 0)
                 throw new ArgumentException("Button should not be pressable when nothing is selected.");
 
             string command = "";
 
-            foreach (string s in _selection)
+            foreach (string s in this.selectedPaths)
             {
-                command += "rm " + _selection[0] + " ";
+                command += "rm " + s + " ";
             }
             Console.Command(command);
+
+            UpdateExplorer(false);
         }
 
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
@@ -554,25 +610,24 @@ namespace VFS_GUI
             Console.Command("quit");
         }
 
-        //TODO: what's the use of this?
-        private void addressTextBox_TextChanged(object sender, EventArgs e)
-        {
+        //---------------Drag & Drop---------------
 
+        private void mainListView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) && this.Address != "/")
+                e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.None;
         }
 
-        private void addressTextBox_EnterUp(object sender, KeyEventArgs e)
+        private void mainListView_DragDrop(object sender, DragEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) //Notice: removing this 'if' will lead to instant navigation (which is pretty cool imo)
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (string fileName in files)
             {
-                //TODO: somehow work around this without using VfsManager directly.
-                VfsEntry toGo = VfsManager.GetEntry(this.addressTextBox.Text);
-                if (toGo != null && toGo.IsDirectory)
-                {
-                    string path = this.addressTextBox.Text;
-                    Navigate(path);
-                } 
+                string command = "im " + fileName + " " + Address + " ";
+                Console.Command(command);
             }
         }
-
     }
 }

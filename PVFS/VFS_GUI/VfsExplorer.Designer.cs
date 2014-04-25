@@ -271,10 +271,13 @@
             this.mainTreeView.PathSeparator = "/";
             this.mainTreeView.Size = new System.Drawing.Size(184, 278);
             this.mainTreeView.TabIndex = 0;
+            this.mainTreeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.mainTreeView_BeforeExpand);
+            this.mainTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.mainTreeView_AfterSelect);
             // 
             // mainListView
             // 
             this.mainListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+            this.mainListView.AllowDrop = true;
             this.mainListView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -282,11 +285,15 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(528, 252);
+            this.mainListView.Size = new System.Drawing.Size(529, 252);
             this.mainListView.SmallImageList = this.smallImageList;
             this.mainListView.TabIndex = 1;
             this.mainListView.UseCompatibleStateImageBehavior = false;
             this.mainListView.View = System.Windows.Forms.View.SmallIcon;
+            this.mainListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.mainListView_ItemSelectionChanged);
+            this.mainListView.DragDrop += new System.Windows.Forms.DragEventHandler(this.mainListView_DragDrop);
+            this.mainListView.DragEnter += new System.Windows.Forms.DragEventHandler(this.mainListView_DragEnter);
+            this.mainListView.DoubleClick += new System.EventHandler(this.mainListView_DoubleClick);
             // 
             // smallImageList
             // 
