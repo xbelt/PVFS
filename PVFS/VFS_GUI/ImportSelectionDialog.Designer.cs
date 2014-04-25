@@ -61,7 +61,10 @@
             this.ClientSize = new System.Drawing.Size(255, 121);
             this.Controls.Add(this.FolderImportButton);
             this.Controls.Add(this.FileImportButton);
+            this.MaximumSize = new System.Drawing.Size(271, 159);
+            this.MinimumSize = new System.Drawing.Size(271, 159);
             this.Name = "ImportSelectionDialog";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Import";
             this.ResumeLayout(false);
