@@ -41,8 +41,12 @@ namespace VFS_GUI
                     if (task.Command == "quit")
                         return;
 
+                    remote.SetBusy();
+
                     lastCommand = task.Command;
                     VfsManager.ExecuteCommand(task.Command);
+
+                    remote.SetReady();
                 }
             }
         }

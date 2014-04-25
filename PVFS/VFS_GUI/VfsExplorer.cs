@@ -243,6 +243,16 @@ namespace VFS_GUI
             statusBarText.Text = status;
         }
 
+        public void SetReady()
+        {
+            this.statusWorkingText.Text = "Ready";
+        }
+
+        public void SetBusy()
+        {
+            this.statusWorkingText.Text = "Busy";
+        }
+
         private void setButtonStates()
         {
             Button[] NeedDisk =
@@ -455,7 +465,7 @@ namespace VFS_GUI
             {
                 diskName = Address.Substring(1, indexOf - 1);
             }
-            if (MessageBox.Show("Do you really want to delete the disk " + diskName + "?", Caption, MessageBoxButtons.OKCancel) == DialogResult.OK)
+            if (MessageBox.Show("Do you really want to delete disk " + diskName + "?", Caption, MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
                 Console.Command("rmdisk " + diskName);
 

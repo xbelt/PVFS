@@ -31,7 +31,7 @@ namespace VFS_GUI
         /// Sends the command to the LocalConsole.
         /// </summary>
         /// <param name="comm"></param>
-        public void Command(string comm)
+        public virtual void Command(string comm)
         {
             local.Command(comm);
         }
@@ -40,7 +40,7 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="info"></param>
-        public void Message(string command, string info)
+        public virtual void Message(string command, string info)
         {
             if (command.StartsWith("ls"))
             {
@@ -67,7 +67,7 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="message"></param>
-        public void ErrorMessage(string command, string message)
+        public virtual void ErrorMessage(string command, string message)
         {
             if (command.StartsWith("ls"))
             {
@@ -88,10 +88,20 @@ namespace VFS_GUI
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public int Query(string message, params string[] options)
+        public virtual int Query(string message, params string[] options)
         {
             DialogResult res = MessageBox.Show(message, caption, System.Windows.Forms.MessageBoxButtons.YesNo);
             return res == DialogResult.Yes ? 0 : 1;
+        }
+
+        public virtual void SetReady()
+        {
+            explorer.Invoke(new Action(explorer.SetReady));
+        }
+
+        public virtual void SetBusy()
+        {
+            explorer.Invoke(new Action(explorer.SetBusy));
         }
     }
 }

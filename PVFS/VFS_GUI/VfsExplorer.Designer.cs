@@ -55,6 +55,7 @@
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusWorkingText = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -285,7 +286,7 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(531, 252);
+            this.mainListView.Size = new System.Drawing.Size(532, 252);
             this.mainListView.SmallImageList = this.smallImageList;
             this.mainListView.TabIndex = 0;
             this.mainListView.UseCompatibleStateImageBehavior = false;
@@ -356,6 +357,7 @@
             // statusBar
             // 
             this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusWorkingText,
             this.statusBarText});
             this.statusBar.Location = new System.Drawing.Point(0, 335);
             this.statusBar.Name = "statusBar";
@@ -368,6 +370,14 @@
             // 
             this.statusBarText.Name = "statusBarText";
             this.statusBarText.Size = new System.Drawing.Size(0, 17);
+            // 
+            // statusWorkingText
+            // 
+            this.statusWorkingText.AutoSize = false;
+            this.statusWorkingText.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.statusWorkingText.Name = "statusWorkingText";
+            this.statusWorkingText.Size = new System.Drawing.Size(50, 17);
+            this.statusWorkingText.Text = "Ready";
             // 
             // VfsExplorer
             // 
@@ -425,6 +435,7 @@
         private System.Windows.Forms.ToolStripStatusLabel statusBarText;
         private System.Windows.Forms.ListView mainListView;
         private System.Windows.Forms.ImageList smallImageList;
+        private System.Windows.Forms.ToolStripStatusLabel statusWorkingText;
     }
 }
 
