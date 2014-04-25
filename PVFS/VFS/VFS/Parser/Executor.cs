@@ -110,6 +110,10 @@ namespace VFS.VFS.Parser
                 VfsManager.LoadDisk(disk);
                 return;
             }
+            else
+            {
+                VfsManager.Console.ErrorMessage("Disk not found.");
+            }
         }
 
         public override void EnterUdisk(ShellParser.UdiskContext context)
@@ -177,12 +181,16 @@ namespace VFS.VFS.Parser
             if (context == null)
                 return;
             string path = ""; // context.path.Text;
+            if (context.path != null)
+            {
+                path = context.path.Text;
+            }
             if (context.files == null && context.dirs == null)
             {
-                VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), true, true);
+                VfsManager.ListEntries(path, true, true);
                 return;
             }
-            VfsManager.ListEntries(VfsManager.GetAbsolutePath(path), context.files == null ? false : true, context.dirs == null ? false : true);
+            VfsManager.ListEntries(path, context.files == null ? false : true, context.dirs == null ? false : true);
         }
 
         public override void EnterCd(ShellParser.CdContext context)

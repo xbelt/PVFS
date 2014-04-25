@@ -86,7 +86,7 @@ namespace VFS.VFS
                 vfsDisk.Init();
                 return vfsDisk;
             }
-            throw new ArgumentException(path + " is not a valid path to a vdi");
+            return null;
         }
 
         public static void Remove(string path)

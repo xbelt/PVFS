@@ -106,10 +106,9 @@ namespace UnitTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void TestLoadException()
         {
-            DiskFactory.Load("X::\\Test.vdi", "");
+            Debug.Assert(DiskFactory.Load("X::\\Test.vdi", "") == null);
         }
 
         [TestMethod]
