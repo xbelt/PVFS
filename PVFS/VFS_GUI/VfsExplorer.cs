@@ -380,6 +380,12 @@ namespace VFS_GUI
             }
         }
 
+        private void mainListView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                this.mainListView_DoubleClick(sender, EventArgs.Empty);
+        }
+
         private void mainTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (e.Action == TreeViewAction.ByMouse)
@@ -393,6 +399,12 @@ namespace VFS_GUI
                 Console.Command("ls " + getPath(e.Node));
                 e.Cancel = true;
             }
+        }
+
+        private void mainTreeView_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                Navigate(getPath(this.mainTreeView.SelectedNode));
         }
 
         //---------------Buttons & Co.---------------

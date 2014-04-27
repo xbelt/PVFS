@@ -54,8 +54,8 @@
             this.searchButton = new System.Windows.Forms.Button();
             this.addressTextBox = new System.Windows.Forms.TextBox();
             this.statusBar = new System.Windows.Forms.StatusStrip();
-            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusWorkingText = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusBarText = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuPanel.SuspendLayout();
             this.mainPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainSplitContainer)).BeginInit();
@@ -274,6 +274,7 @@
             this.mainTreeView.TabIndex = 0;
             this.mainTreeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.mainTreeView_BeforeExpand);
             this.mainTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.mainTreeView_AfterSelect);
+            this.mainTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.mainTreeView_KeyUp);
             // 
             // mainListView
             // 
@@ -286,7 +287,7 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(532, 252);
+            this.mainListView.Size = new System.Drawing.Size(533, 252);
             this.mainListView.SmallImageList = this.smallImageList;
             this.mainListView.TabIndex = 0;
             this.mainListView.UseCompatibleStateImageBehavior = false;
@@ -295,6 +296,7 @@
             this.mainListView.DragDrop += new System.Windows.Forms.DragEventHandler(this.mainListView_DragDrop);
             this.mainListView.DragEnter += new System.Windows.Forms.DragEventHandler(this.mainListView_DragEnter);
             this.mainListView.DoubleClick += new System.EventHandler(this.mainListView_DoubleClick);
+            this.mainListView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.mainListView_KeyUp);
             // 
             // smallImageList
             // 
@@ -366,11 +368,6 @@
             this.statusBar.TabIndex = 1;
             this.statusBar.Text = "Hello World";
             // 
-            // statusBarText
-            // 
-            this.statusBarText.Name = "statusBarText";
-            this.statusBarText.Size = new System.Drawing.Size(0, 17);
-            // 
             // statusWorkingText
             // 
             this.statusWorkingText.AutoSize = false;
@@ -378,6 +375,11 @@
             this.statusWorkingText.Name = "statusWorkingText";
             this.statusWorkingText.Size = new System.Drawing.Size(50, 17);
             this.statusWorkingText.Text = "Ready";
+            // 
+            // statusBarText
+            // 
+            this.statusBarText.Name = "statusBarText";
+            this.statusBarText.Size = new System.Drawing.Size(0, 17);
             // 
             // VfsExplorer
             // 
