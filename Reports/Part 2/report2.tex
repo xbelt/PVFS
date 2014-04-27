@@ -1,0 +1,161 @@
+\documentclass[a4paper,12pt]{article}
+
+
+% add more packages if necessary
+\usepackage{xspace}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+%\usepackage{xcolor}
+%\usepackage{hyperref}
+
+\usepackage{color}
+\definecolor{orange}{rgb}{1,0.5,0}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+
+% TODO: Add your group name
+\newcommand{\groupname}{What was it?\xspace}
+
+
+\title{
+Project Report \\ 
+Group \groupname \\
+\vspace{5mm}
+\large Java and C\# in depth, Spring 2014
+}
+\author{
+% TODO: Add your names here
+Lukas Häfliger\\
+Fabian Meier\\
+Andrea Canonica
+}
+\date{\today}
+
+% code listings
+
+\usepackage{listings}
+\lstset{language=[Sharp]C,
+showspaces=false,
+showtabs=false,
+breaklines=true,
+showstringspaces=false,
+breakatwhitespace=true,
+numbers=left,
+captionpos=b,
+morekeywords={\#if, \#endif, \#else},
+escapeinside={(*@}{@*)},
+commentstyle=\color{greencomments},
+keywordstyle=\color{bluekeywords}\bfseries,
+stringstyle=\color{redstrings},
+basicstyle=\ttfamily
+}
+
+
+
+
+\begin{document}
+\maketitle
+
+%\section{Introduction}
+
+%This document describes the design and implementation of the \emph{Personal Virtual File System} of group \emph{\groupname}. The project is part of the course \emph{Java and C\# in depth} at ETH Zurich. The following sections describe each project phase, listing the requirements that were implemented and the design decisions taken. The last section describes a use case of using the \emph{Personal Virtual File System}.
+
+% PART II: VFS Browser
+% --------------------------------------
+
+\section{VFS Browser}
+
+Our Browser is a Desktop Application. It provides a nice GUI that resembles a bit the Windows Explorer and therefore should help to easily use it. We decided to use buttons to represent the core requirements of part one and tried to use self-explaining icons for each of those functions. But just in case, 
+hovering over a button will display a little text that explains its function. \\
+
+\includegraphics[scale=0.6] {report2_GUI}
+
+\begin{itemize}
+\item A click on the \emph{Create Disk} button opens a little window in which the parameters \emph{ name, size, blocksize, location} and \emph{password} (optional) can be entered.
+\item Clicking on \emph{Load Disk} opens a file dialog to browse and select and open an already created disk.
+\item The import button will pop up a little window which asks the user to tell whether he wants to import a file or directory. An according dialog is then displayed. The current working directory is used as destination of the import.
+\item Similarly, the export button provides a folder dialog to select where the selcted entries should be exported to.
+\item As one can see, the paste button is gray, meaning not clickable. The buttons' states are updated after certain events; and paste is only clickable if either the move or copy button were clicked.
+\end{itemize}
+
+
+\subsection{Design}
+
+As hinted before, we implemented the core requirements. The main classes involved are the following: \\
+\emph{VfsExplorer.cs, RemoteConsole.cs, LocalConsole.cs, VfsManager.cs}
+\subsubsection{VfsExplorer.cs}
+This class basically catches every event that happens on the GUI and forwards a reaction to the \emph{remote console}. Those events are mainly clicks on buttons, items in the \emph{treeview} or the \emph{listview}. Those actions trigger the creation of a command which in the end will be executed by the \emph{VfsManager}.
+\subsubsection{RemoteConsole.cs}
+This class connects the \emph{LocalConsole.cs} with the \emph{VfsExplorer.cs}. It forwards the commands received from the \emph{VfsExplorer} to the \emph{local console} and returns results from the \emph{local console} back to the \emph{VfsExplorer}. It also forwards error messages and handles queries that the user needs to answer for certain commands to be executed.
+\subsubsection{LocalConsole.cs}
+This class connects the \emph{RemoteConsole.cs} with the \emph{VfsManager.cs}. On creation it creates a thread that is responsible for executing each task in a taskqueue. We do this in order to prevent stalling when giving many or long tasks (a bit more on this later).
+\subsubsection{Vfsmanager.cs}
+As in part one, this class still implements the core functionality like \emph{copy, delete, rename, import, export } and so on. The main difference now is that all those functions are called by the new function: \\
+\begin{lstlisting}[label={lst:1},caption=Command Execution]
+public static void ExecuteCommand(string command)
+{
+	 var input = new AntlrInputStream(command);
+            var lexer = new ShellLexer(input);
+            var tokens = new CommonTokenStream(lexer);
+            var parser = new ShellParser(tokens);
+            var entry = parser.compileUnit();
+            var walker = new ParseTreeWalker();
+            var exec = new Executor();
+            walker.Walk(exec, entry);
+}
+\end{lstlisting}
+As mentioned, the parameter \emph{command} is created in the \emph{VfsExplorer.cs}. To give a little example, this code snippet is executed when the \emph{createDirectoryButton} is clicked.
+\begin{lstlisting}[label={lst:2},caption=Command Creation]
+                string command = "mkdir " + Address + "/" + window.Result;
+                Console.Command(command);
+\end{lstlisting}
+
+
+\section{Requirements}
+Besides the core requirements we added the following features:
+\begin{itemize}
+\item \textbf{Execute core commands without writing to a console.} \\
+	We simply provided a GUI with buttons which got rid of the necessity of having the user write the commands himself.
+\item \textbf{Single and multiple selections of files and folders.} \\
+	The \emph{Explorer} contains a field called \emph{selectedNames} in which the names of the selected entries are stored (as strings). To select an 			entry, one can click on it with the mouse and by holding the Ctrl-Key multiple entries can be selected.
+\item \textbf{Support for keyboard navigation.} \\
+	We allow keyboard navigation by typing an address in the addressbar, when a directory is selected or when an item in the treeview is selected. After 	each of these cases, \emph{Enter} has to be pressed. \textbf{TODO: Backwards navigation.}
+\item \textbf{Support for mouse navigation.} \\
+	Mouse navigation is done by either clicking on an item in the treeview or by double clicking a directory in the listview. \textbf{Should we display a 			directory for backward navigation in listview? Often named `..' in other explorers.}
+\item \textbf{Search stuff.} \\
+	\textbf {To be implemented.}
+\item \textbf {Responsive UI. (Bonus feature)}
+	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			below (line-compressed).
+\item \textbf{Drag and Drop. (Partial) (Bonus feature)}
+	So far, we allow copying and importing when dragging files into the listview. \textbf{TODO: Export and use of treeview not yet supported.}
+\end{itemize}
+
+\pagebreak
+
+\begin{lstlisting}[label={lst:3},caption=Worker-Thread's Procedure]
+        private void workerThreadProcedure()
+        {
+            VfsTask task;
+            while (true)
+            {
+                if (tasks.TryDequeue(out task))
+                {
+                    if (task.Command == "quit")
+                        return;
+                    remote.SetBusy();
+                    lastCommand = task.Command;
+                    VfsManager.ExecuteCommand(task.Command);
+                    remote.SetReady();
+         }   }   }
+\end{lstlisting}
+
+\section{Integration}
+
+% TODO: Remove this text and replace it with actual content
+\emph{\textbf{Not sure what to write here, if anything.} If you had to change the design or API of the previous part, describe the changes and the reasons for each change here.}
+
+
+\end{document}
