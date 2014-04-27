@@ -568,6 +568,11 @@ namespace VFS_GUI
             }
         }
 
+        private bool import_NameCheck(string filePath)
+        {
+            return VfsFile.ValidName(filePath.Substring(filePath.LastIndexOf('\\') + 1));
+        }
+
         private void exportButton_Click(object sender, EventArgs e)
         {
             if (folderBD.ShowDialog(this) == DialogResult.OK)
