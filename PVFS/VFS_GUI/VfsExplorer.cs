@@ -534,19 +534,26 @@ namespace VFS_GUI
         private void importButton_Click(object sender, EventArgs e)
         {
             ImportSelectionDialog isd = new ImportSelectionDialog();
-
+            string command = "";
             if (isd.ShowDialog() == DialogResult.OK)
             {
                 if (isd.FileSelect)
                 {
-                    //TODO: attention, will remove invalid characters from the names.
                     if (importOFD.ShowDialog(this) == DialogResult.OK)
                     {
                         foreach (string fileName in importOFD.FileNames)
                         {
-                            string command = "im " + fileName + " " + Address + " ";
-                            Console.Command(command);
+                            SetStatus("","Importing " + fileName);
+                            if (import_NameCheck(fileName))
+                            {
+                                command += "im " + fileName + " " + Address + " ";
+                            }
+                            else
+                            {
+                                SetStatus("", "Invalid characters in " + fileName);
+                            }
                         }
+                        Console.Command(command);
                     }
                 }
                 else
@@ -554,7 +561,7 @@ namespace VFS_GUI
                     //folder...
                      if (folderBD.ShowDialog(this) == DialogResult.OK)
                      {
-                         string command = "im " + folderBD.SelectedPath + " " + Address;
+                         command += "im " + folderBD.SelectedPath + " " + Address;
                          Console.Command(command);
                      }
                 }
