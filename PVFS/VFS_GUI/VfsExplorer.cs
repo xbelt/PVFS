@@ -631,14 +631,12 @@ namespace VFS_GUI
         {
             if (markedFiles == null)
                 throw new ArgumentException("Button sould not be pressable when nothing was copied/cut.");
-
+            string command = "";
             if (cut)
             {
                 foreach (string file in markedFiles)
                 {
-                    string command = "mv " + file + " " + Address + " ";
-
-                    Console.Command(command);
+                    command += "mv " + file + " " + Address + " ";
 
                     TreeNode last;
                     string[] names;
@@ -653,11 +651,11 @@ namespace VFS_GUI
             {
                 foreach (string file in markedFiles)
                 {
-                    string command = "cp " + file + " " + Address + " ";
-                    Console.Command(command);
+                    command += "cp " + file + " " + Address + " ";
                 }
                 // not clearing markedfiles = paste multiple copies.
             }
+            Console.Command(command);
         }
         
         private void deleteButton_Click(object sender, EventArgs e)
