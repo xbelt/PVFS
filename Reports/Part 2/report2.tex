@@ -17,7 +17,7 @@
 
 
 % TODO: Add your group name
-\newcommand{\groupname}{What was it?\xspace}
+\newcommand{\groupname}{Tortoise\xspace}
 
 
 \title{
@@ -74,7 +74,7 @@ hovering over a button will display a little text that explains its function. \\
 \includegraphics[scale=0.6] {report2_GUI}
 
 \begin{itemize}
-\item A click on the \emph{Create Disk} button opens a little window in which the parameters \emph{ name, size, blocksize, location} and \emph{password} (optional) can be entered.
+\item A click on the \emph{Create Disk} button opens a little window in which the parameters \emph{ name, size, blocksize, location} and \emph{password} can be entered. The size excluded, all of them are optional.
 \item Clicking on \emph{Load Disk} opens a file dialog to browse and select and open an already created disk.
 \item The import button will pop up a little window which asks the user to tell whether he wants to import a file or directory. An according dialog is then displayed. The current working directory is used as destination of the import.
 \item Similarly, the export button provides a folder dialog to select where the selcted entries should be exported to.
@@ -97,7 +97,7 @@ As in part one, this class still implements the core functionality like \emph{co
 \begin{lstlisting}[label={lst:1},caption=Command Execution]
 public static void ExecuteCommand(string command)
 {
-	 var input = new AntlrInputStream(command);
+            var input = new AntlrInputStream(command);
             var lexer = new ShellLexer(input);
             var tokens = new CommonTokenStream(lexer);
             var parser = new ShellParser(tokens);
@@ -113,22 +113,24 @@ As mentioned, the parameter \emph{command} is created in the \emph{VfsExplorer.c
                 Console.Command(command);
 \end{lstlisting}
 
+\subsubsection{Why sending over two consoles?}
+This design choice is preliminary work for the synchronization server in part three. There, using a synchronization server, we will propagate changes on disks between machines. We want to use the \emph{remote console} as that propagation instrument and add just the necessary functionality to be able to work as such. The server, as currently the \emph{remote console}, will be connected with the \emph{local console}.
 
 \section{Requirements}
-Besides the core requirements we added the following features:
+Our VFS Browser provides the following features:
 \begin{itemize}
 \item \textbf{Execute core commands without writing to a console.} \\
 	We simply provided a GUI with buttons which got rid of the necessity of having the user write the commands himself.
 \item \textbf{Single and multiple selections of files and folders.} \\
 	The \emph{Explorer} contains a field called \emph{selectedNames} in which the names of the selected entries are stored (as strings). To select an 			entry, one can click on it with the mouse and by holding the Ctrl-Key multiple entries can be selected.
 \item \textbf{Support for keyboard navigation.} \\
-	We allow keyboard navigation by typing an address in the addressbar, when a directory is selected or when an item in the treeview is selected. After 	each of these cases, \emph{Enter} has to be pressed. \textbf{TODO: Backwards navigation.}
+	We allow keyboard navigation by typing an address in the \emph{addressbar}, when a directory is selected or when an item in the treeview is selected. 			After 	each of these cases, \emph{Enter} has to be pressed. Navigation into the parent folder is achieved with the Backspace-Key.
 \item \textbf{Support for mouse navigation.} \\
-	Mouse navigation is done by either clicking on an item in the treeview or by double clicking a directory in the listview. \textbf{Should we display a 			directory for backward navigation in listview? Often named `..' in other explorers.}
-\item \textbf{Search stuff.} \\
-	\textbf {To be implemented.}
+	Mouse navigation is done by either clicking on an item in the \emph{treeview} or by double clicking a directory in the \emph{listview}.
+\item \textbf{(Advanced) Search. (Bonus feature) } \\
+	Our search allows to chose between case insensitive and sensitive search. To restrict the search to a folder is just as possible as to include its subfolders. 		Also supported are wildcards for which we use the \emph{*} symbol.
 \item \textbf {Responsive UI. (Bonus feature)}
-	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			below (line-compressed).
+	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			in listing 3 (line-compressed).
 \item \textbf{Drag and Drop. (Partial) (Bonus feature)}
 	So far, we allow copying and importing when dragging files into the listview. \textbf{TODO: Export and use of treeview not yet supported.}
 \end{itemize}
@@ -151,11 +153,5 @@ Besides the core requirements we added the following features:
                     remote.SetReady();
          }   }   }
 \end{lstlisting}
-
-\section{Integration}
-
-% TODO: Remove this text and replace it with actual content
-\emph{\textbf{Not sure what to write here, if anything.} If you had to change the design or API of the previous part, describe the changes and the reasons for each change here.}
-
 
 \end{document}
