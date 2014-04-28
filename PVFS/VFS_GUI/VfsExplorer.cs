@@ -694,7 +694,7 @@ namespace VFS_GUI
             Console.Command("quit");
         }
 
-        //---------------Drag & Drop---------------
+        //---------------ListView Drag & Drop---------------//
 
         private void mainListView_DragEnter(object sender, DragEventArgs e)
         {
@@ -714,6 +714,35 @@ namespace VFS_GUI
             }
         }
 
+        private void mainListView_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            this.mainListView.DoDragDrop(this.mainListView.SelectedItems, DragDropEffects.Copy);
+        }
+
+        //--------------- TreeView Drag&Drop -------------------//
+        private void treeView_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Copy;
+        }
+
+        private void treeView_DragDrop(object sender, DragEventArgs e)
+        {
+            TreeNode n;
+            string command = "";
+            if (e.Data.GetDataPresent("System.Windows.Forms.ListView+SelectedListViewItemCollection", false))
+            {
+                System.Drawing.Point pt = ( (TreeView) sender ).PointToClient(new System.Drawing.Point(e.X, e.Y));
+                TreeNode dn = ( (TreeView) sender ).GetNodeAt(pt);
+                ListView.SelectedListViewItemCollection lvi = (ListView.SelectedListViewItemCollection) e.Data.GetData("System.Windows.Forms.ListView+SelectedListViewItemCollection");
+
+                foreach (ListViewItem item in lvi)
+                {
+                    command += "cp " + Address + "/" + item.Name + " " + "/" + dn.FullPath + " ";
+                }
+                Console.Command(command);
+            }
+        }
+
         //---------------Search---------------
 
         private void searchTextBox_Click(object sender, EventArgs e)
@@ -724,9 +753,16 @@ namespace VFS_GUI
         private void searchButton_Click(object sender, EventArgs e)
         {
             PVFS.Search.Index i = new PVFS.Search.Index();
-            i.Search(this.searchTextBox.Text);
+            List<string> filePaths = i.Search(this.searchTextBox.Text);
 
             //TODO search!
+            this.mainListView.SelectedIndices.Clear();
+
+            foreach (string filePath in filePaths)
+            {
+                if (mainListView.Items.ContainsKey(filePath))
+                    mainListView.SelectedIndices.Add(mainListView.Items.IndexOfKey(filePath));
+            }
         }
     }
 }
