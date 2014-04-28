@@ -864,7 +864,7 @@ namespace VFS.VFS
                     return;
                 }
             }
-            Console.Message("Copied " + srcPath + " to " + dstPath + ".");
+            Console.Message("Copied " + srcEntry.Name + " to " + dstPath + ".");
         }
 
         /// <summary>
