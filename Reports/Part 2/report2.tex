@@ -84,7 +84,7 @@ hovering over a button will display a little text that explains its function. \\
 
 \subsection{Design}
 
-As hinted before, we implemented the core requirements. The main classes involved are the following: \\
+To implement the browser not many changes were necessary. The main classes involved in this part are the following: \\
 \emph{VfsExplorer.cs, RemoteConsole.cs, LocalConsole.cs, VfsManager.cs}
 \subsubsection{VfsExplorer.cs}
 This class basically catches every event that happens on the GUI and forwards a reaction to the \emph{remote console}. Those events are mainly clicks on buttons, items in the \emph{treeview} or the \emph{listview}. Those actions trigger the creation of a command which in the end will be executed by the \emph{VfsManager}.
@@ -127,12 +127,10 @@ Our VFS Browser provides the following features:
 	We allow keyboard navigation by typing an address in the \emph{addressbar}, when a directory is selected or when an item in the treeview is selected. 			After 	each of these cases, \emph{Enter} has to be pressed. Navigation into the parent folder is achieved with the Backspace-Key.
 \item \textbf{Support for mouse navigation.} \\
 	Mouse navigation is done by either clicking on an item in the \emph{treeview} or by double clicking a directory in the \emph{listview}.
-\item \textbf{(Advanced) Search. (Bonus feature) } \\
-	Our search allows to chose between case insensitive and sensitive search. To restrict the search to a folder is just as possible as to include its subfolders. 		Also supported are wildcards for which we use the \emph{*} symbol.
 \item \textbf {Responsive UI. (Bonus feature)}
-	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			in listing 3 (line-compressed).
+	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			in listing 3.
 \item \textbf{Drag and Drop. (Partial) (Bonus feature)}
-	So far, we allow copying and importing when dragging files into the listview or from the listview to the treeview.
+	So far, we allow copying and importing when dragging files from the Host-System into the \emph{listview} or from the \emph{listview} to the 				\emph{treeview}.
 \end{itemize}
 
 \pagebreak
@@ -151,7 +149,9 @@ Our VFS Browser provides the following features:
                     lastCommand = task.Command;
                     VfsManager.ExecuteCommand(task.Command);
                     remote.SetReady();
-         }   }   }
+                }   
+             }   
+         }
 \end{lstlisting}
 
 \end{document}
