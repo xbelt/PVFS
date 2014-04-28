@@ -706,9 +706,36 @@ namespace VFS_GUI
 
         private void mainListView_DragDrop(object sender, DragEventArgs e)
         {
+            //--------------- NEVER ENTERS HERE. WHY????????? -------------- //
+
             string command = "";
-            
-            //Importing
+
+            #region Export
+            string tmpPath = System.IO.Path.GetTempPath();
+            string[] tmpFilesPath = new string[selectedNames.Length];
+
+            if (selectedNames.Length > 0)
+            {
+                for (int i = 0; i < selectedNames.Length; i++)
+                {
+                    tmpFilesPath[i] = tmpPath + "\\" + selectedNames[i];
+                    string filePath = selectedPaths[i];
+                    command += "export " + filePath + " " + tmpPath + " ";
+                    Console.Message("", "exporting " + selectedNames[i]);
+                }
+                Console.Command(command);
+            }
+            DataObject dataObject = new DataObject(DataFormats.FileDrop, tmpFilesPath);
+            this.mainListView.DoDragDrop(dataObject, DragDropEffects.Copy);
+            foreach (string fileName in selectedNames)
+            {
+                System.IO.File.Delete(tmpPath + "\\" + fileName);
+            }
+            #endregion
+
+
+
+            #region Import
             if (selectedNames.Length == 0)
             {
                 Console.Message("", "entered import");
@@ -719,7 +746,9 @@ namespace VFS_GUI
                     Console.Command(command);
                 }
             }
+            #endregion
 
+            #region Copy in Listview
             //Copy in ListView itself --> TODO: Prevent import when items selected.
             if (selectedNames.Length > 0)
             {
@@ -733,14 +762,15 @@ namespace VFS_GUI
                     node = getNode(Address + "/" + entry.Name, out node, out remaining);
                     if (node != null) //node was directory
                     {
-                        foreach (string filePath in selectedPaths)
+                        foreach (string fp in selectedPaths)
                         {
-                            command += "cp " + filePath + " " + Address + "/" + dirName + " ";
+                            command += "cp " + fp + " " + Address + "/" + dirName + " ";
                         }
                         Console.Command(command);
                     }
                 }
             }
+            #endregion
         }
         private void mainListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
@@ -749,7 +779,9 @@ namespace VFS_GUI
 
         private void mainListView_DragLeave(object sender, DragEventArgs e)
         {
-            string command = "";
+            //---------------- Inserted into DragDrop -------------- //
+
+       /*     string command = "";
             string tmpPath = System.IO.Path.GetTempPath();
             string filePath;
             string[] tmpFilesPath = new string[selectedNames.Length];
@@ -770,7 +802,7 @@ namespace VFS_GUI
             foreach (string fileName in selectedNames)
             {
                 System.IO.File.Delete(tmpPath+"\\"+fileName);
-            }
+            } */
         }
 
         //--------------- TreeView Drag&Drop -------------------//
