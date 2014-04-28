@@ -384,6 +384,8 @@ namespace VFS_GUI
         {
             if (e.KeyCode == Keys.Enter)
                 this.mainListView_DoubleClick(sender, EventArgs.Empty);
+            else if (e.KeyCode == Keys.Back)
+                Navigate(Address.Substring(0, Address.LastIndexOf('/')));
         }
 
         private void mainTreeView_AfterSelect(object sender, TreeViewEventArgs e)
