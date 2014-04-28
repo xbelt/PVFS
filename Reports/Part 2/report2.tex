@@ -132,7 +132,7 @@ Our VFS Browser provides the following features:
 \item \textbf {Responsive UI. (Bonus feature)}
 	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			in listing 3 (line-compressed).
 \item \textbf{Drag and Drop. (Partial) (Bonus feature)}
-	So far, we allow copying and importing when dragging files into the listview. \textbf{TODO: Export and use of treeview not yet supported.}
+	So far, we allow copying and importing when dragging files into the listview or from the listview to the treeview.
 \end{itemize}
 
 \pagebreak
