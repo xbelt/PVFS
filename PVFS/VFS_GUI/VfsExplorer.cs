@@ -707,35 +707,63 @@ namespace VFS_GUI
         private void mainListView_DragDrop(object sender, DragEventArgs e)
         {
             string command = "";
-            string[] files = (string[]) e.Data.GetData(DataFormats.FileDrop);
-            foreach (string fileName in files)
+            
+            //Importing
+            if (selectedNames.Length == 0)
             {
-                command = "im " + fileName + " " + Address + " ";
-                Console.Command(command);
-            }
-
-            /*if (mainListView.SelectedItems.Count > 0)
-            {
-                SetStatus("", "count greater zero");
-                var pos = this.mainListView.PointToClient(new System.Drawing.Point(e.X, e.Y));
-                var hit = this.mainListView.HitTest(pos);
-                string dirName = hit.Item.Name;
-                SetStatus("", dirName);
-                if (hit.Item != null && hit.Item.Tag != null)
+                Console.Message("", "entered import");
+                string[] files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+                foreach (string fileName in files)
                 {
-                    foreach (string filePath in selectedPaths)
-                    {
-                        SetStatus("", "Importing " + filePath + " into " + Address + "/" + dirName);
-                        command += "cp " + filePath + " " + Address + "/" + dirName + " ";
-                    }
+                    command = "im " + fileName + " " + Address + " ";
                     Console.Command(command);
                 }
-            } */
+            }
 
+            //Copy in ListView itself --> TODO: Prevent import when items selected.
+            if (selectedNames.Length > 0)
+            {
+                var entry = this.mainListView.GetItemAt(e.X, e.Y);
+
+                if (entry != null)
+                {
+                    TreeNode node;
+                    string[] remaining;
+                    string dirName = entry.Name;
+                    node = getNode(Address + "/" + entry.Name, out node, out remaining);
+                    if (node != null) //node was directory
+                    {
+                        foreach (string filePath in selectedPaths)
+                        {
+                            command += "cp " + filePath + " " + Address + "/" + dirName + " ";
+                        }
+                        Console.Command(command);
+                    }
+                }
+            }
         }
         private void mainListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            this.mainListView.DoDragDrop(this.mainListView.SelectedItems, DragDropEffects.Copy);
+            this.mainListView.DoDragDrop(e.Item, DragDropEffects.Copy);
+        } 
+
+        private void mainListView_DragLeave(object sender, DragEventArgs e)
+        {
+            string command = "";
+            string tmpPath = System.IO.Path.GetTempPath();
+            if (selectedPaths.Count > 0)
+            {
+                foreach (string filePath in selectedPaths)
+                {
+                    command += "export " + filePath + " " + tmpPath + " ";
+                }
+            }
+            DataObject dataObject = new DataObject(DataFormats.FileDrop, selectedPaths);
+            this.mainListView.DoDragDrop(dataObject, DragDropEffects.Copy);
+            foreach (string fileName in selectedNames)
+            {
+                System.IO.File.Delete(tmpPath+"\\"+fileName);
+            }
         }
 
         //--------------- TreeView Drag&Drop -------------------//
