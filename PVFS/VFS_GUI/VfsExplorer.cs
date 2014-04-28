@@ -751,14 +751,21 @@ namespace VFS_GUI
         {
             string command = "";
             string tmpPath = System.IO.Path.GetTempPath();
-            if (selectedPaths.Count > 0)
+            string filePath;
+            string[] tmpFilesPath = new string[selectedNames.Length];
+
+            if (selectedNames.Length > 0)
             {
-                foreach (string filePath in selectedPaths)
+                for (int i = 0; i < selectedNames.Length; i++)
                 {
+                    tmpFilesPath[i] = tmpPath + "\\" + selectedNames[i];
+                    filePath = selectedPaths[i];
                     command += "export " + filePath + " " + tmpPath + " ";
+                    Console.Message("", "exporting " + selectedNames[i]);
                 }
+                Console.Command(command);
             }
-            DataObject dataObject = new DataObject(DataFormats.FileDrop, selectedPaths);
+            DataObject dataObject = new DataObject(DataFormats.FileDrop, tmpFilesPath);
             this.mainListView.DoDragDrop(dataObject, DragDropEffects.Copy);
             foreach (string fileName in selectedNames)
             {
