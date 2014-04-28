@@ -706,14 +706,33 @@ namespace VFS_GUI
 
         private void mainListView_DragDrop(object sender, DragEventArgs e)
         {
-            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            string command = "";
+            string[] files = (string[]) e.Data.GetData(DataFormats.FileDrop);
             foreach (string fileName in files)
             {
-                string command = "im " + fileName + " " + Address + " ";
+                command = "im " + fileName + " " + Address + " ";
                 Console.Command(command);
             }
-        }
 
+            /*if (mainListView.SelectedItems.Count > 0)
+            {
+                SetStatus("", "count greater zero");
+                var pos = this.mainListView.PointToClient(new System.Drawing.Point(e.X, e.Y));
+                var hit = this.mainListView.HitTest(pos);
+                string dirName = hit.Item.Name;
+                SetStatus("", dirName);
+                if (hit.Item != null && hit.Item.Tag != null)
+                {
+                    foreach (string filePath in selectedPaths)
+                    {
+                        SetStatus("", "Importing " + filePath + " into " + Address + "/" + dirName);
+                        command += "cp " + filePath + " " + Address + "/" + dirName + " ";
+                    }
+                    Console.Command(command);
+                }
+            } */
+
+        }
         private void mainListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             this.mainListView.DoDragDrop(this.mainListView.SelectedItems, DragDropEffects.Copy);
@@ -727,7 +746,6 @@ namespace VFS_GUI
 
         private void treeView_DragDrop(object sender, DragEventArgs e)
         {
-            TreeNode n;
             string command = "";
             if (e.Data.GetDataPresent("System.Windows.Forms.ListView+SelectedListViewItemCollection", false))
             {
@@ -756,13 +774,13 @@ namespace VFS_GUI
             List<string> filePaths = i.Search(this.searchTextBox.Text);
 
             //TODO search!
-            this.mainListView.SelectedIndices.Clear();
+            /*this.mainListView.SelectedIndices.Clear();
 
             foreach (string filePath in filePaths)
             {
                 if (mainListView.Items.ContainsKey(filePath))
                     mainListView.SelectedIndices.Add(mainListView.Items.IndexOfKey(filePath));
-            }
+            }*/
         }
     }
 }
