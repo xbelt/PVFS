@@ -9,6 +9,9 @@ namespace VFS.VFS
 {
     public class OnlineUser
     {
+        private static OnlineUser empty = new OnlineUser() { Name = "" };
+        public static OnlineUser Empty { get { return empty; } }
+
         public TcpClient Connection { get; set; }
 
         public string Name { get; set; }
