@@ -10,21 +10,21 @@ namespace VFS_GUI
     /// <summary>
     /// This is the console which speaks to the VfsManager.
     /// </summary>
-    public class LocalConsole<T> : VfsConsole<T>
+    public class LocalConsole : VfsConsole
     {
-        private RemoteConsole<T> remote;
+        private RemoteConsole remote;
 
-        private ConcurrentQueue<VfsTask<T>> tasks;
-        private VfsTask<T> currentTask;
+        private ConcurrentQueue<VfsTask> tasks;
+        private VfsTask currentTask;
         private Thread workerThread;
 
-        public LocalConsole(RemoteConsole<T> remote)
+        public LocalConsole(RemoteConsole remote)
         {
             this.remote = remote;
             remote.setConsole(this);
 
-            this.tasks = new ConcurrentQueue<VfsTask<T>>();
-            this.currentTask = new VfsTask<T>() { Command = "", Sender = default(T) };
+            this.tasks = new ConcurrentQueue<VfsTask>();
+            this.currentTask = new VfsTask() { Command = "", Sender = null };
 
             this.workerThread = new Thread(new ThreadStart(this.workerThreadProcedure));
             this.workerThread.Name = "VFS Worker Thread";
@@ -33,7 +33,7 @@ namespace VFS_GUI
 
         private void workerThreadProcedure()
         {
-            VfsTask<T> task;
+            VfsTask task;
             while (true)
             {
                 if (tasks.TryDequeue(out task))
@@ -52,7 +52,7 @@ namespace VFS_GUI
         }
 
 
-        public override void Command(string comm, T sender)
+        public override void Command(string comm, OnlineUser sender)
         {
             if (comm.StartsWith("ls"))
             {
@@ -61,15 +61,14 @@ namespace VFS_GUI
                 if (res == 1)
                 {
                     remote.ErrorMessage(comm, "Invalid path.", sender);
-                    return;
                 }
-                if (res == 0)
+                else if (res == 0)
                 {
                     remote.Message(comm, dirs.Concat(" ") + "\n" + files.Concat(" "), sender);
                 }
                 else
                 {
-                    tasks.Enqueue(new VfsTask<T>() { Command = comm, Sender = sender });
+                    tasks.Enqueue(new VfsTask() { Command = comm, Sender = sender });
                 }
             }
             else if (comm == "free" || comm == "occ")
@@ -78,7 +77,7 @@ namespace VFS_GUI
             }
             else
             {
-                tasks.Enqueue(new VfsTask<T>() { Command = comm, Sender = sender });
+                tasks.Enqueue(new VfsTask() { Command = comm, Sender = sender });
             }
         }
 
