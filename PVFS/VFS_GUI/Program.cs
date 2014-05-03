@@ -16,7 +16,7 @@ namespace VFS_GUI
         static void Main()
         {
             RemoteConsole remc = new RemoteConsole();
-            VfsManager.Console = new LocalConsole(remc);
+            VfsManager.Console = new LocalConsole(remc).StartWorker();
 
 
             Application.EnableVisualStyles();

@@ -25,10 +25,15 @@ namespace VFS_GUI
 
             this.tasks = new ConcurrentQueue<VfsTask>();
             this.currentTask = new VfsTask() { Command = "", Sender = null };
+        }
 
+        public LocalConsole StartWorker()
+        {
             this.workerThread = new Thread(new ThreadStart(this.workerThreadProcedure));
             this.workerThread.Name = "VFS Worker Thread";
             this.workerThread.Start();
+
+            return this;
         }
 
         private void workerThreadProcedure()
