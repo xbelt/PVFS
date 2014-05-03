@@ -21,12 +21,18 @@ namespace VFS_GUI
         public string ResultPassword { get; private set; }
         public string ResultSize { get; private set; }
 
-        public VfsCreateDisk()
+        public VfsCreateDisk(bool nonLocal)
         {
             InitializeComponent();
             pathTextBox.Text = Environment.CurrentDirectory;
             this.sizeComboBox.SelectedIndex = 1;
             this.DialogResult = DialogResult.Cancel;
+            if (nonLocal)
+            {
+                this.pathTextBox.Text = "";
+                this.pathTextBox.Enabled = false;
+                this.browseFolderButton.Enabled = false;
+            }
         }
 
         private void browseFolderButton_Click(object sender, EventArgs e)

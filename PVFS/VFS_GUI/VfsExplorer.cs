@@ -13,6 +13,7 @@ namespace VFS_GUI
 
         public static RemoteConsole Console { get; private set; }
         public bool Ready { get; private set; }
+        public bool NonLocal { get; set; }
         private string Address { get; set; }
         private List<string> Disks { get; set; }
 
@@ -49,6 +50,7 @@ namespace VFS_GUI
             Console.setExplorer(this);
 
             this.Ready = true;
+            this.NonLocal = false;
             this.Address = "/";
             this.Disks = new List<string>();
             this.selectedNames = new string[0];
@@ -415,7 +417,7 @@ namespace VFS_GUI
 
         private void createDiskButton_Click(object sender, EventArgs e)
         {
-            var window = new VfsCreateDisk();
+            var window = new VfsCreateDisk(this.NonLocal);
             if (window.ShowDialog() == DialogResult.OK)
             {
                 var path = "";
@@ -423,7 +425,7 @@ namespace VFS_GUI
                 var bs = "";
                 var pw = "";
 
-                if (window.ResultPath != Environment.CurrentDirectory)
+                if (window.ResultPath != Environment.CurrentDirectory && !this.NonLocal)
                 {
                     path = " -p " + window.ResultPath;
                 }
@@ -451,13 +453,28 @@ namespace VFS_GUI
 
         private void openDiskButton_Click(object sender, EventArgs e)
         {
-            if (diskOFD.ShowDialog(this) == DialogResult.OK)
+            if (!this.NonLocal)
             {
-                string command = "ldisk " + diskOFD.FileName;
+                if (diskOFD.ShowDialog(this) == DialogResult.OK)
+                {
+                    string command = "ldisk " + diskOFD.FileName;
 
-                Console.Command(command);
+                    Console.Command(command);
 
-                UpdateExplorer(true);
+                    UpdateExplorer(true);
+                }
+            }
+            else
+            {
+                EnterName dialog = new EnterName();
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    string command = "ldisk " + dialog.Result;
+
+                    Console.Command(command);
+
+                    UpdateExplorer(true);
+                }
             }
         }
 
