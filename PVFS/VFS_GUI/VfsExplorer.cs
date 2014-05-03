@@ -12,6 +12,7 @@ namespace VFS_GUI
         public const string Caption = "Virtual File System";
 
         public static RemoteConsole Console { get; private set; }
+        public bool Ready { get; private set; }
         private string Address { get; set; }
         private List<string> Disks { get; set; }
 
@@ -42,11 +43,12 @@ namespace VFS_GUI
         private Object LoadedObject = new Object();
 
 
-        public VfsExplorer()
+        public VfsExplorer(RemoteConsole console)
         {
-            Console = new RemoteConsole(this);
-            VfsManager.Console = new LocalConsole(Console);
+            Console = console;
+            Console.setExplorer(this);
 
+            this.Ready = true;
             this.Address = "/";
             this.Disks = new List<string>();
             this.selectedNames = new string[0];
@@ -691,6 +693,7 @@ namespace VFS_GUI
 
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
         {
+            this.Ready = false;
             Console.Command("quit");
         }
 
@@ -710,7 +713,20 @@ namespace VFS_GUI
 
             string command = "";
 
+            // It enters here if you use host -> vfs.
+            // Anyways, execute only one of these three possibilities.
+            // Example d&d from listview to listview folder:
+            // start drag by adding an additional dataformat to e.dataFormatPresentWhatever (which can only be used by this application)
+            // check if this format is available on drop
+            // YES -> intern d&d, use copy/move
+            // NO -> use im
+
+            // for "export" drag drop: check if the format is not intern format.
+            // YES -> export to temp, give that path as file and op = move
+            // NO -> do nothing
+
             #region Export
+            /*
             string tmpPath = System.IO.Path.GetTempPath();
             string[] tmpFilesPath = new string[selectedNames.Length];
 
@@ -730,15 +746,12 @@ namespace VFS_GUI
             foreach (string fileName in selectedNames)
             {
                 System.IO.File.Delete(tmpPath + "\\" + fileName);
-            }
+            }*/
             #endregion
-
-
 
             #region Import
             if (selectedNames.Length == 0)
             {
-                Console.Message("", "entered import");
                 string[] files = (string[]) e.Data.GetData(DataFormats.FileDrop);
                 foreach (string fileName in files)
                 {
@@ -750,6 +763,7 @@ namespace VFS_GUI
 
             #region Copy in Listview
             //Copy in ListView itself --> TODO: Prevent import when items selected.
+            /*
             if (selectedNames.Length > 0)
             {
                 var entry = this.mainListView.GetItemAt(e.X, e.Y);
@@ -769,9 +783,10 @@ namespace VFS_GUI
                         Console.Command(command);
                     }
                 }
-            }
+            }*/
             #endregion
         }
+        
         private void mainListView_ItemDrag(object sender, ItemDragEventArgs e)
         {
             this.mainListView.DoDragDrop(e.Item, DragDropEffects.Copy);
