@@ -11,7 +11,7 @@ namespace VFS_GUI
     {
         public const string Caption = "Virtual File System";
 
-        public static RemoteConsole<object> Console { get; private set; }
+        public static RemoteConsole Console { get; private set; }
         public bool Ready { get; private set; }
         public bool NonLocal { get; set; }
         private string Address { get; set; }
@@ -44,7 +44,7 @@ namespace VFS_GUI
         private Object LoadedObject = new Object();
 
 
-        public VfsExplorer(RemoteConsole<object> console)
+        public VfsExplorer(RemoteConsole console)
         {
             Console = console;
             Console.setExplorer(this);

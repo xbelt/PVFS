@@ -11,12 +11,12 @@ namespace VFS_GUI
     /// <summary>
     /// This is the console which speaks to the VfsExplorer.
     /// </summary>
-    public class RemoteConsole<T>
+    public class RemoteConsole
     {
-        private const string caption = "Virtual File System";
+        protected const string caption = "Virtual File System";
 
         private VfsExplorer explorer;
-        private LocalConsole<T> local;
+        protected LocalConsole local;
 
         public RemoteConsole()
         {
@@ -28,7 +28,7 @@ namespace VFS_GUI
             this.explorer = explorer;
         }
 
-        public void setConsole(LocalConsole<T> local)
+        public void setConsole(LocalConsole local)
         {
             this.local = local;
         }
@@ -39,14 +39,14 @@ namespace VFS_GUI
         /// <param name="comm"></param>
         public virtual void Command(string comm)
         {
-            local.Command(comm, default(T));
+            local.Command(comm, null);
         }
 
         /// <summary>
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="info"></param>
-        public virtual void Message(string command, string info, T sender)
+        public virtual void Message(string command, string info, OnlineUser sender)
         {
             if (explorer.Ready)
             {
@@ -76,7 +76,7 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="message"></param>
-        public virtual void ErrorMessage(string command, string message, T sender)
+        public virtual void ErrorMessage(string command, string message, OnlineUser sender)
         {
             if (explorer.Ready)
                 explorer.Invoke(new Action(() => explorer.ReceivedError(command, message)));
@@ -88,7 +88,7 @@ namespace VFS_GUI
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public virtual int Query(string message, string[] options, T sender)
+        public virtual int Query(string message, string[] options, OnlineUser sender)
         {
             DialogResult res = MessageBox.Show(message, caption, System.Windows.Forms.MessageBoxButtons.YesNo);
             return res == DialogResult.Yes ? 0 : 1;
