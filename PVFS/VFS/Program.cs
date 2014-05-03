@@ -13,7 +13,7 @@ namespace VFS
             while (true)
             {
                 var value = Console.ReadLine();
-                console.Command(value);
+                console.Command(value, null);
             }
         }
     }

@@ -41,7 +41,7 @@ namespace VFS.VFS
             return opts.IndexOf(answer);
         }
 
-        public virtual void Command(string comm)
+        public virtual void Command(string comm, object sender)
         {
             VfsManager.ExecuteCommand(comm);
         }

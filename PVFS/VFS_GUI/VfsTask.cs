@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace VFS_GUI
 {
-    class VfsTask
+    class VfsTask<T>
     {
         public string Command { get; set; }
 
-        // useful to store information about issuer (for part 3)
+        public T Sender { get; set; }
     }
 }

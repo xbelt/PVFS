@@ -18,10 +18,16 @@ namespace VFS_GUI
         private VfsExplorer explorer;
         private LocalConsole local;
 
-        public RemoteConsole(VfsExplorer explorer)
+        public RemoteConsole()
+        {
+
+        }
+
+        public virtual void setExplorer(VfsExplorer explorer)
         {
             this.explorer = explorer;
         }
+
         public void setConsole(LocalConsole local)
         {
             this.local = local;
@@ -33,33 +39,36 @@ namespace VFS_GUI
         /// <param name="comm"></param>
         public virtual void Command(string comm)
         {
-            local.Command(comm);
+            local.Command(comm, null);
         }
 
         /// <summary>
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="info"></param>
-        public virtual void Message(string command, string info)
+        public virtual void Message(string command, string info, object sender)
         {
-            if (command.StartsWith("ls"))
+            if (explorer.Ready)
             {
-                string[] dirs, files;
-                var lines = info.Split('\n');
-                dirs = lines[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                files = lines[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (command.StartsWith("ls"))
+                {
+                    string[] dirs, files;
+                    var lines = info.Split('\n');
+                    dirs = lines[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    files = lines[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                explorer.Invoke(new Action(() => explorer.ReceiveListEntries(command.Substring(3), dirs, files)));
-            }
-            else if (command.StartsWith("ldisks"))
-            {
-                string[] disks;
-                disks = info.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                explorer.Invoke(new Action(() => explorer.ReceiveListDisks(disks)));
-            }
-            else
-            {
-                explorer.Invoke(new Action(() => explorer.SetStatus(command, info)));
+                    explorer.Invoke(new Action(() => explorer.ReceiveListEntries(command.Substring(3), dirs, files)));
+                }
+                else if (command.StartsWith("ldisks"))
+                {
+                    string[] disks;
+                    disks = info.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    explorer.Invoke(new Action(() => explorer.ReceiveListDisks(disks)));
+                }
+                else
+                {
+                    explorer.Invoke(new Action(() => explorer.SetStatus(command, info)));
+                }
             }
         }
 
@@ -67,9 +76,10 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="message"></param>
-        public virtual void ErrorMessage(string command, string message)
+        public virtual void ErrorMessage(string command, string message, object sender)
         {
-            explorer.Invoke(new Action(() => explorer.ReceivedError(command, message)));
+            if (explorer.Ready)
+                explorer.Invoke(new Action(() => explorer.ReceivedError(command, message)));
         }
 
         /// <summary>
@@ -78,7 +88,7 @@ namespace VFS_GUI
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public virtual int Query(string message, params string[] options)
+        public virtual int Query(string message, string[] options, object sender)
         {
             DialogResult res = MessageBox.Show(message, caption, System.Windows.Forms.MessageBoxButtons.YesNo);
             return res == DialogResult.Yes ? 0 : 1;
@@ -86,12 +96,14 @@ namespace VFS_GUI
 
         public virtual void SetReady()
         {
-            explorer.Invoke(new Action(explorer.SetReady));
+            if (explorer.Ready)
+                explorer.Invoke(new Action(explorer.SetReady));
         }
 
         public virtual void SetBusy()
         {
-            explorer.Invoke(new Action(explorer.SetBusy));
+            if (explorer.Ready)
+                explorer.Invoke(new Action(explorer.SetBusy));
         }
     }
 }
