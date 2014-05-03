@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace VFS.VFS
 {
-    public class VfsConsole
+    public class VfsConsole<T>
     {
 
         public virtual void ErrorMessage(string message)
@@ -41,7 +41,7 @@ namespace VFS.VFS
             return opts.IndexOf(answer);
         }
 
-        public virtual void Command(string comm, object sender)
+        public virtual void Command(string comm, T sender)
         {
             VfsManager.ExecuteCommand(comm);
         }

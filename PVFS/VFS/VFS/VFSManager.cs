@@ -14,19 +14,19 @@ using VFS.VFS.Parser;
 
 namespace VFS.VFS
 {
-    public class VfsManager
+    public static class VfsManager
     {
         private readonly static List<VfsDisk> Disks = new List<VfsDisk>();
         public static VfsDirectory WorkingDirectory { get; private set; }
         public static VfsDisk CurrentDisk { get; private set; }
-        public static VfsConsole Console { get; set; }
+        public static VfsConsole<object> Console { get; set; }
         private readonly static string[] IdToSize = { "bytes", "kb", "mb", "gb", "tb" };
         private const string Salt = "d5fg4df5sg4ds5fg45sdfg4";
         private const int SizeOfBuffer = 1024 * 8;
 
         static VfsManager()
         {
-            Console = new VfsConsole();
+            Console = new VfsConsole<object>();
         }
 
         //----------------------Private Methods----------------------

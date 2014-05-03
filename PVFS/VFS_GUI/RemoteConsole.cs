@@ -11,12 +11,12 @@ namespace VFS_GUI
     /// <summary>
     /// This is the console which speaks to the VfsExplorer.
     /// </summary>
-    public class RemoteConsole
+    public class RemoteConsole<T>
     {
         private const string caption = "Virtual File System";
 
         private VfsExplorer explorer;
-        private LocalConsole local;
+        private LocalConsole<T> local;
 
         public RemoteConsole()
         {
@@ -28,7 +28,7 @@ namespace VFS_GUI
             this.explorer = explorer;
         }
 
-        public void setConsole(LocalConsole local)
+        public void setConsole(LocalConsole<T> local)
         {
             this.local = local;
         }
@@ -39,14 +39,14 @@ namespace VFS_GUI
         /// <param name="comm"></param>
         public virtual void Command(string comm)
         {
-            local.Command(comm, null);
+            local.Command(comm, default(T));
         }
 
         /// <summary>
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="info"></param>
-        public virtual void Message(string command, string info, object sender)
+        public virtual void Message(string command, string info, T sender)
         {
             if (explorer.Ready)
             {
@@ -76,7 +76,7 @@ namespace VFS_GUI
         /// Is called when a result from the localConsole is received.
         /// </summary>
         /// <param name="message"></param>
-        public virtual void ErrorMessage(string command, string message, object sender)
+        public virtual void ErrorMessage(string command, string message, T sender)
         {
             if (explorer.Ready)
                 explorer.Invoke(new Action(() => explorer.ReceivedError(command, message)));
@@ -88,7 +88,7 @@ namespace VFS_GUI
         /// <param name="message"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public virtual int Query(string message, string[] options, object sender)
+        public virtual int Query(string message, string[] options, T sender)
         {
             DialogResult res = MessageBox.Show(message, caption, System.Windows.Forms.MessageBoxButtons.YesNo);
             return res == DialogResult.Yes ? 0 : 1;

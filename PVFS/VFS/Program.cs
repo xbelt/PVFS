@@ -7,7 +7,7 @@ namespace VFS
     {
         static void Main()
         {
-            VfsConsole console = new VfsConsole();
+            VfsConsole<object> console = new VfsConsole<object>();
             VfsManager.Console = console;
 
             while (true)
