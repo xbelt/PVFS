@@ -14,8 +14,8 @@ namespace VFS_GUI
     {
         private RemoteConsole remote;
 
-        private ConcurrentQueue<VfsTask> tasks;
-        private string lastCommand;
+        private ConcurrentQueue<VfsTask<object>> tasks;
+        private VfsTask<object> currentTask;
         private Thread workerThread;
 
         public LocalConsole(RemoteConsole remote)
@@ -23,8 +23,8 @@ namespace VFS_GUI
             this.remote = remote;
             remote.setConsole(this);
 
-            this.tasks = new ConcurrentQueue<VfsTask>();
-            this.lastCommand = "";
+            this.tasks = new ConcurrentQueue<VfsTask<object>>();
+            this.currentTask = new VfsTask<object>() { Command = "", Sender = null };
 
             this.workerThread = new Thread(new ThreadStart(this.workerThreadProcedure));
             this.workerThread.Name = "VFS Worker Thread";
@@ -33,26 +33,26 @@ namespace VFS_GUI
 
         private void workerThreadProcedure()
         {
-            VfsTask task;
+            VfsTask<object> task;
             while (true)
             {
                 if (tasks.TryDequeue(out task))
                 {
-                    if (task.Command == "quit")
-                        return;
-
                     remote.SetBusy();
 
-                    lastCommand = task.Command;
+                    currentTask = task;
                     VfsManager.ExecuteCommand(task.Command);
 
                     remote.SetReady();
+
+                    if (task.Command == "quit")
+                        return;
                 }
             }
         }
 
 
-        public override void Command(string comm)
+        public override void Command(string comm, object sender)
         {
             if (comm.StartsWith("ls"))
             {
@@ -60,16 +60,16 @@ namespace VFS_GUI
                 int res = VfsManager.ListEntriesConcurrent(comm.Substring(3), out dirs, out files);
                 if (res == 1)
                 {
-                    remote.ErrorMessage(comm, "Invalid path.");
+                    remote.ErrorMessage(comm, "Invalid path.", sender);
                     return;
                 }
                 if (res == 0)
                 {
-                    remote.Message(comm, dirs.Concat(" ") + "\n" + files.Concat(" "));
+                    remote.Message(comm, dirs.Concat(" ") + "\n" + files.Concat(" "), sender);
                 }
                 else
                 {
-                    tasks.Enqueue(new VfsTask() { Command = comm });
+                    tasks.Enqueue(new VfsTask<object>() { Command = comm, Sender = sender });
                 }
             }
             else if (comm == "free" || comm == "occ")
@@ -78,18 +78,18 @@ namespace VFS_GUI
             }
             else
             {
-                tasks.Enqueue(new VfsTask() { Command = comm });
+                tasks.Enqueue(new VfsTask<object>() { Command = comm, Sender = sender });
             }
         }
 
         public override void ErrorMessage(string message)
         {
-            remote.ErrorMessage(lastCommand, message);
+            remote.ErrorMessage(currentTask.Command, message, currentTask.Sender);
         }
 
         public override void Message(string info)
         {
-            remote.Message(lastCommand, info);
+            remote.Message(currentTask.Command, info, currentTask.Sender);
         }
 
         public override void Message(string info, ConsoleColor textCol)
@@ -99,7 +99,7 @@ namespace VFS_GUI
 
         public override int Query(string message, params string[] options)
         {
-            return remote.Query(message, options);
+            return remote.Query(message, options, currentTask.Sender);
         }
     }
 }
