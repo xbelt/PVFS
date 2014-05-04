@@ -338,14 +338,30 @@ namespace VFS.VFS
             Console.Message(Disks.Select(d => d.DiskProperties.Name).Concat(" "));
         }
 
-        public static void LoadDisk(VfsDisk disk)
+        public static void LoadDisk(string path, string pw)
         {
-            if (disk == null) throw new ArgumentNullException("disk");
+            if (path == null) throw new ArgumentNullException("disk");
+
+            if (Disks.Any(d => d.Path == path))
+            {
+                Console.ErrorMessage("This disk is already open.");
+                return;
+            }
+
+            VfsDisk disk = DiskFactory.Load(path, pw);
+
+            if (disk == null)
+            {
+                Console.ErrorMessage("This disk cannot be opened or does not exist.");
+                return;
+            }
 
             if (GetDisk(disk.DiskProperties.Name) != null)
             {
                 Console.ErrorMessage("A disk with the same name was already in the VFS.");
+                return;
             }
+
             lock (Disks)
             {
                 Disks.Add(disk);

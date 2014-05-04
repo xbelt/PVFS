@@ -83,17 +83,16 @@ namespace VFS.VFS.Parser
         {
             if (context == null)
                 return;
-            VfsDisk disk = null;
             string pw = "";
             if (context.pw != null)
             {
                 pw = context.pw.Text;
             }
-            if (context.sys != null && context.sys.Text.EndsWith(".vdi"))
+            if (context.sys != null)
             {
-                disk = DiskFactory.Load(context.sys.Text, pw);
+                VfsManager.LoadDisk(context.sys.Text, pw);
             }
-            if (context.name != null)
+            else if (context.name != null)
             {
                 var path = Directory.GetCurrentDirectory();
                 if (!path.EndsWith("\\"))
@@ -103,16 +102,7 @@ namespace VFS.VFS.Parser
                 string name = context.name.Text;
                 if (!context.name.Text.EndsWith(".vdi"))
                     name += ".vdi";
-                disk = DiskFactory.Load(path + name, pw);
-            }
-            if (disk != null)
-            {
-                VfsManager.LoadDisk(disk);
-                return;
-            }
-            else
-            {
-                VfsManager.Console.ErrorMessage("Disk not found.");
+                VfsManager.LoadDisk(path + name, pw);
             }
         }
 

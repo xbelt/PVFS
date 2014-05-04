@@ -72,7 +72,14 @@ namespace VFS.VFS
                 path += ".vdi";
             if (File.Exists(path))
             {
-                var stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite);
+                FileStream stream;
+                try
+                {
+                    stream = File.Open(path, FileMode.Open, FileAccess.ReadWrite);
+                }
+                catch (IOException) { return null; }
+                catch (UnauthorizedAccessException) { return null; }
+
                 var reader = new BinaryReader(stream, new ASCIIEncoding(), false);
                 var dp = DiskProperties.Load(reader);
                 reader.Close();
