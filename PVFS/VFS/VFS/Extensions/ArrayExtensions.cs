@@ -25,7 +25,7 @@ namespace VFS.VFS
             return arr.Skip(1).Aggregate(arr.First(), (agg, s) => agg + (glue + s));
         }
 
-        public static bool CompareContent<T>(this T[] arr1, int index, int length, T[] arr2)
+        public static bool EqualContent<T>(this T[] arr1, int index, int length, T[] arr2)
         {
             if (arr1.Length < index + length)
                 return false;
@@ -34,7 +34,7 @@ namespace VFS.VFS
 
             for (int i = 0; i < length; i++)
             {
-                if (arr1[i + index].Equals(arr2[i]))
+                if (!arr1[i + index].Equals(arr2[i]))
                     return false;
             }
             return true;
