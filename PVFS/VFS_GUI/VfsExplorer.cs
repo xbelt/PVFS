@@ -708,6 +708,11 @@ namespace VFS_GUI
             }
         }
 
+        private void VfsExplorer_Load(object sender, EventArgs e)
+        {
+            UpdateExplorer(true);
+        }
+
         private void VfsExplorer_FormClosing(object sender, FormClosingEventArgs e)
         {
             this.Ready = false;

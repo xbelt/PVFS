@@ -266,18 +266,18 @@
             // 
             // mainTreeView
             // 
+            this.mainTreeView.AllowDrop = true;
             this.mainTreeView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.mainTreeView.Location = new System.Drawing.Point(0, 0);
             this.mainTreeView.Name = "mainTreeView";
             this.mainTreeView.PathSeparator = "/";
             this.mainTreeView.Size = new System.Drawing.Size(184, 278);
             this.mainTreeView.TabIndex = 0;
-            this.mainTreeView.AllowDrop = true;
             this.mainTreeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.mainTreeView_BeforeExpand);
             this.mainTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.mainTreeView_AfterSelect);
-            this.mainTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.mainTreeView_KeyUp);
-            this.mainTreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView_DragEnter);
             this.mainTreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView_DragDrop);
+            this.mainTreeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView_DragEnter);
+            this.mainTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.mainTreeView_KeyUp);
             // 
             // mainListView
             // 
@@ -290,15 +290,15 @@
             this.mainListView.Location = new System.Drawing.Point(2, 26);
             this.mainListView.Margin = new System.Windows.Forms.Padding(2);
             this.mainListView.Name = "mainListView";
-            this.mainListView.Size = new System.Drawing.Size(534, 252);
+            this.mainListView.Size = new System.Drawing.Size(535, 252);
             this.mainListView.SmallImageList = this.smallImageList;
             this.mainListView.TabIndex = 0;
             this.mainListView.UseCompatibleStateImageBehavior = false;
             this.mainListView.View = System.Windows.Forms.View.SmallIcon;
+            this.mainListView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.mainListView_ItemDrag);
             this.mainListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.mainListView_ItemSelectionChanged);
             this.mainListView.DragDrop += new System.Windows.Forms.DragEventHandler(this.mainListView_DragDrop);
             this.mainListView.DragEnter += new System.Windows.Forms.DragEventHandler(this.mainListView_DragEnter);
-            this.mainListView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.mainListView_ItemDrag);
             this.mainListView.DoubleClick += new System.EventHandler(this.mainListView_DoubleClick);
             this.mainListView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.mainListView_KeyUp);
             // 
@@ -397,8 +397,10 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MinimumSize = new System.Drawing.Size(727, 300);
             this.Name = "VfsExplorer";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Virtual File System";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.VfsExplorer_FormClosing);
+            this.Load += new System.EventHandler(this.VfsExplorer_Load);
             this.menuPanel.ResumeLayout(false);
             this.mainPanel.ResumeLayout(false);
             this.mainSplitContainer.Panel1.ResumeLayout(false);
