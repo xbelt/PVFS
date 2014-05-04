@@ -12,7 +12,7 @@ namespace VFS_GUI
     /// </summary>
     public class LocalConsole : VfsConsole
     {
-        private RemoteConsole remote;
+        protected RemoteConsole remote;
 
         private ConcurrentQueue<VfsTask> tasks;
         private VfsTask currentTask;
