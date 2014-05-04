@@ -436,7 +436,15 @@ namespace VFS.VFS
                 return;
             }
             var disk = DiskFactory.Create(new DiskInfo(path, name, size, blockSize), pw);
-            LoadDisk(disk);
+            
+            lock (Disks)
+            {
+                Disks.Add(disk);
+            }
+            CurrentDisk = disk;
+            WorkingDirectory = disk.Root;
+
+            Console.Message("Created disk " + disk.DiskProperties.Name + ".");
         }
 
         public static void RemoveDisk(string path)
