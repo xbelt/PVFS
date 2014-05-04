@@ -88,7 +88,7 @@ namespace VFS.VFS.Parser
             {
                 pw = context.pw.Text;
             }
-            if (context.sys != null)
+            if (context.sys != null && context.sys.Text.EndsWith(".vdi"))// TODO context.sys.Text.EndsWith(".vdi") is a temp fix because of paths with spaces
             {
                 VfsManager.LoadDisk(context.sys.Text, pw);
             }
