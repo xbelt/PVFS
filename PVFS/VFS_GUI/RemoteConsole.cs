@@ -48,7 +48,7 @@ namespace VFS_GUI
         /// <param name="info"></param>
         public virtual void Message(string command, string info, OnlineUser sender)
         {
-            if (explorer.Ready)
+            if (explorer != null && explorer.Ready)
             {
                 if (command.StartsWith("ls"))
                 {
@@ -78,7 +78,7 @@ namespace VFS_GUI
         /// <param name="message"></param>
         public virtual void ErrorMessage(string command, string message, OnlineUser sender)
         {
-            if (explorer.Ready)
+            if (explorer != null && explorer.Ready)
                 explorer.Invoke(new Action(() => explorer.ReceivedError(command, message)));
         }
 
@@ -96,13 +96,13 @@ namespace VFS_GUI
 
         public virtual void SetReady()
         {
-            if (explorer.Ready)
+            if (explorer != null && explorer.Ready)
                 explorer.Invoke(new Action(explorer.SetReady));
         }
 
         public virtual void SetBusy()
         {
-            if (explorer.Ready)
+            if (explorer != null && explorer.Ready)
                 explorer.Invoke(new Action(explorer.SetBusy));
         }
     }
