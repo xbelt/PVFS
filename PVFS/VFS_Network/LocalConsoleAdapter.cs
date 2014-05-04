@@ -1,0 +1,250 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using VFS_GUI;
+
+namespace VFS_Network
+{
+    /// <summary>
+    /// An instance of this calss is run by the Client.
+    /// </summary>
+    class LocalConsoleAdapter : LocalConsole
+    {
+        private const int BUFFER_SIZE = 4096;
+
+        private bool abort;
+        private object abortLock;
+        private VfsClient clientGUI;
+
+        private TcpClient client;
+        private Thread clientThread;
+
+        public LocalConsoleAdapter(RemoteConsole remc, VfsClient clientGUI)
+            : base(remc)
+        {
+            abortLock = new Object();
+            this.clientGUI = clientGUI;
+        }
+
+        //-------------------Public-------------------
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="IP"></param>
+        /// <param name="port"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        /// <returns>0 -> ok, 1 -> connection error, 2-> wrong user/pass</returns>
+        public int Start(string IP, int port, string user, string password)
+        {
+            bool error = true;
+            try
+            {
+                client = new TcpClient(IP, port);
+
+                Byte[] data = new byte[1 + user.Length + 32];
+
+                data[0] = (Byte)user.Length;
+
+                Encoding.UTF8.GetBytes(user, 0, user.Length, data, 1);
+
+                VfsServer.GetHash(password).CopyTo(data, user.Length + 1);
+
+                NetworkStream stream = client.GetStream();
+
+                stream.Write(data, 0, data.Length);
+
+                int i = stream.Read(data, 0, 1);
+
+                if (i != 1)//connection error
+                    return 1;
+
+                if (data[0] != 1)//wrong user/password
+                    return 2;
+
+                lock (abortLock)
+                {
+                    this.abort = false;
+                }
+                stream.ReadTimeout = 500;
+                this.clientThread = new Thread(this.clentProcedure);
+                this.clientThread.Name = "VFS Client";
+                this.clientThread.Start();
+
+                error = false;
+            }
+            catch (SocketException e)
+            {
+                return 1;
+            }
+            finally
+            {
+                if (error && client != null)
+                {
+                    client.Close();
+                    client = null;
+                }
+            }
+            
+            return 0;
+        }
+        
+        public void Stop()
+        {
+            lock (abortLock)
+            {
+                this.abort = true;
+            }
+        }
+
+        //-------------------Private-------------------
+
+        private void clentProcedure()
+        {
+            Byte[] buffer = new Byte[BUFFER_SIZE];
+            NetworkStream stream = client.GetStream();
+
+            while (true)
+            {
+                lock (abortLock)
+                {
+                    if (this.abort)
+                        break;
+                }
+
+                Thread.Sleep(10);
+
+                if (!client.Connected)
+                    break;
+
+                try
+                {
+                    int length = stream.Read(buffer, 0, buffer.Length);
+
+                    if (length > 0)
+                    {
+                        if (!handleData(buffer, length))
+                            break;
+                    }
+                }
+                catch (IOException) { }
+            }
+
+            // Send end
+            if (client.Connected)
+            {
+                stream.Write(new Byte[] { 8 }, 0, 1);
+                stream.Flush();
+            }
+
+            this.client.Close();
+            this.client = null;
+
+            clientGUI.Invoke(new Action(clientGUI.Disconnect));
+        }
+
+        private bool handleData(Byte[] data, int length)
+        {
+            switch (data[0])
+            {
+                case 0:// Wrong user
+                    return false;
+                case 1:// Accept User
+                    break;
+                case 2:// Command
+                    break;
+                case 3:// Message
+                    if (length >= 2)
+                    {
+                        int commandLength = BitConverter.ToInt32(data, 1);
+                        int messageLength = BitConverter.ToInt32(data, 5);
+                        if (commandLength < 0 || messageLength < 0) return true;
+                        string command = Encoding.UTF8.GetString(data, 9, commandLength);
+                        string message = Encoding.UTF8.GetString(data, 9 + commandLength, messageLength);
+
+                        remote.Message(command, message, null);
+                    }
+                    break;
+                case 4:// Error
+                    if (length >= 2)
+                    {
+                        int commandLength = BitConverter.ToInt32(data, 1);
+                        int messageLength = BitConverter.ToInt32(data, 5);
+                        if (commandLength < 0 || messageLength < 0) return true;
+                        string command = Encoding.UTF8.GetString(data, 9, commandLength);
+                        string message = Encoding.UTF8.GetString(data, 9 + commandLength, messageLength);
+
+                        remote.ErrorMessage(command, message, null);
+                    }
+                    break;
+                case 5:// Query
+                    if (length >= 2)
+                    {
+                        int commandLength = BitConverter.ToInt32(data, 1);
+                        if (commandLength < 0) return true;
+                        string command = Encoding.UTF8.GetString(data, 5, commandLength);
+
+                        int res = remote.Query(command, null, null);
+
+                        if (this.client != null && client.Connected)
+                        {
+                            NetworkStream stream = client.GetStream();
+                            stream.Write(new Byte[] { 5, (Byte)res }, 0, 2);
+                            stream.Flush();
+                        }
+                    }
+                    break;
+                case 6:// File Transfer im
+                    // TODO TODO TODO
+                    break;
+                case 7:// File Transfer ex
+                    // TODO TODO TODO
+                    break;
+                case 8:// End
+                    return false;
+                default:
+                    break;
+            }
+            return true;
+        }
+
+        //-------------------Interface-------------------
+
+        public override void Command(string comm, VFS.VFS.OnlineUser sender)
+        {
+            if (this.client != null && client.Connected)
+            {
+                Byte[] data = new Byte[1 + 4 + comm.Length];
+
+                data[0] = 2;
+
+                BitConverter.GetBytes(comm.Length).CopyTo(data, 1);
+
+                Encoding.UTF8.GetBytes(comm, 0, comm.Length, data, 5);
+
+                NetworkStream stream = client.GetStream();
+                stream.Write(data, 0, data.Length);
+                stream.Flush();
+            }
+        }
+
+        public override void Message(string info)
+        {
+            
+        }
+        public override void ErrorMessage(string message)
+        {
+
+        }
+        public override int Query(string message, params string[] options)
+        {
+            return 0;
+        }
+    }
+}
