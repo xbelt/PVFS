@@ -58,7 +58,21 @@ namespace VFS_Network
 
         private void serverProcedure()
         {
-            serverSocket.Start();
+            try
+            {
+                serverSocket.Start();
+            }
+            catch (SocketException)
+            {
+                serverGUI.InvokeLog("Failed Serverstart-----------------");
+                serverGUI.Invoke(new Action(() =>
+                {
+                    serverGUI.startServerButton_Click(null, null);
+                    serverGUI.EnableStartServer();
+                }));
+                return;
+            }
+
             lock (this)
             {
                 this.abort = false;
@@ -107,7 +121,7 @@ namespace VFS_Network
             VfsUser user = serverGUI.Users.FirstOrDefault(u => u.Name == name);
             if (user == null || !data.EqualContent(1 + nameLength, 32, user.PasswordHash) || user.Online)
             {
-                serverGUI.InvokeLog(">> Reyected connection atempt.");
+                serverGUI.InvokeLog(">> Rejected connection atempt" + (user != null ? " from " + user.Name : "") + ".");
 
                 stream.Write(new Byte[] { 0 }, 0, 1);
                 stream.Flush();

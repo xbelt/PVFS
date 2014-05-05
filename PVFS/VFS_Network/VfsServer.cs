@@ -70,6 +70,7 @@ namespace VFS_Network
             this.userListView.Items.Clear();
             foreach (VfsUser user in this.Users)
             {
+                user.Online = false;
                 addUser(user);
             }
         }
@@ -150,7 +151,7 @@ namespace VFS_Network
 
         //-----------------Buttons & Co.-----------------
 
-        private void startServerButton_Click(object sender, EventArgs e)
+        public void startServerButton_Click(object sender, EventArgs e)
         {
             this.startServerButton.ForeColor = Color.Black;
             if (this.portNumericUpDown.Enabled)

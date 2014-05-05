@@ -41,6 +41,9 @@ namespace VFS_GUI
             VfsTask task;
             while (true)
             {
+                if (tasks.Count == 0)
+                    Thread.Sleep(100);
+
                 if (tasks.TryDequeue(out task))
                 {
                     remote.SetBusy();
