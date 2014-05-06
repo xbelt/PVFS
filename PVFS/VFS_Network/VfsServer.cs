@@ -79,7 +79,17 @@ namespace VFS_Network
         {
             string url = "http://checkip.dyndns.org";
             WebRequest req = WebRequest.Create(url);
-            StreamReader sr = new StreamReader(req.GetResponse().GetResponseStream());
+            StreamReader sr;
+            try
+            {
+
+                sr = new StreamReader(req.GetResponse().GetResponseStream());
+            }
+            catch (WebException)
+            {
+                this.Invoke(new Action(() => this.publicIPLabel.Text = "NO CONNECTION"));
+                return;
+            }
             string response = sr.ReadToEnd().Trim();
 
             int i = response.IndexOf(':');

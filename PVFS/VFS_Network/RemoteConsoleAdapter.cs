@@ -227,9 +227,10 @@ namespace VFS_Network
                 case 4:// Error
                     break;
                 case 5:// Query (result)
-                    this.queryResult = data[1];
+                    serverGUI.InvokeLog(user.Name + " -> Query result: " + data[1]);
                     lock (this.queryObject)
                     {
+                        this.queryResult = data[1];
                         Monitor.PulseAll(this.queryObject);
                     }
                     break;
@@ -270,7 +271,9 @@ namespace VFS_Network
                 Encoding.UTF8.GetBytes(command, 0, command.Length, data, 9);
                 Encoding.UTF8.GetBytes(info, 0, info.Length, data, 9 + command.Length);
 
-                sender.Connection.GetStream().Write(data, 0, data.Length);
+                NetworkStream stream = sender.Connection.GetStream();
+                stream.Write(data, 0, data.Length);
+                stream.Flush();
             }
         }
 
@@ -290,7 +293,9 @@ namespace VFS_Network
                 Encoding.UTF8.GetBytes(command, 0, command.Length, data, 9);
                 Encoding.UTF8.GetBytes(message, 0, message.Length, data, 9 + command.Length);
 
-                sender.Connection.GetStream().Write(data, 0, data.Length);
+                NetworkStream stream = sender.Connection.GetStream();
+                stream.Write(data, 0, data.Length);
+                stream.Flush();
             }
         }
 
@@ -302,13 +307,15 @@ namespace VFS_Network
 
                 Byte[] data = new Byte[1 + 4 + message.Length];
 
-                data[0] = 3;
+                data[0] = 5;
 
                 BitConverter.GetBytes(message.Length).CopyTo(data, 1);
 
                 Encoding.UTF8.GetBytes(message, 0, message.Length, data, 5);
 
-                sender.Connection.GetStream().Write(data, 0, data.Length);
+                NetworkStream stream = sender.Connection.GetStream();
+                stream.Write(data, 0, data.Length);
+                stream.Flush();
 
                 lock (this.queryObject)
                 {

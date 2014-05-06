@@ -1198,7 +1198,7 @@ namespace VFS.VFS
             var fileWithSamename = dstDir.GetFile(fileName);
             if (fileWithSamename != null)
             {
-                var answer = Console.Query("There is already a file with this " + fileName + ", do you want to overwrite it?", "Ok", "Cancel");
+                var answer = Console.Query("There is already a file " + fileName + ", do you want to overwrite it?", "Ok", "Cancel");
                 if (answer == 1)
                 {
                     Console.ErrorMessage("File has not been overwritten.");
@@ -1234,9 +1234,9 @@ namespace VFS.VFS
             var dirWithSameName = dstDir.GetDirectory(dirName);
             if (dirWithSameName != null)
             {
-                Console.Message("There is already a directory with the name: " + dirName + ".");
                 var answer = Console.Query(
-                    "Do you want to overwrite it and its content? Write 'Ok' or 'Cancel'. ", "Ok","Cancel");
+                    "There is already a directory " + dirName +
+                    ". Do you want to overwrite it?", "Ok","Cancel");
                 if (answer == 1)
                 {
                     Console.Message("Directory has not been imported.");

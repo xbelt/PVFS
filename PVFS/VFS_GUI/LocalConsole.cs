@@ -42,7 +42,7 @@ namespace VFS_GUI
             while (true)
             {
                 if (tasks.Count == 0)
-                    Thread.Sleep(100);
+                    Thread.Sleep(10);
 
                 if (tasks.TryDequeue(out task))
                 {

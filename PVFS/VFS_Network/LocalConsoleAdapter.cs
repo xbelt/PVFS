@@ -190,14 +190,7 @@ namespace VFS_Network
                         if (commandLength < 0) return true;
                         string command = Encoding.UTF8.GetString(data, 5, commandLength);
 
-                        int res = remote.Query(command, null, null);
-
-                        if (this.client != null && client.Connected)
-                        {
-                            NetworkStream stream = client.GetStream();
-                            stream.Write(new Byte[] { 5, (Byte)res }, 0, 2);
-                            stream.Flush();
-                        }
+                        clientGUI.Invoke(new Action(() => handleQuery(command)));
                     }
                     break;
                 case 6:// File Transfer im
@@ -212,6 +205,18 @@ namespace VFS_Network
                     break;
             }
             return true;
+        }
+
+        private void handleQuery(string message)
+        {
+            int res = remote.Query(message, null, null);
+
+            if (this.client != null && client.Connected)
+            {
+                NetworkStream stream = client.GetStream();
+                stream.Write(new Byte[] { 5, (Byte)res }, 0, 2);
+                stream.Flush();
+            }
         }
 
         //-------------------Interface-------------------
