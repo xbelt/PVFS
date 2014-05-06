@@ -107,12 +107,12 @@ namespace VFS_Network
 
         public void Log(string info)
         {
-            if (this.logTextBox.Text.Length > 4096)
+            if (this.logTextBox.Text.Length > 4096 && this.logTextBox.Text.IndexOf('\n', this.logTextBox.Text.Length - 4096) > 0)
             {
-                this.logTextBox.Text = this.logTextBox.Text.Substring(this.logTextBox.Text.Length - 4095);
+                this.logTextBox.Text = this.logTextBox.Text.Substring(this.logTextBox.Text.IndexOf('\n', this.logTextBox.Text.Length - 4096));
             }
 
-            this.logTextBox.Text += info + "\r\n";
+            this.logTextBox.Text += info.Replace('\n', '\t') + "\r\n";
             this.logTextBox.Select(this.logTextBox.Text.Length, 0);
             this.logTextBox.ScrollToCaret();
         }

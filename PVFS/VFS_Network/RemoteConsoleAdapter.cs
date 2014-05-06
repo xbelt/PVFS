@@ -54,6 +54,21 @@ namespace VFS_Network
             }
         }
 
+        public static void SendData(TcpClient client, Byte[] data)
+        {
+            if (client != null && client.Connected)
+            {
+                try
+                {
+                    NetworkStream stream = client.GetStream();
+                    stream.Write(data, 0, data.Length);
+                    stream.Flush();
+                }
+                catch (ObjectDisposedException) { }
+                catch (IOException) { }
+            }
+        }
+
         //-------------------Private-------------------
 
         private void serverProcedure()
@@ -271,9 +286,7 @@ namespace VFS_Network
                 Encoding.UTF8.GetBytes(command, 0, command.Length, data, 9);
                 Encoding.UTF8.GetBytes(info, 0, info.Length, data, 9 + command.Length);
 
-                NetworkStream stream = sender.Connection.GetStream();
-                stream.Write(data, 0, data.Length);
-                stream.Flush();
+                SendData(sender.Connection, data);
             }
         }
 
@@ -281,7 +294,7 @@ namespace VFS_Network
         {
             if (sender.Connection != null && sender.Connection.Connected)
             {
-                serverGUI.InvokeLog(sender.Name + " <- " + command);
+                serverGUI.InvokeLog(sender.Name + " <- " + message);
 
                 Byte[] data = new Byte[1 + 4 + 4 + command.Length + message.Length];
 
@@ -293,9 +306,7 @@ namespace VFS_Network
                 Encoding.UTF8.GetBytes(command, 0, command.Length, data, 9);
                 Encoding.UTF8.GetBytes(message, 0, message.Length, data, 9 + command.Length);
 
-                NetworkStream stream = sender.Connection.GetStream();
-                stream.Write(data, 0, data.Length);
-                stream.Flush();
+                SendData(sender.Connection, data);
             }
         }
 
@@ -313,9 +324,7 @@ namespace VFS_Network
 
                 Encoding.UTF8.GetBytes(message, 0, message.Length, data, 5);
 
-                NetworkStream stream = sender.Connection.GetStream();
-                stream.Write(data, 0, data.Length);
-                stream.Flush();
+                SendData(sender.Connection, data);
 
                 lock (this.queryObject)
                 {

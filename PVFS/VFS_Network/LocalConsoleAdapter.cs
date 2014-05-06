@@ -137,11 +137,7 @@ namespace VFS_Network
             }
 
             // Send end
-            if (client.Connected)
-            {
-                stream.Write(new Byte[] { 8 }, 0, 1);
-                stream.Flush();
-            }
+            RemoteConsoleAdapter.SendData(client, new Byte[] { 8 });
 
             this.client.Close();
             this.client = null;
@@ -211,12 +207,7 @@ namespace VFS_Network
         {
             int res = remote.Query(message, null, null);
 
-            if (this.client != null && client.Connected)
-            {
-                NetworkStream stream = client.GetStream();
-                stream.Write(new Byte[] { 5, (Byte)res }, 0, 2);
-                stream.Flush();
-            }
+            RemoteConsoleAdapter.SendData(client, new Byte[] { 5, (Byte)res });
         }
 
         //-------------------Interface-------------------
@@ -225,6 +216,9 @@ namespace VFS_Network
         {
             if (this.client != null && client.Connected)
             {
+                if (comm == "quit")
+                    return;
+            
                 Byte[] data = new Byte[1 + 4 + comm.Length];
 
                 data[0] = 2;
@@ -233,9 +227,7 @@ namespace VFS_Network
 
                 Encoding.UTF8.GetBytes(comm, 0, comm.Length, data, 5);
 
-                NetworkStream stream = client.GetStream();
-                stream.Write(data, 0, data.Length);
-                stream.Flush();
+                RemoteConsoleAdapter.SendData(client, data);
             }
         }
 
