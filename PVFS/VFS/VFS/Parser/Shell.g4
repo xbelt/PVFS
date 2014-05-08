@@ -66,7 +66,7 @@ Size
 
 fragment
 String
-	: [a-zA-Z0-9_]+
+	: [a-zA-Z0-9_ ]+
 	;
 
  Identifier
@@ -79,7 +79,7 @@ Path
 	;
 
 SysPath
-	: [a-zA-Z]+ ':' ('\\' String)* ('\\')? ('\\' Identifier)?
+	: '"' [a-zA-Z]+ ':' ('\\' String)* ('\\')? ('\\' Identifier)? '"'
 	;
 
 WS
