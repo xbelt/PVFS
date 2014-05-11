@@ -865,7 +865,7 @@ namespace VFS_GUI
             }
         }
 
-        //---------------Search---------------
+        //---------------Search---------------//
 
         private void searchTextBox_Click(object sender, EventArgs e)
         {
@@ -874,8 +874,27 @@ namespace VFS_GUI
 
         private void searchButton_Click(object sender, EventArgs e)
         {
+            var advSearchWindow = new AdvancedSearch();
+            advSearchWindow.ShowDialog();
+
+         /*   String searchText = this.searchTextBox.Text;
+            
+
+            
             PVFS.Search.Index i = new PVFS.Search.Index();
             List<string> filePaths = i.Search(this.searchTextBox.Text);
+
+            this.mainListView.Clear();
+            int indexLastSlah;
+            string fileName;
+            foreach (String filePath in filePaths)
+            {
+                indexLastSlah = filePath.LastIndexOf('/');
+                fileName = filePath.Substring(indexLastSlah + 1);
+                //TODO: chech if it's a directory
+                this.mainListView.Items.Add(fileName, fileName, 0 );
+            }
+            UpdateExplorer(false);  */          
 
             //TODO search!
             /*this.mainListView.SelectedIndices.Clear();
