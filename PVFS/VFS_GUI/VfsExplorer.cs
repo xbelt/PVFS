@@ -309,7 +309,12 @@ namespace VFS_GUI
             }
             return "/" + path;
         }
-
+        private TreeNode getNode(string path)
+        {
+            String[] remaining;
+            TreeNode node;
+            return getNode(path, out node, out remaining);
+        }
         private TreeNode getNode(string path, out TreeNode current, out string[] remaining)
         {
             var names = path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
@@ -867,20 +872,17 @@ namespace VFS_GUI
 
         //---------------Search---------------//
 
-        private void searchTextBox_Click(object sender, EventArgs e)
+        private List<ListViewItem> searchHits;
+        private List<Boolean> isDir;
+        private int iterator;
+        private void Search()
         {
-            this.searchTextBox.SelectAll();
-        }
+            searchHits = new List<ListViewItem>();
+            isDir = new List<Boolean>();
+            iterator = 0;
+            #region Search with index
+            String searchText = this.searchTextBox.Text;
 
-        private void searchButton_Click(object sender, EventArgs e)
-        {
-            var advSearchWindow = new AdvancedSearch();
-            advSearchWindow.ShowDialog();
-
-         /*   String searchText = this.searchTextBox.Text;
-            
-
-            
             PVFS.Search.Index i = new PVFS.Search.Index();
             List<string> filePaths = i.Search(this.searchTextBox.Text);
 
@@ -892,11 +894,8 @@ namespace VFS_GUI
                 indexLastSlah = filePath.LastIndexOf('/');
                 fileName = filePath.Substring(indexLastSlah + 1);
                 //TODO: chech if it's a directory
-                this.mainListView.Items.Add(fileName, fileName, 0 );
+                this.mainListView.Items.Add(fileName, fileName, 0);
             }
-            UpdateExplorer(false);  */          
-
-            //TODO search!
             /*this.mainListView.SelectedIndices.Clear();
 
             foreach (string filePath in filePaths)
@@ -904,6 +903,61 @@ namespace VFS_GUI
                 if (mainListView.Items.ContainsKey(filePath))
                     mainListView.SelectedIndices.Add(mainListView.Items.IndexOfKey(filePath));
             }*/
+
+            #endregion
+
+            //----------TRY SEARCH WITH NODES
+
+           var node = getNode(Address);
+           SearchThroughDir(node, searchText);
+
+           this.mainListView.Clear();
+
+           foreach (var item in searchHits)
+           {
+               this.mainListView.Items.Add(item);
+           }
+
+            /*if (Address.Contains(searchText))
+            {
+                String path = Address.Substring(0, Address.IndexOf(searchText));
+            } */
+        }
+
+        private void SearchThroughDir(TreeNode node, String text)
+        {
+            String itemName;
+            foreach (ListViewItem item in this.mainListView.Items)
+            {
+                itemName = item.Name.Substring(item.Name.LastIndexOf('\\'));
+                if (itemName.Contains(text))
+                    searchHits.Add(item);
+            }
+
+            foreach (TreeNode childNode in node.Nodes)
+            {
+                Console.Command("ls " + childNode.FullPath);
+                SearchThroughDir(childNode, text);
+            }
+        }
+
+        private void searchTextBox_Click(object sender, EventArgs e)
+        {
+            this.searchTextBox.SelectAll();
+        }
+        
+        private void searchTextBox_KeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                Search();
+            }
+        }
+
+        private void searchButton_Click(object sender, EventArgs e)
+        {
+            var advSearchWindow = new AdvancedSearch();
+            advSearchWindow.ShowDialog();
         }
     }
 }
