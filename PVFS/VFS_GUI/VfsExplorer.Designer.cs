@@ -333,6 +333,7 @@
             this.searchTextBox.TabIndex = 1;
             this.searchTextBox.Text = "Search";
             this.searchTextBox.Click += new System.EventHandler(this.searchTextBox_Click);
+            this.searchTextBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.searchTextBox_KeyUp);
             // 
             // searchButton
             // 
