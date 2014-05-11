@@ -230,18 +230,24 @@ namespace VFS_Network
                         return true;// Ignore quit command!
                     else
                     {
+                        if (comm.StartsWith("im"))
+                        {
+
+                        }
+                        else
+                        {
+                            var newData = new Byte[1 + 4 + comm.Length];
+                            newData[0] = 2;
+                            BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
+                            Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
+                            SendData(user.Connection, newData);
+                        }
                         //TODO if import -> manage file transfer (haha)
 
                         //TODO if export -> modify command to export to a temp local dir
 
                         local.Command(comm, user);
                     }
-
-                    var newData = new Byte[1 + 4 + comm.Length];
-                    newData[0] = 2;
-                    BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
-                    Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
-                    SendData(user.Connection, newData);
                     break;
                 case 3:// Message
                     break;
