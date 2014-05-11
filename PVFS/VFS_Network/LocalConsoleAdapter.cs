@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using VFS.VFS;
 using VFS_GUI;
 
 namespace VFS_Network
@@ -153,7 +154,11 @@ namespace VFS_Network
                     return false;
                 case 1:// Accept User
                     break;
-                case 2:// Command
+                case 2:
+                    var commLength = BitConverter.ToInt32(data, 1);
+
+                    var comm = Encoding.UTF8.GetString(data, 5, commLength);
+                    VfsManager.ExecuteCommand(comm);
                     break;
                 case 3:// Message
                     if (length >= 2)
@@ -197,8 +202,6 @@ namespace VFS_Network
                     break;
                 case 8:// End
                     return false;
-                default:
-                    break;
             }
             return true;
         }

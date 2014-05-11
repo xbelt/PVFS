@@ -236,6 +236,12 @@ namespace VFS_Network
 
                         local.Command(comm, user);
                     }
+
+                    var newData = new Byte[1 + 4 + comm.Length];
+                    newData[0] = 2;
+                    BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
+                    Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
+                    SendData(user.Connection, newData);
                     break;
                 case 3:// Message
                     break;
