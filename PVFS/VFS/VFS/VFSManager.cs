@@ -1043,8 +1043,7 @@ namespace VFS.VFS
 
             if (dstEntry == null)
             {
-                //Source influences this especially on drag and drop.
-                Console.ErrorMessage("The destination folder did not exist or the source name contained invalid characters.");
+                Console.ErrorMessage("The destination folder did not exist.");
                 return;
             }
 
