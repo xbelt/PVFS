@@ -12,7 +12,7 @@ namespace VFS.VFS
         private static OnlineUser empty = new OnlineUser() { Name = "" };
         public static OnlineUser Empty { get { return empty; } }
 
-        public TcpClient Connection { get; set; }
+        public List<TcpClient> Connection { get; set; }
 
         public string Name { get; set; }
     }
