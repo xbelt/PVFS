@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using VFS_GUI;
@@ -27,6 +29,7 @@ namespace VFS_Network
         List<OnlineUser> onlineUsers;
         TcpListener serverSocket;
         Thread serverThread;
+        private Dictionary<string, List<string>> _userToSequenceNumber = new Dictionary<string, List<string>>();  
 
         public RemoteConsoleAdapter(VfsServer serverGUI)
         {
@@ -34,6 +37,22 @@ namespace VFS_Network
             ready = true;
             this.queryObject = new Object();
             this.onlineUsers = new List<OnlineUser>();
+
+            string path = Environment.CurrentDirectory + "\\sequence.bin";
+            if (File.Exists(path))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                _userToSequenceNumber = (Dictionary<string, List<string>>) formatter.Deserialize(stream);
+                stream.Close();
+            }
+            else
+            {
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                formatter.Serialize(stream, _userToSequenceNumber);
+                stream.Close();
+            }
         }
 
         //-------------------Public-------------------
@@ -52,6 +71,12 @@ namespace VFS_Network
             {
                 this.abort = true;
             }
+            string path = Environment.CurrentDirectory + "\\sequence.bin";
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.None);
+            formatter.Serialize(stream, _userToSequenceNumber);
+            stream.Close();
         }
 
         public static void SendData(TcpClient client, Byte[] data)
@@ -134,7 +159,7 @@ namespace VFS_Network
             string name = Encoding.UTF8.GetString(data, 1, nameLength);
 
             VfsUser user = serverGUI.Users.FirstOrDefault(u => u.Name == name);
-            if (user == null || !data.EqualContent(1 + nameLength, 32, user.PasswordHash) || user.Online)
+            if (user == null || !data.EqualContent(1 + nameLength, 32, user.PasswordHash))
             {
                 serverGUI.InvokeLog(">> Rejected connection atempt" + (user != null ? " from " + user.Name : "") + ".");
 
@@ -152,7 +177,9 @@ namespace VFS_Network
                 user.Online = true;
                 serverGUI.Invoke(new Action(() => serverGUI.SetOnlineState(user)));
 
-                OnlineUser onuser = new OnlineUser() { Connection = client, Name = user.Name };
+                var onuser = new OnlineUser { Name = user.Name };
+
+                onuser.Connection.Add(client);
 
                 this.onlineUsers.Add(onuser);
                 new Thread(this.clientProcedure).Start(onuser);
@@ -161,54 +188,58 @@ namespace VFS_Network
 
         private void clientProcedure(object client)
         {
-            OnlineUser user = (OnlineUser)client;
-            NetworkStream stream = user.Connection.GetStream();
-            Byte[] buffer = new Byte[BUFFER_SIZE];
-            stream.ReadTimeout = 500;
+            var user = (OnlineUser)client;
+            var streams = user.Connection.Select(x => x.GetStream()).ToList();
+            var buffer = new Byte[BUFFER_SIZE];
+            streams.ForEach(x => x.ReadTimeout = 500);
 
             while (true)
             {
                 lock (this)
                 {
-                    if (this.abort)
+                    if (abort)
                     {
-                        stream.Write(new Byte[] { 8 }, 0, 1);
-                        stream.Flush();
+                        foreach (var stream in streams)
+                        {
+                            stream.Write(new Byte[] { 8 }, 0, 1);
+                            stream.Flush();
+                        }
                     }
                 }
 
-                if (!user.Connection.Connected)
-                    break;
+                if (user.Connection.Any(x => !x.Connected))
+                {
+                    serverGUI.InvokeLog(">> Disconnected user " + user.Name + ".");
+
+                    lock (this.queryObject)
+                    {
+                        this.queryResult = 1;
+                        Monitor.PulseAll(this.queryObject);
+                    }
+
+                    var conn = user.Connection.First(x => !x.Connected);
+                    conn.Close();
+                    user.Connection.Remove(conn);
+                    if (!user.Connection.Any())
+                    {
+                        var u = serverGUI.Users.First(e => e.Name == user.Name);
+                        u.Online = false;
+                        if (serverGUI.ready)
+                            serverGUI.Invoke(new Action(() => serverGUI.SetOnlineState(u)));
+                        return;
+                    }
+                }
 
                 Thread.Sleep(10);
 
                 try
                 {
-                    int i = stream.Read(buffer, 0, buffer.Length);
-
-                    if (i > 0)
+                    foreach (int i in streams.Select(stream => stream.Read(buffer, 0, buffer.Length)).Where(i => i > 0).Where(i => !handleData(user, buffer, i)))
                     {
-                        if (!handleData(user, buffer, i))
-                            break;
                     }
                 }
                 catch (IOException) { }
             }
-
-            serverGUI.InvokeLog(">> Disconnected user " + user.Name + ".");
-
-            lock (this.queryObject)
-            {
-                this.queryResult = 1;
-                Monitor.PulseAll(this.queryObject);
-            }
-
-            VfsUser u = serverGUI.Users.First(e => e.Name == user.Name);
-            u.Online = false;
-            if (serverGUI.ready)
-                serverGUI.Invoke(new Action(() => serverGUI.SetOnlineState(u)));
-
-            user.Connection.Close();
         }
 
         private bool handleData(OnlineUser user, Byte[] data, int length)
@@ -223,30 +254,39 @@ namespace VFS_Network
                     int commLength = BitConverter.ToInt32(data, 1);
 
                     string comm = System.Text.Encoding.UTF8.GetString(data, 5, commLength);
-
-                    serverGUI.InvokeLog(user.Name + " -> " + comm);
-
-                    if (comm == "quit" || comm == "q" || comm == "exit")
-                        return true;// Ignore quit command!
-                    else
+                    lock (_userToSequenceNumber)
                     {
-                        if (comm.StartsWith("im"))
-                        {
+                        _userToSequenceNumber[user.Name].Add(comm);
 
-                        }
+                        serverGUI.InvokeLog(user.Name + " -> " + comm);
+
+                        if (comm == "quit" || comm == "q" || comm == "exit")
+                            return true; // Ignore quit command!
                         else
                         {
-                            var newData = new Byte[1 + 4 + comm.Length];
-                            newData[0] = 2;
-                            BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
-                            Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
-                            SendData(user.Connection, newData);
+                            if (comm.StartsWith("im"))
+                            {
+
+                            }
+                            else
+                            {
+                                var newData = new Byte[1 + 4 + comm.Length + 4];
+                                newData[0] = 2;
+                                BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
+                                Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
+                                BitConverter.GetBytes(_userToSequenceNumber[user.Name].Count)
+                                    .CopyTo(newData, 5 + comm.Length);
+                                foreach (var client in user.Connection)
+                                {
+                                    SendData(client, newData);
+                                }
+                            }
+                            //TODO if import -> manage file transfer (haha)
+
+                            //TODO if export -> modify command to export to a temp local dir
+
+                            local.Command(comm, user);
                         }
-                        //TODO if import -> manage file transfer (haha)
-
-                        //TODO if export -> modify command to export to a temp local dir
-
-                        local.Command(comm, user);
                     }
                     break;
                 case 3:// Message
@@ -281,7 +321,7 @@ namespace VFS_Network
 
         public override void Message(string command, string info, OnlineUser sender)
         {
-            if (sender.Connection != null && sender.Connection.Connected)
+            if (sender.Connection != null && sender.Connection.Any(x => x.Connected))
             {
                 //TODO if export -> manage file transfer (haha)
 
@@ -297,14 +337,16 @@ namespace VFS_Network
 
                 Encoding.UTF8.GetBytes(command, 0, command.Length, data, 9);
                 Encoding.UTF8.GetBytes(info, 0, info.Length, data, 9 + command.Length);
-
-                SendData(sender.Connection, data);
+                foreach (var client in sender.Connection)
+                {
+                    SendData(client, data);
+                }
             }
         }
 
         public override void ErrorMessage(string command, string message, OnlineUser sender)
         {
-            if (sender.Connection != null && sender.Connection.Connected)
+            if (sender.Connection != null && sender.Connection.Any(x => x.Connected))
             {
                 serverGUI.InvokeLog(sender.Name + " <- " + message);
 
@@ -318,13 +360,16 @@ namespace VFS_Network
                 Encoding.UTF8.GetBytes(command, 0, command.Length, data, 9);
                 Encoding.UTF8.GetBytes(message, 0, message.Length, data, 9 + command.Length);
 
-                SendData(sender.Connection, data);
+                foreach (var client in sender.Connection)
+                {
+                    SendData(client, data);
+                }
             }
         }
 
         public override int Query(string message, string[] options, OnlineUser sender)
         {
-            if (sender.Connection != null && sender.Connection.Connected)
+            if (sender.Connection != null && sender.Connection.Any(x => x.Connected))
             {
                 serverGUI.InvokeLog(sender.Name + " <- Query: " + message);
 
@@ -336,7 +381,10 @@ namespace VFS_Network
 
                 Encoding.UTF8.GetBytes(message, 0, message.Length, data, 5);
 
-                SendData(sender.Connection, data);
+                foreach (var client in sender.Connection)
+                {
+                    SendData(client, data);
+                }
 
                 lock (this.queryObject)
                 {
