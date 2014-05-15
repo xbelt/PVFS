@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,11 +27,30 @@ namespace VFS_Network
         private TcpClient client;
         private Thread clientThread;
 
+        private Dictionary<string, List<string>> _userToSequenceNumber = new Dictionary<string, List<string>>();  
+
         public LocalConsoleAdapter(RemoteConsole remc, VfsClient clientGUI)
             : base(remc)
         {
             abortLock = new Object();
             this.clientGUI = clientGUI;
+
+            string path = Environment.CurrentDirectory + "\\sequence.bin";
+            if (File.Exists(path))
+            {
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                _userToSequenceNumber = (Dictionary<string, List<string>>)formatter.Deserialize(stream);
+                stream.Close();
+            }
+            else
+            {
+                IFormatter formatter = new BinaryFormatter();
+                Stream stream = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                formatter.Serialize(stream, _userToSequenceNumber);
+                stream.Close();
+            }
+
         }
 
         //-------------------Public-------------------
@@ -74,7 +95,7 @@ namespace VFS_Network
                     this.abort = false;
                 }
                 stream.ReadTimeout = 500;
-                this.clientThread = new Thread(this.clentProcedure);
+                this.clientThread = new Thread(this.clientProcedure);
                 this.clientThread.Name = "VFS Client";
                 this.clientThread.Start();
 
@@ -102,11 +123,18 @@ namespace VFS_Network
             {
                 this.abort = true;
             }
+
+            string path = Environment.CurrentDirectory + "\\sequence.bin";
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(path, FileMode.Open, FileAccess.Write, FileShare.None);
+            formatter.Serialize(stream, _userToSequenceNumber);
+            stream.Close();
         }
 
         //-------------------Private-------------------
 
-        private void clentProcedure()
+        private void clientProcedure()
         {
             Byte[] buffer = new Byte[BUFFER_SIZE];
             NetworkStream stream = client.GetStream();
@@ -158,6 +186,21 @@ namespace VFS_Network
                     var commLength = BitConverter.ToInt32(data, 1);
 
                     var comm = Encoding.UTF8.GetString(data, 5, commLength);
+                    var seq = BitConverter.ToInt32(data, 5 + commLength);
+
+                    if (seq > _userToSequenceNumber[clientGUI.Username].Count + 1)
+                    {
+                        //TODO: fetch missing commands
+                    }
+                    if (seq == _userToSequenceNumber[clientGUI.Username].Count + 1)
+                    {
+                        _userToSequenceNumber[clientGUI.Username].Add(comm);
+                    }
+                    if (seq < _userToSequenceNumber[clientGUI.Username].Count + 1)
+                    {
+                        //TODO: sync back
+                    }
+
                     VfsManager.ExecuteCommand(comm);
                     break;
                 case 3:// Message
