@@ -20,6 +20,8 @@ namespace VFS_Network
         LocalConsoleAdapter localAdapter;
         RemoteConsole remote;
 
+        public string Username;
+
         public VfsClient()
         {
             InitializeComponent();
@@ -59,6 +61,7 @@ namespace VFS_Network
 
             int port = (int)this.portNumericUpDown.Value;
             string user = this.userTextBox.Text;
+            Username = user;
             if (user.Length == 0 || user.Length >= 128)
             {
                 this.userLabel.ForeColor = Color.Red;
