@@ -875,13 +875,13 @@ namespace VFS_GUI
         private List<ListViewItem> searchHits;
         private List<Boolean> isDir;
         private int iterator;
-        private void Search()
+        public void Search(String text)
         {
             searchHits = new List<ListViewItem>();
             isDir = new List<Boolean>();
             iterator = 0;
             #region Search with index
-            String searchText = this.searchTextBox.Text;
+            String searchText = text ?? this.searchTextBox.Text;
 
             PVFS.Search.Index i = new PVFS.Search.Index();
             List<string> filePaths = i.Search(this.searchTextBox.Text);
@@ -958,6 +958,7 @@ namespace VFS_GUI
         {
             var advSearchWindow = new AdvancedSearch();
             advSearchWindow.ShowDialog();
+            Search
         }
     }
 }

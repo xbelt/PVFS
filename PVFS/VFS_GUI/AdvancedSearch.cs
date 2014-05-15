@@ -22,14 +22,20 @@ namespace VFS_GUI
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void AdvancedSearchButton_Click(object sender, EventArgs e)
+        {
+            String searchText = this.SearchTermBox.Text;
+            ((VfsExplorer) this.Parent).Search(searchText); //TODO: this is kinda ugly...?
+        }
+
+        private void SearchTermBox_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void SearchTermBox_Click(object sender, EventArgs e)
         {
-
+            this.SearchTermBox.SelectAll();
         }
     }
 }

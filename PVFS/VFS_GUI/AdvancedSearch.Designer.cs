@@ -35,42 +35,46 @@
             // 
             // AdvancedSearchCheckList
             // 
+            this.AdvancedSearchCheckList.CheckOnClick = true;
             this.AdvancedSearchCheckList.FormattingEnabled = true;
             this.AdvancedSearchCheckList.Items.AddRange(new object[] {
             "Case Sensitive",
             "Closest Match",
             "Wild Cards (&)",
-            "Regular Expression"});
+            "Regular Expression",
+            "Restrict to Folders",
+            "Restrict to Files"});
             this.AdvancedSearchCheckList.Location = new System.Drawing.Point(12, 12);
             this.AdvancedSearchCheckList.Name = "AdvancedSearchCheckList";
-            this.AdvancedSearchCheckList.Size = new System.Drawing.Size(240, 64);
+            this.AdvancedSearchCheckList.Size = new System.Drawing.Size(240, 94);
             this.AdvancedSearchCheckList.TabIndex = 0;
             this.AdvancedSearchCheckList.SelectedIndexChanged += new System.EventHandler(this.checkedListBox1_SelectedIndexChanged);
             // 
             // SearchTermBox
             // 
-            this.SearchTermBox.Location = new System.Drawing.Point(12, 82);
+            this.SearchTermBox.Location = new System.Drawing.Point(12, 112);
             this.SearchTermBox.Name = "SearchTermBox";
             this.SearchTermBox.Size = new System.Drawing.Size(240, 20);
             this.SearchTermBox.TabIndex = 1;
             this.SearchTermBox.Text = "Enter Search Term";
-            this.SearchTermBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.SearchTermBox.TextChanged += new System.EventHandler(this.SearchTermBox_TextChanged);
+            this.SearchTermBox.Click += new System.EventHandler(this.SearchTermBox_Click);
             // 
             // SearchAdvancedButton
             // 
-            this.SearchAdvancedButton.Location = new System.Drawing.Point(12, 108);
+            this.SearchAdvancedButton.Location = new System.Drawing.Point(12, 138);
             this.SearchAdvancedButton.Name = "SearchAdvancedButton";
             this.SearchAdvancedButton.Size = new System.Drawing.Size(240, 23);
             this.SearchAdvancedButton.TabIndex = 2;
             this.SearchAdvancedButton.Text = "Search";
             this.SearchAdvancedButton.UseVisualStyleBackColor = true;
-            this.SearchAdvancedButton.Click += new System.EventHandler(this.button1_Click);
+            this.SearchAdvancedButton.Click += new System.EventHandler(this.AdvancedSearchButton_Click);
             // 
             // AdvancedSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(262, 138);
+            this.ClientSize = new System.Drawing.Size(266, 174);
             this.Controls.Add(this.SearchAdvancedButton);
             this.Controls.Add(this.SearchTermBox);
             this.Controls.Add(this.AdvancedSearchCheckList);
