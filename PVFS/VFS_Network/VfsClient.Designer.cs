@@ -41,6 +41,7 @@
             this.logoutButton = new System.Windows.Forms.Button();
             this.explorerButton = new System.Windows.Forms.Button();
             this.resetTimer = new System.Windows.Forms.Timer(this.components);
+            this.offlineButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.portNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
@@ -86,6 +87,7 @@
             this.ipTextBox.Name = "ipTextBox";
             this.ipTextBox.Size = new System.Drawing.Size(100, 20);
             this.ipTextBox.TabIndex = 1;
+            this.ipTextBox.Text = "localhost";
             // 
             // portNumericUpDown
             // 
@@ -115,13 +117,16 @@
             this.userTextBox.Name = "userTextBox";
             this.userTextBox.Size = new System.Drawing.Size(100, 20);
             this.userTextBox.TabIndex = 5;
+            this.userTextBox.Text = "Lukas";
             // 
             // passwordTextBox
             // 
             this.passwordTextBox.Location = new System.Drawing.Point(121, 90);
             this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.PasswordChar = '*';
             this.passwordTextBox.Size = new System.Drawing.Size(100, 20);
             this.passwordTextBox.TabIndex = 7;
+            this.passwordTextBox.Text = "a";
             // 
             // loginButton
             // 
@@ -160,12 +165,23 @@
             this.resetTimer.Interval = 1000;
             this.resetTimer.Tick += new System.EventHandler(this.resetTimer_Tick);
             // 
+            // button1
+            // 
+            this.offlineButton.Location = new System.Drawing.Point(12, 237);
+            this.offlineButton.Name = "button1";
+            this.offlineButton.Size = new System.Drawing.Size(209, 35);
+            this.offlineButton.TabIndex = 11;
+            this.offlineButton.Text = "Work offline";
+            this.offlineButton.UseVisualStyleBackColor = true;
+            this.offlineButton.Click += new System.EventHandler(this.offline_Click);
+            // 
             // VfsClient
             // 
             this.AcceptButton = this.loginButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(233, 242);
+            this.ClientSize = new System.Drawing.Size(233, 278);
+            this.Controls.Add(this.offlineButton);
             this.Controls.Add(this.explorerButton);
             this.Controls.Add(this.logoutButton);
             this.Controls.Add(this.loginButton);
@@ -177,7 +193,7 @@
             this.Controls.Add(this.userLabel);
             this.Controls.Add(this.portLabel);
             this.Controls.Add(this.ipLabel);
-            this.MaximumSize = new System.Drawing.Size(249, 280);
+            this.MaximumSize = new System.Drawing.Size(249, 317);
             this.MinimumSize = new System.Drawing.Size(249, 280);
             this.Name = "VfsClient";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -204,6 +220,7 @@
         private System.Windows.Forms.Button logoutButton;
         private System.Windows.Forms.Button explorerButton;
         private System.Windows.Forms.Timer resetTimer;
+        private System.Windows.Forms.Button offlineButton;
     }
 }
 

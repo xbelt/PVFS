@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using VFS.VFS;
 using VFS_GUI;
 
 namespace VFS_Network
@@ -138,6 +139,21 @@ namespace VFS_Network
             this.portLabel.ForeColor = Color.Black;
             this.userLabel.ForeColor = Color.Black;
             this.passwordLabel.ForeColor = Color.Black;
+        }
+
+        private void offline_Click(object sender, EventArgs e)
+        {
+            RemoteConsole remc = new RemoteConsole();
+            VfsManager.Console = new LocalConsole(remc).StartWorker();
+
+            this.explorer = new VfsExplorer(remc);
+            this.explorer.NonLocal = false;
+
+            this.explorer.ShowDialog(this);
+
+            this.explorer = null;
+
+            remote.setExplorer(null);
         }
     }
 }
