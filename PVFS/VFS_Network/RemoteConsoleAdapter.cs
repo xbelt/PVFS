@@ -178,7 +178,7 @@ namespace VFS_Network
                 serverGUI.Invoke(new Action(() => serverGUI.SetOnlineState(user)));
 
                 var onuser = new OnlineUser { Name = user.Name };
-
+                onuser.Connection = new List<TcpClient>();
                 onuser.Connection.Add(client);
 
                 this.onlineUsers.Add(onuser);
@@ -256,6 +256,10 @@ namespace VFS_Network
                     string comm = System.Text.Encoding.UTF8.GetString(data, 5, commLength);
                     lock (_userToSequenceNumber)
                     {
+                        if (!_userToSequenceNumber.ContainsKey(user.Name))
+                        {
+                            _userToSequenceNumber.Add(user.Name, new List<string>());
+                        }
                         _userToSequenceNumber[user.Name].Add(comm);
 
                         serverGUI.InvokeLog(user.Name + " -> " + comm);
