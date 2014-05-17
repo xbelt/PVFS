@@ -192,15 +192,11 @@ namespace VFS_Network
                     var comm = Encoding.UTF8.GetString(data, 5, commLength);
                     var seq = BitConverter.ToInt32(data, 5 + commLength);
 
-                    if (seq > _userToSequenceNumber[clientGUI.Username].Count + 1)
+                    if (seq > _userToSequenceNumber[clientGUI.Username].Count + 1 && !comm.StartsWith("fetch"))
                     {
                         var tcpClients = new List<TcpClient> {client};
-                        Command("fetch " + _userToSequenceNumber[clientGUI.Username].Count + 1, new OnlineUser{Connection = tcpClients, Name = clientGUI.Username});
+                        Command("fetch " + _userToSequenceNumber[clientGUI.Username].Count, new OnlineUser{Connection = tcpClients, Name = clientGUI.Username});
                         return true;
-                    }
-                    if (seq == _userToSequenceNumber[clientGUI.Username].Count + 1)
-                    {
-                        _userToSequenceNumber[clientGUI.Username].Add(comm);
                     }
                     if (seq < _userToSequenceNumber[clientGUI.Username].Count + 1)
                     {
@@ -212,10 +208,15 @@ namespace VFS_Network
                         }
                         return true;
                     }
-                    if (!comm.StartsWith("sync"))
+                    if (seq == _userToSequenceNumber[clientGUI.Username].Count + 1 || comm.StartsWith("fetch"))
                     {
-                        VfsManager.ExecuteCommand(comm);
+                        if (comm.StartsWith("fetch"))
+                            comm = comm.Substring(5);
+                        _userToSequenceNumber[clientGUI.Username].Add(comm);
                     }
+                    if (comm.StartsWith("fetch"))
+                        comm = comm.Substring(5);
+                    VfsManager.ExecuteCommand(comm);
                     break;
                 case 3:// Message
                     if (length >= 2)
