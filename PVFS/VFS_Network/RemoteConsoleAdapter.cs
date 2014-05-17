@@ -177,12 +177,19 @@ namespace VFS_Network
                 user.Online = true;
                 serverGUI.Invoke(new Action(() => serverGUI.SetOnlineState(user)));
 
-                var onuser = new OnlineUser { Name = user.Name };
-                onuser.Connection = new List<TcpClient>();
-                onuser.Connection.Add(client);
+                if (onlineUsers.Any(x => x.Name == user.Name))
+                {
+                    onlineUsers.First(x => x.Name == user.Name).Connection.Add(client);
+                }
+                else
+                {
+                    var onuser = new OnlineUser { Name = user.Name };
+                    onuser.Connection = new List<TcpClient>();
+                    onuser.Connection.Add(client);
+                    onlineUsers.Add(onuser);
+                    new Thread(this.clientProcedure).Start(onuser);
+                }
 
-                this.onlineUsers.Add(onuser);
-                new Thread(this.clientProcedure).Start(onuser);
             }
         }
 
@@ -234,15 +241,24 @@ namespace VFS_Network
 
                 try
                 {
-                    foreach (int i in streams.Select(stream => stream.Read(buffer, 0, buffer.Length)).Where(i => i > 0).Where(i => !handleData(user, buffer, i)))
+                    var count = 0;
+                    foreach (var i in streams.Select(stream => stream.Read(buffer, 0, buffer.Length)))
                     {
+                        if (i > 0)
+                        {
+                            if (!handleData(user, buffer, i, count))
+                            {
+                                break;
+                            }
+                        }
+                        count ++;
                     }
                 }
                 catch (IOException) { }
             }
         }
 
-        private bool handleData(OnlineUser user, Byte[] data, int length)
+        private bool handleData(OnlineUser user, byte[] data, int length, int count)
         {
             switch (data[0])
             {
@@ -251,9 +267,79 @@ namespace VFS_Network
                 case 1:// Accept User
                     break;
                 case 2:// Command
-                    int commLength = BitConverter.ToInt32(data, 1);
+                    var commLength = BitConverter.ToInt32(data, 1);
 
-                    string comm = System.Text.Encoding.UTF8.GetString(data, 5, commLength);
+                    var comm = Encoding.UTF8.GetString(data, 5, commLength);
+
+                    if (comm.StartsWith("fetch"))
+                    {
+                        serverGUI.InvokeLog(user.Name + " -> " + comm);
+
+                        var seqNumber = Convert.ToInt32(comm.Substring(5));
+
+                        lock (_userToSequenceNumber)
+                        {
+                            for (int i = seqNumber; i < _userToSequenceNumber[user.Name].Count; i++)
+                            {
+                                var command = "fetch " + _userToSequenceNumber[user.Name][i];
+                                var newData = new Byte[1 + 4 + command.Length + 4];
+                                newData[0] = 2;
+                                BitConverter.GetBytes(command.Length).CopyTo(newData, 1);
+                                Encoding.UTF8.GetBytes(command, 0, command.Length, newData, 5);
+                                BitConverter.GetBytes(i + 1)
+                                    .CopyTo(newData, 5 + command.Length);
+                                SendData(user.Connection[count], newData);
+                            }
+                        }
+                        return true;
+                    }
+
+                    if (comm.StartsWith("sync"))
+                    {
+                        serverGUI.InvokeLog(user.Name + " -> " + comm);
+
+                        comm = comm.Substring(4);
+
+                        if (!_userToSequenceNumber.ContainsKey(user.Name))
+                        {
+                            _userToSequenceNumber.Add(user.Name, new List<string>());
+                        }
+                        _userToSequenceNumber[user.Name].Add(comm);
+
+                        if (comm == "quit" || comm == "q" || comm == "exit")
+                            return true; // Ignore quit command!
+                        else
+                        {
+                            if (comm.StartsWith("im"))
+                            {
+
+                            }
+                            else
+                            {
+                                var newData = new Byte[1 + 4 + comm.Length + 4];
+                                newData[0] = 2;
+                                BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
+                                Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
+                                BitConverter.GetBytes(_userToSequenceNumber[user.Name].Count)
+                                    .CopyTo(newData, 5 + comm.Length);
+                                var index = 0;
+                                foreach (var client in user.Connection)
+                                {
+                                    if (count != index)
+                                        SendData(client, newData);
+                                    index++;
+                                }
+                            }
+                            //TODO if import -> manage file transfer (haha)
+
+                            //TODO if export -> modify command to export to a temp local dir
+
+                            local.Command(comm, user);
+                        }
+
+                        return true;
+                    }
+
                     lock (_userToSequenceNumber)
                     {
                         if (!_userToSequenceNumber.ContainsKey(user.Name))
