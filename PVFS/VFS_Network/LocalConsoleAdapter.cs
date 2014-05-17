@@ -183,6 +183,10 @@ namespace VFS_Network
                 case 1:// Accept User
                     break;
                 case 2:
+                    if (!_userToSequenceNumber.ContainsKey(clientGUI.Username))
+                    {
+                        _userToSequenceNumber.Add(clientGUI.Username, new List<string>());
+                    }
                     var commLength = BitConverter.ToInt32(data, 1);
 
                     var comm = Encoding.UTF8.GetString(data, 5, commLength);
@@ -190,7 +194,9 @@ namespace VFS_Network
 
                     if (seq > _userToSequenceNumber[clientGUI.Username].Count + 1)
                     {
-                        //TODO: fetch missing commands
+                        var tcpClients = new List<TcpClient> {client};
+                        Command("fetch " + _userToSequenceNumber[clientGUI.Username].Count + 1, new OnlineUser{Connection = tcpClients, Name = clientGUI.Username});
+                        return true;
                     }
                     if (seq == _userToSequenceNumber[clientGUI.Username].Count + 1)
                     {
@@ -198,10 +204,18 @@ namespace VFS_Network
                     }
                     if (seq < _userToSequenceNumber[clientGUI.Username].Count + 1)
                     {
-                        //TODO: sync back
-                    }
+                        var tcpClients = new List<TcpClient> {client};
 
-                    VfsManager.ExecuteCommand(comm);
+                        for (var i = seq; i < _userToSequenceNumber[clientGUI.Username].Count; i++)
+                        {
+                            Command("sync " + _userToSequenceNumber[clientGUI.Username][i], new OnlineUser { Connection = tcpClients, Name = clientGUI.Username });
+                        }
+                        return true;
+                    }
+                    if (!comm.StartsWith("sync"))
+                    {
+                        VfsManager.ExecuteCommand(comm);
+                    }
                     break;
                 case 3:// Message
                     if (length >= 2)
