@@ -950,7 +950,6 @@ namespace VFS_GUI
         {
             if (e.KeyCode == Keys.Enter)
             {
-                Search();
             }
         }
 
@@ -958,7 +957,6 @@ namespace VFS_GUI
         {
             var advSearchWindow = new AdvancedSearch();
             advSearchWindow.ShowDialog();
-            Search
         }
     }
 }
