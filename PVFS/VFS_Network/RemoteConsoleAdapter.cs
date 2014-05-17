@@ -202,6 +202,7 @@ namespace VFS_Network
 
             while (true)
             {
+                streams = user.Connection.Select(x => x.GetStream()).ToList();
                 lock (this)
                 {
                     if (abort)
@@ -255,7 +256,7 @@ namespace VFS_Network
                         count ++;
                     }
                 }
-                catch (IOException) { }
+                catch (IOException e) { }
             }
         }
 
