@@ -217,6 +217,8 @@ namespace VFS_Network
                     if (comm.StartsWith("fetch"))
                         comm = comm.Substring(5);
                     VfsManager.ExecuteCommand(comm);
+                    if ((comm.StartsWith("cdisk") || comm.StartsWith("ldisk")) && !comm.StartsWith("ldisks"))
+                        clientGUI.explorer.UpdateExplorer(true);
                     break;
                 case 3:// Message
                     if (length >= 2)

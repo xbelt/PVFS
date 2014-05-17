@@ -16,7 +16,7 @@ namespace VFS_Network
     public partial class VfsClient : Form
     {
         private bool ready;
-        VfsExplorer explorer;
+        public VfsExplorer explorer;
 
         LocalConsoleAdapter localAdapter;
         RemoteConsole remote;

@@ -134,7 +134,7 @@ namespace VFS_Network
 
                 TcpClient client = serverSocket.AcceptTcpClient();
 
-                startClient(client);
+                StartClient(client);
             }
             break2:
 
@@ -143,7 +143,7 @@ namespace VFS_Network
             serverGUI.InvokeLog("Stopped Server---------------------");
         }
 
-        private void startClient(TcpClient client)
+        private void StartClient(TcpClient client)
         {
             NetworkStream stream = client.GetStream();
 
@@ -187,13 +187,13 @@ namespace VFS_Network
                     onuser.Connection = new List<TcpClient>();
                     onuser.Connection.Add(client);
                     onlineUsers.Add(onuser);
-                    new Thread(this.clientProcedure).Start(onuser);
+                    new Thread(this.ClientProcedure).Start(onuser);
                 }
 
             }
         }
 
-        private void clientProcedure(object client)
+        private void ClientProcedure(object client)
         {
             var user = (OnlineUser)client;
             var streams = user.Connection.Select(x => x.GetStream()).ToList();
@@ -227,6 +227,7 @@ namespace VFS_Network
                     var conn = user.Connection.First(x => !x.Connected);
                     conn.Close();
                     user.Connection.Remove(conn);
+                    streams = user.Connection.Select(x => x.GetStream()).ToList();
                     if (!user.Connection.Any())
                     {
                         var u = serverGUI.Users.First(e => e.Name == user.Name);
