@@ -28,41 +28,27 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.AdvancedSearchCheckList = new System.Windows.Forms.CheckedListBox();
             this.SearchTermBox = new System.Windows.Forms.TextBox();
             this.SearchAdvancedButton = new System.Windows.Forms.Button();
+            this.caseSensitiveBox = new System.Windows.Forms.CheckBox();
+            this.metricDistanceBox = new System.Windows.Forms.CheckBox();
+            this.onlyFilesBox = new System.Windows.Forms.CheckBox();
+            this.onlyFoldersBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-            // 
-            // AdvancedSearchCheckList
-            // 
-            this.AdvancedSearchCheckList.CheckOnClick = true;
-            this.AdvancedSearchCheckList.FormattingEnabled = true;
-            this.AdvancedSearchCheckList.Items.AddRange(new object[] {
-            "Case Sensitive",
-            "Closest Match",
-            "Wild Cards (&)",
-            "Regular Expression",
-            "Restrict to Folders",
-            "Restrict to Files"});
-            this.AdvancedSearchCheckList.Location = new System.Drawing.Point(12, 12);
-            this.AdvancedSearchCheckList.Name = "AdvancedSearchCheckList";
-            this.AdvancedSearchCheckList.Size = new System.Drawing.Size(240, 94);
-            this.AdvancedSearchCheckList.TabIndex = 0;
-            this.AdvancedSearchCheckList.SelectedIndexChanged += new System.EventHandler(this.checkedListBox1_SelectedIndexChanged);
             // 
             // SearchTermBox
             // 
-            this.SearchTermBox.Location = new System.Drawing.Point(12, 112);
+            this.SearchTermBox.Location = new System.Drawing.Point(12, 82);
             this.SearchTermBox.Name = "SearchTermBox";
             this.SearchTermBox.Size = new System.Drawing.Size(240, 20);
             this.SearchTermBox.TabIndex = 1;
             this.SearchTermBox.Text = "Enter Search Term";
-            this.SearchTermBox.TextChanged += new System.EventHandler(this.SearchTermBox_TextChanged);
             this.SearchTermBox.Click += new System.EventHandler(this.SearchTermBox_Click);
+            this.SearchTermBox.TextChanged += new System.EventHandler(this.SearchTermBox_TextChanged);
             // 
             // SearchAdvancedButton
             // 
-            this.SearchAdvancedButton.Location = new System.Drawing.Point(12, 138);
+            this.SearchAdvancedButton.Location = new System.Drawing.Point(12, 108);
             this.SearchAdvancedButton.Name = "SearchAdvancedButton";
             this.SearchAdvancedButton.Size = new System.Drawing.Size(240, 23);
             this.SearchAdvancedButton.TabIndex = 2;
@@ -70,14 +56,61 @@
             this.SearchAdvancedButton.UseVisualStyleBackColor = true;
             this.SearchAdvancedButton.Click += new System.EventHandler(this.AdvancedSearchButton_Click);
             // 
+            // caseSensitiveBox
+            // 
+            this.caseSensitiveBox.AutoSize = true;
+            this.caseSensitiveBox.Location = new System.Drawing.Point(13, 13);
+            this.caseSensitiveBox.Name = "caseSensitiveBox";
+            this.caseSensitiveBox.Size = new System.Drawing.Size(125, 17);
+            this.caseSensitiveBox.TabIndex = 3;
+            this.caseSensitiveBox.Text = "Apply Case Sensitive";
+            this.caseSensitiveBox.UseVisualStyleBackColor = true;
+            this.caseSensitiveBox.CheckedChanged += new System.EventHandler(this.caseSensitiveBox_CheckedChanged);
+            // 
+            // metricDistanceBox
+            // 
+            this.metricDistanceBox.AutoSize = true;
+            this.metricDistanceBox.Location = new System.Drawing.Point(144, 13);
+            this.metricDistanceBox.Name = "metricDistanceBox";
+            this.metricDistanceBox.Size = new System.Drawing.Size(100, 17);
+            this.metricDistanceBox.TabIndex = 4;
+            this.metricDistanceBox.Text = "Metric Distance";
+            this.metricDistanceBox.UseVisualStyleBackColor = true;
+            this.metricDistanceBox.CheckedChanged += new System.EventHandler(this.metricDistanceBox_CheckedChanged);
+            // 
+            // onlyFilesBox
+            // 
+            this.onlyFilesBox.AutoSize = true;
+            this.onlyFilesBox.Location = new System.Drawing.Point(13, 49);
+            this.onlyFilesBox.Name = "onlyFilesBox";
+            this.onlyFilesBox.Size = new System.Drawing.Size(71, 17);
+            this.onlyFilesBox.TabIndex = 5;
+            this.onlyFilesBox.Text = "Only Files";
+            this.onlyFilesBox.UseVisualStyleBackColor = true;
+            this.onlyFilesBox.CheckedChanged += new System.EventHandler(this.onlyFilesBox_CheckedChanged);
+            // 
+            // onlyFoldersBox
+            // 
+            this.onlyFoldersBox.AutoSize = true;
+            this.onlyFoldersBox.Location = new System.Drawing.Point(144, 49);
+            this.onlyFoldersBox.Name = "onlyFoldersBox";
+            this.onlyFoldersBox.Size = new System.Drawing.Size(84, 17);
+            this.onlyFoldersBox.TabIndex = 6;
+            this.onlyFoldersBox.Text = "Only Folders";
+            this.onlyFoldersBox.UseVisualStyleBackColor = true;
+            this.onlyFoldersBox.CheckedChanged += new System.EventHandler(this.onlyFoldersBox_CheckedChanged);
+            // 
             // AdvancedSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(266, 174);
+            this.ClientSize = new System.Drawing.Size(266, 139);
+            this.Controls.Add(this.onlyFoldersBox);
+            this.Controls.Add(this.onlyFilesBox);
+            this.Controls.Add(this.metricDistanceBox);
+            this.Controls.Add(this.caseSensitiveBox);
             this.Controls.Add(this.SearchAdvancedButton);
             this.Controls.Add(this.SearchTermBox);
-            this.Controls.Add(this.AdvancedSearchCheckList);
             this.Name = "AdvancedSearch";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Advanced Search";
@@ -88,8 +121,11 @@
 
         #endregion
 
-        private System.Windows.Forms.CheckedListBox AdvancedSearchCheckList;
         private System.Windows.Forms.TextBox SearchTermBox;
         private System.Windows.Forms.Button SearchAdvancedButton;
+        private System.Windows.Forms.CheckBox caseSensitiveBox;
+        private System.Windows.Forms.CheckBox metricDistanceBox;
+        private System.Windows.Forms.CheckBox onlyFilesBox;
+        private System.Windows.Forms.CheckBox onlyFoldersBox;
     }
 }

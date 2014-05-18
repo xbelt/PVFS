@@ -59,7 +59,6 @@ namespace VFS_GUI
             }
         }
 
-
         public override void Command(string comm, OnlineUser sender)
         {
             if (comm.StartsWith("ls"))

@@ -12,20 +12,19 @@ namespace VFS_GUI
 {
     public partial class AdvancedSearch : Form
     {
+        
+        public String Term;
+        public bool[] Options;
         public AdvancedSearch()
         {
             InitializeComponent();
-        }
 
-        private void checkedListBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
+            Options = new bool[4];
         }
 
         private void AdvancedSearchButton_Click(object sender, EventArgs e)
         {
-            String searchText = this.SearchTermBox.Text;
-            ((VfsExplorer) this.Parent).Search(searchText); //TODO: this is kinda ugly...?
+            Term = this.SearchTermBox.Text;
         }
 
         private void SearchTermBox_TextChanged(object sender, EventArgs e)
@@ -36,6 +35,26 @@ namespace VFS_GUI
         private void SearchTermBox_Click(object sender, EventArgs e)
         {
             this.SearchTermBox.SelectAll();
+        }
+
+        private void caseSensitiveBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Options[0] = this.caseSensitiveBox.Checked;
+        }
+
+        private void metricDistanceBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Options[1] = this.metricDistanceBox.Checked;
+        }
+
+        private void onlyFilesBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Options[2] = this.onlyFilesBox.Checked;
+        }
+
+        private void onlyFoldersBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Options[3] = this.onlyFoldersBox.Checked;
         }
     }
 }

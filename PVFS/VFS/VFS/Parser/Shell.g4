@@ -22,6 +22,9 @@ compileUnit
 	| ('removedisk' | 'rmdisk') (sys=SysPath | name=Identifier)+ compileUnit								#Rmdisk
 	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
 
+	| 'search' (par1=String)																				#Search
+
+
 	| 'ls' files=F? dirs=D? path=(Identifier | Path)? compileUnit											#Ls
 	| 'cd' path=Path? ident=Identifier? dots='..'? compileUnit												#Cd
 	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir

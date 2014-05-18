@@ -9,6 +9,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using VFS.VFS.Models;
 using VFS.VFS.Parser;
 
@@ -43,6 +44,20 @@ namespace VFS.VFS
                 return Disks.FirstOrDefault(d => d.DiskProperties.Name.Equals(name));
             }
         }
+
+        /// <summary>
+        /// 'returns' all entries in a directory
+        /// </summary>
+        /// <param name="dir">the directory of which we get the entries</param>
+        /// <param name="dirs">where we store the subfolders</param>
+        /// <param name="files">where we store the files of dir</param>
+        public static void GetEntries(VfsDirectory dir, out IEnumerable<VfsDirectory> dirs, out IEnumerable<VfsFile> files)
+        {
+            dirs = dir.GetDirectories;
+            files = dir.GetFiles;
+        }
+
+
 
         /// <summary>
         /// Returns the corresponding VfsEntry
@@ -501,6 +516,125 @@ namespace VFS.VFS
         }
 
         //----------------------Directory and File----------------------
+
+
+        private static List<VfsEntry> SearchHits;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="term"></param>
+        /// <param name="options"> If index 'i' is true:
+        /// 0. case sensitiv on
+        /// 1. metric distance on
+        /// 2. restrict to files
+        /// 3. restrict to dirs
+        /// </param>
+        private static void SearchHelper(string[] terms, bool[] options, VfsDirectory from)
+        {
+
+            IEnumerable<VfsFile> files;
+            IEnumerable<VfsDirectory> dirs;
+            List<VfsEntry> entries = new List<VfsEntry>();
+            VfsDirectory getEntriesFrom = from ?? WorkingDirectory;
+            GetEntries(getEntriesFrom, out dirs, out files);
+
+            if (options[2]) //check if only files
+            {
+                foreach (var file in files)
+                {
+                    entries.Add(file);
+                }
+            }
+            else if (options[3]) //check if only dirs
+            {
+                foreach (var dir in dirs)
+                {
+                    entries.Add(dir);
+                }
+            }
+            else //add both
+            {
+                foreach (var file in files)
+                {
+                    entries.Add(file);
+                }
+                foreach (var dir in dirs)
+                {
+                    entries.Add(dir);
+                }
+            }
+
+            //start searching
+            String regexPattern;
+            for (int i = 0; i < terms.Length; i++ )
+            {
+                regexPattern = WildcardToRegex(terms[i]);
+                foreach (VfsEntry entry in entries)
+                {
+                    if (options[0] ? Regex.IsMatch(entry.Name, regexPattern) : Regex.IsMatch(entry.Name, regexPattern, RegexOptions.IgnoreCase))
+                    {
+                        SearchHits.Add(entry);
+                    }
+                }
+            }
+
+            //Start recursion
+            foreach(var dir in dirs)
+            {
+                SearchHelper(terms, options, dir);
+            }
+        }
+
+        public static void Search(string optionString, string term)
+        {
+            if (optionString.Length != 4)
+                Console.ErrorMessage("Something went wrong with Search options.");
+            bool[] options = new bool[4];
+            for(int i =0 ; i < optionString.Length; i++)
+            {
+                options[i] = optionString[i] == '1';
+            }
+
+            if (term == "")
+            {
+                Console.ErrorMessage("You can't search empty terms.");
+                return;
+            }    
+            
+            if (options[4] && options[5])
+            {
+                Console.ErrorMessage("Not very wise to exclude folders and directories ;-)");
+                return;
+            }
+            String[] terms = term.Split(' ');
+            SearchHelper(terms, options, WorkingDirectory);
+
+            var files = SearchHits.Where(entry => !entry.IsDirectory);
+            var dirs = SearchHits.Where(entry => entry.IsDirectory);
+            
+            //Display searchhits
+            Console.Message(files.Cast<VfsFile>().Select(entry => entry.AbsolutePath).Concat(" ") + "\n" +
+            dirs.Cast<VfsFile>().Select(entry => entry.AbsolutePath).Concat(" "));
+        }
+
+        public static string WildcardToRegex(string pattern)
+        {
+            return "^" + Regex.Escape(pattern)
+                              .Replace(@"\*", ".*")
+                              .Replace(@"\?", ".")
+                       + "$";
+        }
+
+
+        private static string RemovePathFromName(VfsEntry entry)
+        {
+            return entry.Name;
+        }
+
+        private static string RemovePathFromName(string path)
+        {
+            return path.Substring(path.LastIndexOf('/') + 1);
+        }
 
         /// <summary>
         /// Writes the names of all subfiles and subdirectories of a given directory into the console.

@@ -59,6 +59,15 @@ namespace VFS_GUI
 
                     explorer.Invoke(new Action(() => explorer.ReceiveListEntries(command.Substring(3), dirs, files)));
                 }
+                else if (command.StartsWith("search"))
+                {
+                    string[] dirs, files;
+                    var lines = info.Split('\n');
+                    files = lines[0].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    dirs = lines[1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    explorer.Invoke(new Action(() => explorer.ReceiveSearchResults(files, dirs)));
+                }
                 else if (command.StartsWith("ldisks"))
                 {
                     string[] disks;

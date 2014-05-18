@@ -295,7 +295,16 @@ namespace VFS.VFS.Parser
             VfsManager.Export(context.inte.Text, context.ext.Text);
         }
 
-
+        public override void EnterSearch(ShellParser.SearchContext context) 
+        {
+            if (context == null)
+                return;
+            string argString = context.par1.ToString();
+            String[] parts = argString.Split(' ');
+            var options = parts[1];
+            var terms = parts[2];
+            VfsManager.Search(options, terms);
+        }
 
         public override void EnterFree(ShellParser.FreeContext context)
         {

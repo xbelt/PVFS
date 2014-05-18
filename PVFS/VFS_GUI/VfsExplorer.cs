@@ -40,7 +40,7 @@ namespace VFS_GUI
         private bool cut;
         private OpenFileDialog importOFD, diskOFD;
         private FolderBrowserDialog folderBD;
-
+        private AdvancedSearch advancedSearchDialog;
         private Object LoadedObject = new Object();
 
 
@@ -68,6 +68,9 @@ namespace VFS_GUI
 
             folderBD = new FolderBrowserDialog();
             folderBD.RootFolder = Environment.SpecialFolder.Desktop;
+
+            advancedSearchDialog = new AdvancedSearch();
+            searchView = false;
 
             setButtonStates();
 
@@ -380,12 +383,18 @@ namespace VFS_GUI
 
         private void mainListView_DoubleClick(object sender, EventArgs e)
         {
-            if (this.selectedNames.Length == 1)
+            if (this.selectedNames.Length == 1 && !searchView)
             {
                 if (this.Address == "/")
                     Navigate("/" + this.selectedNames[0]);
                 else
                     Navigate(this.Address + "/" + this.selectedNames[0]);
+            }
+            //TODO: test this
+            else if (this.selectedNames.Length == 1 && searchView)
+            {
+                searchView = false;
+                Navigate(this.selectedPaths[0]);
             }
         }
 
@@ -872,72 +881,25 @@ namespace VFS_GUI
 
         //---------------Search---------------//
 
-        private List<ListViewItem> searchHits;
-        private List<Boolean> isDir;
-        private int iterator;
-        public void Search(String text)
+        private bool searchView;
+
+        public void ReceiveSearchResults(string[] files, string[] dirs)
         {
-            searchHits = new List<ListViewItem>();
-            isDir = new List<Boolean>();
-            iterator = 0;
-            #region Search with index
-            String searchText = text ?? this.searchTextBox.Text;
-
-            PVFS.Search.Index i = new PVFS.Search.Index();
-            List<string> filePaths = i.Search(this.searchTextBox.Text);
-
+            //Set bool
+            searchView = true;
+            
+            //clear listview
             this.mainListView.Clear();
-            int indexLastSlah;
-            string fileName;
-            foreach (String filePath in filePaths)
+            
+            //put results
+            foreach (var directory in dirs)
             {
-                indexLastSlah = filePath.LastIndexOf('/');
-                fileName = filePath.Substring(indexLastSlah + 1);
-                //TODO: chech if it's a directory
-                this.mainListView.Items.Add(fileName, fileName, 0);
-            }
-            /*this.mainListView.SelectedIndices.Clear();
-
-            foreach (string filePath in filePaths)
-            {
-                if (mainListView.Items.ContainsKey(filePath))
-                    mainListView.SelectedIndices.Add(mainListView.Items.IndexOfKey(filePath));
-            }*/
-
-            #endregion
-
-            //----------TRY SEARCH WITH NODES
-
-           var node = getNode(Address);
-           SearchThroughDir(node, searchText);
-
-           this.mainListView.Clear();
-
-           foreach (var item in searchHits)
-           {
-               this.mainListView.Items.Add(item);
-           }
-
-            /*if (Address.Contains(searchText))
-            {
-                String path = Address.Substring(0, Address.IndexOf(searchText));
-            } */
-        }
-
-        private void SearchThroughDir(TreeNode node, String text)
-        {
-            String itemName;
-            foreach (ListViewItem item in this.mainListView.Items)
-            {
-                itemName = item.Name.Substring(item.Name.LastIndexOf('\\'));
-                if (itemName.Contains(text))
-                    searchHits.Add(item);
+                mainListView.Items.Add(directory, directory, 0);
             }
 
-            foreach (TreeNode childNode in node.Nodes)
+            foreach (var file in files)
             {
-                Console.Command("ls " + childNode.FullPath);
-                SearchThroughDir(childNode, text);
+                mainListView.Items.Add(file, file, 1);
             }
         }
 
@@ -950,13 +912,32 @@ namespace VFS_GUI
         {
             if (e.KeyCode == Keys.Enter)
             {
+                String command = "search " + "0000" + " " + this.searchTextBox.Text;
+                Console.Command(command);
             }
         }
 
         private void searchButton_Click(object sender, EventArgs e)
         {
-            var advSearchWindow = new AdvancedSearch();
-            advSearchWindow.ShowDialog();
+            
+            if(advancedSearchDialog.ShowDialog() == DialogResult.OK)
+            {
+                String command = "search " + optionsToString(advancedSearchDialog) + " " + advancedSearchDialog.Term;
+            }
         }
+
+        private string optionsToString(AdvancedSearch advS)
+        {
+            String result = "";
+            for(int i = 0; i < advS.Options.Length; i++)
+            {
+                if (advS.Options[i])
+                    result += "1";
+                else
+                    result += "0";
+            }
+            return result;
+        }
+
     }
 }
