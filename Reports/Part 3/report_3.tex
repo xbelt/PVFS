@@ -78,11 +78,11 @@ If the application is started as a server, a new server window opens. Here the a
 
 \subsection{Design}
 
-This part of the project builds directly on the two previous parts (which we separated into their own assemblies, thus they both still run independantly). Since in part 2, the interface between the \emph{VfsExplorer} and the \emph{VfsManager} (part 1) was already designed very narrow, the step into a distributed environment was reasonably easy. In the graphic below you see that the manager and explorer were only connected by the classes \emph{LocalConsole} and \emph{RemoteConsole}, which only communicate command line like strings. To introduce networking we added the two classes \emph{LocalConsoleAdapther} and \emph{RemoteConsoleAdapter}, which are subclasses of the corresponding Console-classes. These two classes mainly contain networking code to send messages, which originally were console in- and outputs, to each other. To control this new setup we also added a \emph{VfsClient} and a \emph{VfsServer} GUI. \\
+This part of the project builds directly on the two previous parts (which we separated into their own assemblies, thus they both still run independently). Since in part 2, the interface between the \emph{VfsExplorer} and the \emph{VfsManager} (part 1) was already designed very narrow, the step into a distributed environment was reasonably easy. In the graphic below you see that the manager and explorer were only connected by the classes \emph{LocalConsole} and \emph{RemoteConsole}, which only communicate command line like strings. To introduce networking we added the two classes \emph{LocalConsoleAdapter} and \emph{RemoteConsoleAdapter}, which are subclasses of the corresponding Console-classes. These two classes mainly contain networking code to send messages, which originally were console in- and outputs, to each other. To control this new setup we also added a \emph{VfsClient} and a \emph{VfsServer} GUI. \\
 The distribution of the VFS is organized as follows:
 
 \begin{itemize}
-\item The server has a copy of all virtual disks locally. when an user commits a command it will be queued into the VFS and then executed. If it was successfull, the command is sent back to all machines of the same user.
+\item The server has a copy of all virtual disks locally. when a user commits a command it will be queued into the VFS and then executed. If it was successfull, the command is sent back to all machines of the same user.
 \item Each machine of a user has its own local copy of a disk. An issued command is first sent to the server, and it is only locally applied if the server sends it back. This prevents race conditions between simultaneous commands.
 \item Import and export commands are treated separately, since they require more communication than just the basic string messages.
 \end{itemize}
@@ -121,18 +121,25 @@ Our VFS Network provides the following features:
 \subsubsection{Server}
 
 \begin{itemize}
-\item \textbf{Execute core commands without writing to a console.} \\
-	We simply provided a GUI with buttons which got rid of the necessity of having the user write the commands himself.
-\item \textbf{Single and multiple selections of files and folders.} \\
-	The \emph{Explorer} contains a field called \emph{selectedNames} in which the names of the selected entries are stored (as strings). To select an 			entry, one can click on it with the mouse and by holding the Ctrl-Key multiple entries can be selected.
-\item \textbf{Support for keyboard navigation.} \\
-	We allow keyboard navigation by typing an address in the \emph{addressbar}, when a directory is selected or when an item in the treeview is selected. 			After 	each of these cases, \emph{Enter} has to be pressed. Navigation into the parent folder is achieved with the Backspace-Key.
-\item \textbf{Support for mouse navigation.} \\
-	Mouse navigation is done by either clicking on an item in the \emph{treeview} or by double clicking a directory in the \emph{listview}.
-\item \textbf {Responsive UI. (Bonus feature)}
-	As shortly mentioned before, the \emph{LocalConsole} has a queue of tasks and a thread which constantly dequeues the tasks and executes them. 		Therefore the user can keep sending commands which then simply will be added to the queue. We implemented two more methods methods in 			the \emph{VfsManager} to keep the navigation and listing of the entries correct. In simple words, whenever we should list the entries we check if 			the entry is 	loaded and only then it is displayed. Otherwise we enqueue the task. The procedure executed by the Worker-Thread can be found 			in listing 3.
-\item \textbf{Drag and Drop. (Partial) (Bonus feature)}
-	So far, we allow copying and importing when dragging files from the Host-System into the \emph{listview} or from the \emph{listview} to the 				\emph{treeview}.
+\item \textbf{The browser should allow the user to create a new account or to log in to an existing account.} \\
+	The client GUI allows a user to log in, but we restricted registration to the server, since a user should not be able to add himself.
+\item \textbf{ The browser should offer to switch to an offline mode, and be able to operate without a connection
+to the server.} \\
+	The client GUI has a botton "Work Offline" which allows opening all local disks.
+\item \textbf{The browser should support linking an existing virtual disk to an active account. (Partial)} \\
+	Disks are synchronized over multiple machines.
+\end{itemize}
+
+\subsubsection{Client}
+
+\begin{itemize}
+\item \textbf{ The server should support registration of unique accounts. Each account is identified by name and password.} \\
+	Users can be registered and their passwords can be set.
+\item \textbf { The server should track changes to linked virtual disks of registered accounts and synchronize
+changes across machines hosting linked disks.}
+	Disks are synchronized over multiple machines.
+\item \textbf{A concurrent client/server system (Bonus feature)}
+	Our Network system allows concurrent modifications and updates to the explorer happen after each user interaction.
 \end{itemize}
 
 \end{document}
