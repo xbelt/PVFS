@@ -390,7 +390,6 @@ namespace VFS_GUI
                 else
                     Navigate(this.Address + "/" + this.selectedNames[0]);
             }
-            //TODO: test this
             else if (this.selectedNames.Length == 1 && searchView)
             {
                 searchView = false;
@@ -912,7 +911,7 @@ namespace VFS_GUI
         {
             if (e.KeyCode == Keys.Enter)
             {
-                String command = "search " + "0000" + " " + this.searchTextBox.Text;
+                String command = "search " + "00000" + " " + this.searchTextBox.Text;
                 Console.Command(command);
             }
         }

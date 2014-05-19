@@ -34,11 +34,12 @@
             this.metricDistanceBox = new System.Windows.Forms.CheckBox();
             this.onlyFilesBox = new System.Windows.Forms.CheckBox();
             this.onlyFoldersBox = new System.Windows.Forms.CheckBox();
+            this.regexChechBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // SearchTermBox
             // 
-            this.SearchTermBox.Location = new System.Drawing.Point(12, 82);
+            this.SearchTermBox.Location = new System.Drawing.Point(14, 117);
             this.SearchTermBox.Name = "SearchTermBox";
             this.SearchTermBox.Size = new System.Drawing.Size(240, 20);
             this.SearchTermBox.TabIndex = 1;
@@ -48,7 +49,7 @@
             // 
             // SearchAdvancedButton
             // 
-            this.SearchAdvancedButton.Location = new System.Drawing.Point(12, 108);
+            this.SearchAdvancedButton.Location = new System.Drawing.Point(14, 153);
             this.SearchAdvancedButton.Name = "SearchAdvancedButton";
             this.SearchAdvancedButton.Size = new System.Drawing.Size(240, 23);
             this.SearchAdvancedButton.TabIndex = 2;
@@ -100,11 +101,23 @@
             this.onlyFoldersBox.UseVisualStyleBackColor = true;
             this.onlyFoldersBox.CheckedChanged += new System.EventHandler(this.onlyFoldersBox_CheckedChanged);
             // 
+            // regexChechBox
+            // 
+            this.regexChechBox.AutoSize = true;
+            this.regexChechBox.Location = new System.Drawing.Point(14, 83);
+            this.regexChechBox.Name = "regexChechBox";
+            this.regexChechBox.Size = new System.Drawing.Size(57, 17);
+            this.regexChechBox.TabIndex = 7;
+            this.regexChechBox.Text = "Regex";
+            this.regexChechBox.UseVisualStyleBackColor = true;
+            this.regexChechBox.CheckedChanged += new System.EventHandler(this.regexChechBox_CheckedChanged);
+            // 
             // AdvancedSearch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(266, 139);
+            this.ClientSize = new System.Drawing.Size(266, 188);
+            this.Controls.Add(this.regexChechBox);
             this.Controls.Add(this.onlyFoldersBox);
             this.Controls.Add(this.onlyFilesBox);
             this.Controls.Add(this.metricDistanceBox);
@@ -127,5 +140,6 @@
         private System.Windows.Forms.CheckBox metricDistanceBox;
         private System.Windows.Forms.CheckBox onlyFilesBox;
         private System.Windows.Forms.CheckBox onlyFoldersBox;
+        private System.Windows.Forms.CheckBox regexChechBox;
     }
 }

@@ -12,14 +12,15 @@ namespace VFS_GUI
 {
     public partial class AdvancedSearch : Form
     {
-        
+        private const int OptionsLength = 5;
+
         public String Term;
         public bool[] Options;
         public AdvancedSearch()
         {
             InitializeComponent();
 
-            Options = new bool[4];
+            Options = new bool[OptionsLength];
         }
 
         private void AdvancedSearchButton_Click(object sender, EventArgs e)
@@ -57,6 +58,11 @@ namespace VFS_GUI
         private void onlyFoldersBox_CheckedChanged(object sender, EventArgs e)
         {
             Options[3] = this.onlyFoldersBox.Checked;
+        }
+
+        private void regexChechBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Options[4] = this.onlyFoldersBox.Checked;
         }
     }
 }

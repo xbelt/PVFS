@@ -588,9 +588,9 @@ namespace VFS.VFS
         public static void Search(string optionString, string term)
         {
             SearchHits = new List<VfsEntry>();
-            if (optionString.Length != 4)
+            if (optionString.Length != 5)
                 Console.ErrorMessage("Something went wrong with Search options.");
-            bool[] options = new bool[4];
+            bool[] options = new bool[optionString.Length];
             for(int i =0 ; i < optionString.Length; i++)
             {
                 options[i] = optionString[i] == '1';
