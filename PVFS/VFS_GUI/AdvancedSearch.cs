@@ -25,6 +25,8 @@ namespace VFS_GUI
         private void AdvancedSearchButton_Click(object sender, EventArgs e)
         {
             Term = this.SearchTermBox.Text;
+            this.DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void SearchTermBox_TextChanged(object sender, EventArgs e)
