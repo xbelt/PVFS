@@ -587,6 +587,7 @@ namespace VFS.VFS
 
         public static void Search(string optionString, string term)
         {
+            SearchHits = new List<VfsEntry>();
             if (optionString.Length != 4)
                 Console.ErrorMessage("Something went wrong with Search options.");
             bool[] options = new bool[4];
@@ -601,7 +602,7 @@ namespace VFS.VFS
                 return;
             }    
             
-            if (options[4] && options[5])
+            if (options[2] && options[3])
             {
                 Console.ErrorMessage("Not very wise to exclude folders and directories ;-)");
                 return;
