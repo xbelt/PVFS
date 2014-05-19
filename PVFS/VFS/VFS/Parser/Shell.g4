@@ -22,7 +22,7 @@ compileUnit
 	| ('removedisk' | 'rmdisk') (sys=SysPath | name=Identifier)+ compileUnit								#Rmdisk
 	| ('listdisks' | 'ldisks') ('-p' sys=SysPath)? compileUnit												#Ldisks
 
-	| 'search' (par1=String)																				#Search
+	| 'search' Integer par2=Identifier																		#Search
 
 
 	| 'ls' files=F? dirs=D? path=(Identifier | Path)? compileUnit											#Ls
@@ -30,7 +30,7 @@ compileUnit
 	| 'mkdir' (id=Identifier | path=Path) compileUnit														#Mkdir
 	| ('mk' | 'touch') (id=Identifier | path=Path) compileUnit												#MkFile
 	| ('remove' | 'rm') (trgt=Path | id=Identifier) compileUnit												#Rm
-	| ('rename' | 'rn') (id=Identifier | path=Path) dst=Identifier compileUnit											#Rn
+	| ('rename' | 'rn') (id=Identifier | path=Path) dst=Identifier compileUnit								#Rn
 	| ('move' | 'mv') src=(Path | Identifier) dst=(Path | Identifier) compileUnit							#Mv
 	| ('copy' | 'cp') src=(Path | Identifier) dst=(Path | Identifier) compileUnit							#Cp
 	| ('import' | 'im') ext=SysPath inte=(Path | Identifier) compileUnit									#Im

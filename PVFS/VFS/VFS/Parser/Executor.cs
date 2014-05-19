@@ -299,10 +299,8 @@ namespace VFS.VFS.Parser
         {
             if (context == null)
                 return;
-            string argString = context.par1.ToString();
-            String[] parts = argString.Split(' ');
-            var options = parts[1];
-            var terms = parts[2];
+            var options = context.Integer().Symbol.Text;
+            var terms = context.par2.Text;
             VfsManager.Search(options, terms);
         }
 
