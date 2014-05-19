@@ -202,7 +202,7 @@ namespace VFS_Network
 
             while (true)
             {
-                streams = user.Connection.Select(x => x.GetStream()).ToList();
+                streams = user.Connection.Where(x => x.Connected).Select(x => x.GetStream()).ToList();
                 lock (this)
                 {
                     if (abort)
@@ -356,22 +356,15 @@ namespace VFS_Network
                             return true; // Ignore quit command!
                         else
                         {
-                            if (comm.StartsWith("im"))
+                            var newData = new Byte[1 + 4 + comm.Length + 4];
+                            newData[0] = 2;
+                            BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
+                            Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
+                            BitConverter.GetBytes(_userToSequenceNumber[user.Name].Count)
+                                .CopyTo(newData, 5 + comm.Length);
+                            foreach (var client in user.Connection)
                             {
-
-                            }
-                            else
-                            {
-                                var newData = new Byte[1 + 4 + comm.Length + 4];
-                                newData[0] = 2;
-                                BitConverter.GetBytes(comm.Length).CopyTo(newData, 1);
-                                Encoding.UTF8.GetBytes(comm, 0, comm.Length, newData, 5);
-                                BitConverter.GetBytes(_userToSequenceNumber[user.Name].Count)
-                                    .CopyTo(newData, 5 + comm.Length);
-                                foreach (var client in user.Connection)
-                                {
-                                    SendData(client, newData);
-                                }
+                                SendData(client, newData);
                             }
                             //TODO if import -> manage file transfer (haha)
 
@@ -394,7 +387,26 @@ namespace VFS_Network
                     }
                     break;
                 case 6:// File Transfer im
-                    // TODO TODO TODO
+                    var pathLength = BitConverter.ToInt32(data, 1);
+                    var fileLength = BitConverter.ToInt32(data, 5);
+
+                    var vPath = Encoding.UTF8.GetString(data, 9, pathLength);
+
+                    var hostPath = VfsManager.GetTempFilePath();
+
+                    BinaryWriter BW;
+                    try
+                    {
+                        BW = new BinaryWriter(File.Create(hostPath));
+                    }
+                    catch (IOException)
+                    {
+                        return true;
+                    }
+                    BW.Write(data, 9 + pathLength, fileLength);
+                    BW.Close();
+
+                    local.Command("im " + hostPath + " " + vPath, user);
                     break;
                 case 7:// File Transfer ex
                     // TODO TODO TODO

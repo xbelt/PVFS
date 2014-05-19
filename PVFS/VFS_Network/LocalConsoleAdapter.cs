@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using VFS.VFS;
 using VFS_GUI;
 
@@ -273,6 +274,44 @@ namespace VFS_Network
             RemoteConsoleAdapter.SendData(client, new Byte[] { 5, (Byte)res });
         }
 
+        public static Byte[] PackFile(string hostPath, string vPath)
+        {
+            BinaryReader BR = null;
+            try
+            {
+                BR = new BinaryReader(File.OpenRead(hostPath));
+
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("Can not open file.", VfsExplorer.Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            if (BR.BaseStream.Length > 4 * 1024 * 1024)
+            {
+                MessageBox.Show("This file is too large.", VfsExplorer.Caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+
+            int length = (int)BR.BaseStream.Length;
+
+            Byte[] data = new Byte[1 + 4 + 4 + vPath.Length + length];
+
+            data[0] = 6;
+
+            BitConverter.GetBytes(vPath.Length).CopyTo(data, 1);
+
+            BitConverter.GetBytes(length).CopyTo(data, 5);
+
+            Encoding.UTF8.GetBytes(vPath, 0, vPath.Length, data, 9);
+
+            BR.Read(data, 9 + vPath.Length, length);
+            BR.Close();
+
+            return data;
+        }
+
         //-------------------Interface-------------------
 
         public override void Command(string comm, VFS.VFS.OnlineUser sender)
@@ -281,16 +320,32 @@ namespace VFS_Network
             {
                 if (comm == "quit")
                     return;
-            
-                Byte[] data = new Byte[1 + 4 + comm.Length];
 
-                data[0] = 2;
+                if (comm.StartsWith("im "))
+                {
+                    int i = comm.LastIndexOf(' ');
+                    if (i == -1) return;
+                    string path = comm.Substring(3, i - 3);
+                    string dest = comm.Substring(i + 1, comm.Length - i);
 
-                BitConverter.GetBytes(comm.Length).CopyTo(data, 1);
+                    Byte[] data = PackFile(path, dest);
 
-                Encoding.UTF8.GetBytes(comm, 0, comm.Length, data, 5);
+                    if (data == null) return;
 
-                RemoteConsoleAdapter.SendData(client, data);
+                    RemoteConsoleAdapter.SendData(client, data);
+                }
+                else
+                {
+                    Byte[] data = new Byte[1 + 4 + comm.Length];
+
+                    data[0] = 2;
+
+                    BitConverter.GetBytes(comm.Length).CopyTo(data, 1);
+
+                    Encoding.UTF8.GetBytes(comm, 0, comm.Length, data, 5);
+
+                    RemoteConsoleAdapter.SendData(client, data);
+                }
             }
         }
 

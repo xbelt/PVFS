@@ -164,14 +164,14 @@ namespace VFS.VFS
         /// Returns a path to a non-existent file in the host file system.
         /// </summary>
         /// <returns>The path.</returns>
-        private static string GetTempFilePath()
+        public static string GetTempFilePath()
         {
             string path;
             int i = 0;
             do
             {
                 path = Environment.CurrentDirectory + "\\temp" + i++;
-            } while (File.Exists(path));
+            } while (File.Exists(path) || Directory.Exists(path));
             return path;
         }
 
