@@ -394,7 +394,7 @@ namespace VFS_GUI
             else if (this.selectedNames.Length == 1 && searchView)
             {
                 searchView = false;
-                Navigate(this.selectedPaths[0]);
+                Navigate(this.selectedNames[0]);
             }
         }
 
