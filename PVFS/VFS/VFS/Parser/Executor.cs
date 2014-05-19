@@ -299,7 +299,7 @@ namespace VFS.VFS.Parser
         {
             if (context == null)
                 return;
-            var options = context.Integer().Symbol.Text;
+            var options = context.par1.Text;
             var terms = context.par2.Text;
             VfsManager.Search(options, terms);
         }
