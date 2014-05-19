@@ -73,9 +73,6 @@ If the application is started as a server, a new server window opens. Here the a
 
 \includegraphics[scale=0.8] {servergui}
 
-
-
-
 \subsection{Design}
 
 This part of the project builds directly on the two previous parts (which we separated into their own assemblies, thus they both still run independently). Since in part 2, the interface between the \emph{VfsExplorer} and the \emph{VfsManager} (part 1) was already designed very narrow, the step into a distributed environment was reasonably easy. In the graphic below you see that the manager and explorer were only connected by the classes \emph{LocalConsole} and \emph{RemoteConsole}, which only communicate command line like strings. To introduce networking we added the two classes \emph{LocalConsoleAdapter} and \emph{RemoteConsoleAdapter}, which are subclasses of the corresponding Console-classes. These two classes mainly contain networking code to send messages, which originally were console in- and outputs, to each other. To control this new setup we also added a \emph{VfsClient} and a \emph{VfsServer} GUI. \\
@@ -92,11 +89,11 @@ The distribution of the VFS is organized as follows:
 
 
 \subsubsection{VfsServer}
-This class is a GUI which allows the administrator to set up a server. It initiallizes a new manager instance and connects it's LocalConsole to a new RemoteConsoleAdapter instance. The manager was not modified for this environment and still works the same way as before.
+This class is a GUI which allows the administrator to set up a server. It initiallizes a new manager instance and connects it's \emph{LocalConsole} to a new \emph{RemoteConsoleAdapter} instance. The manager was not modified for this environment and still works the same way as before.
 \subsubsection{RemoteConsoleAdapter}
 This class represents the server-side network interface. When the adiministrator starts the server, it opens a new TCP listener and accepts incoming client connections. All of the serverside encoding and decoding of messages is handled by this class.
 \subsubsection{VfsClient}
-This class is the client GUI which users use to connect to the server. When the user starts a connection atempt, this class starts a new LocalConsoleAdapter instance. If the connection is succesful and the user clicks the "Explorer" button this class creates and shows  a new VfsExplorer and connects it's RemoteConsole to the new LocalConsole Adapter. The explorer required almost no modification to work in this mode, only one Boolean indicator to handle the adding of new disks.
+This class is the client GUI which users use to connect to the server. When the user starts a connection attempt, this class starts a new \emph{LocalConsoleAdapter} instance. If the connection is succesful and the user clicks the "Explorer" button this class creates and shows  a new \emph{VfsExplorer} and connects it's \emph{RemoteConsole} to the new \emph{LocalConsoleAdapter}. The explorer required almost no modification to work in this mode, only one Boolean indicator to handle the adding of new disks.
 \subsubsection{LocalConsoleAdapter}
 This class handles the client-side of the network interface. All of the clientside encoding and decoding of messages is handled by this class.
 
