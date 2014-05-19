@@ -923,6 +923,7 @@ namespace VFS_GUI
             if(advancedSearchDialog.ShowDialog() == DialogResult.OK)
             {
                 String command = "search " + optionsToString(advancedSearchDialog) + " " + advancedSearchDialog.Term;
+                Console.Command(command);
             }
         }
 
