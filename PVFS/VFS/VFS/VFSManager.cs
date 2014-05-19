@@ -528,6 +528,7 @@ namespace VFS.VFS
         /// 1. metric distance on
         /// 2. restrict to files
         /// 3. restrict to dirs
+        /// 4. regee
         /// </param>
         private static void SearchHelper(string[] terms, bool[] options, VfsDirectory from)
         {
@@ -566,12 +567,18 @@ namespace VFS.VFS
 
             //start searching
             String regexPattern;
+            String pattern;
             for (int i = 0; i < terms.Length; i++ )
             {
+                pattern = terms[i];
                 regexPattern = WildcardToRegex(terms[i]);
                 foreach (VfsEntry entry in entries)
                 {
-                    if (options[0] ? Regex.IsMatch(entry.Name, regexPattern) : Regex.IsMatch(entry.Name, regexPattern, RegexOptions.IgnoreCase))
+                    if (options[0] && options[4] ? Regex.IsMatch(entry.Name, regexPattern) : Regex.IsMatch(entry.Name, regexPattern, RegexOptions.IgnoreCase))
+                    {
+                        SearchHits.Add(entry);
+                    }
+                    else if (options[0] ? entry.Name.Contains(pattern) : entry.Name.ToLower().Contains(pattern.ToLower()))
                     {
                         SearchHits.Add(entry);
                     }
