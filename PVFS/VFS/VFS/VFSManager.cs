@@ -353,6 +353,10 @@ namespace VFS.VFS
             Console.Message(Disks.Select(d => d.DiskProperties.Name).Concat(" "));
         }
 
+        public static void LoadDisk(VfsDisk disk) {
+            LoadDisk(disk.Path, disk.Password);
+        }
+
         public static void LoadDisk(string path, string pw)
         {
             if (path == null) throw new ArgumentNullException("disk");

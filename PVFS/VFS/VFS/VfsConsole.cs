@@ -45,5 +45,11 @@ namespace VFS.VFS
         {
             VfsManager.ExecuteCommand(comm);
         }
+
+        public virtual string Readline(string message)
+        {
+            Console.WriteLine(message);
+            return Console.ReadLine();
+        }
     }
 }
